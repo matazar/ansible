@@ -1,0 +1,4 @@
+ansible_connection: ssh
+ansible_ssh_user: ansible
+ansible_sudo_pass: "{{ users.ansible.password }}"
+env: "example"

@@ -17,7 +17,7 @@
   timezone:
     name: "{{ timezone }}"
 
-- name: Ensure core app are installed
+- name: 'Ensure core apps are installed ({{ ", ".join(core_apps) }})'
   apt: 
     name: '{{ core_apps }}' 
     state: latest

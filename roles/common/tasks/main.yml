@@ -25,5 +25,6 @@
 - include: security.yml
   when: "'cloud' in group_names"  
 
-# - include: ati_driver.yml
-#   when: "'ati' in group_names"
+# Install AMD graphics drivers when required.
+- include: ati_driver.yml
+  when: "'ati' in group_names"

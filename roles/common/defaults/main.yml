@@ -1,23 +1,30 @@
 
 bash_colour: 36
+primary_mail_domain: example.com
+
+# Network
 ipv6_address: False
 ipv6_addresses: 
   - '{{ ipv6_address }}'
+
 strict_ipv6_ssh: True
-trusted_hosts: []
-trusted_ipv6_hosts: []
-
-sshd_password: False
 public_ssh_port: False
-stale_host_keys: []
-ipv6_websites: []
-
-primary_mail_domain: example.com
-doveadm_port: 12345
-
+sshd_password: False
 # PIs are different.
 ssh_service_name: sshd
 
+# Firewall
+trusted_hosts: []
+trusted_ipv6_hosts: []
+bind_ipv6: '{{ ipv6_address }}'
+mail_ipv6: '{{ ipv6_address }}'
+website_ipv6: 
+  - '{{ ipv6_address }}'
+ldap_allow_list: []
+doveadm_allow_list: []
+doveadm_port: 12345
+
+# General
 core_apps:
   - sudo
   - p7zip
@@ -29,21 +36,14 @@ core_apps:
   - curl
   - dnsutils
 
-ssh_keytype: ed25519
 primary_user: "admin"
 default_editor: nano
+ssh_keytype: ed25519
 timezone: America/Toronto
-
 sudo_users:
   - '{{ primary_user }}'
   - '{{ ansible_ssh_user }}'
 sudo_nopasswd: []
 
-# Firewall
-bind_ipv6: '{{ ipv6_address }}'
-mail_ipv6: '{{ ipv6_address }}'
-website_ipv6: 
-  - '{{ ipv6_address }}'
-
-ldap_allow_list: []
-doveadm_allow_list: []
+# Clean Up
+stale_host_keys: []

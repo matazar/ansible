@@ -60,7 +60,7 @@
 -A INPUT -d {{ ipv6_address }} -p tcp -m state --state NEW -m tcp --dport 80 -j ACCEPT
 -A INPUT -d {{ ipv6_address }} -p tcp -m state --state NEW -m tcp --dport 443 -j ACCEPT
 
-{% for address in ipv6_websites %}
+{% for address in website_ipv6 %}
 -A INPUT -d {{ address }} -p tcp -m state --state NEW -m tcp --dport 80 -j ACCEPT
 -A INPUT -d {{ address }} -p tcp -m state --state NEW -m tcp --dport 443 -j ACCEPT
 {% endfor %}

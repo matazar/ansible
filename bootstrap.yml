@@ -48,13 +48,13 @@
         path: /etc/sudoers
         line: '{{ users.ansible.name }}  ALL=(ALL:ALL) ALL'
     
-    # (Raspian has it off by default.)
+    # Raspian has SSH off by default.
     - name: Ensure SSH is enabled.
       service:
         name: ssh
         enabled: yes
-
-    - name: Set random password for Pi user on RPIs
+    
+    - name: Set random password for Pi user on raspberry pi
       user:
         name: pi 
         state: present

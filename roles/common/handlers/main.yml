@@ -1,0 +1,20 @@
+# Fail2Ban
+- name: start fail2ban
+  service:
+    name: fail2ban
+    state: started
+
+- name: reload fail2ban
+  service: 
+    name: fail2ban
+    state: reloaded
+
+- name: restart fail2ban
+  service:
+    name: fail2ban
+    state: restarted
+
+- name: restart network
+  service:
+    name: networking
+    state: restarted

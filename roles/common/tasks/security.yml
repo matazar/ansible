@@ -1,0 +1,67 @@
+- set_fact:
+    rules: [v4]
+  when: not ipv6_address | ipaddr 
+
+- set_fact:
+    rules: [v4, v6] 
+  when: ipv6_address | ipaddr 
+
+- name: Ensure iptables is installed
+  apt: 
+    name: [iptables, iptables-persistent]
+    state: latest
+    update_cache: yes
+    install_recommends: yes
+
+- name: Update our iptables rules
+  template:
+    src: "rules.{{ item }}.j2"
+    dest: "/etc/iptables/rules.{{ item }}"
+  with_items: '{{ rules }}'
+  register: new_rules
+
+- name: Load new IPv4 rules
+  command: "/sbin/iptables-restore /etc/iptables/rules.v4"
+  when: new_rules.changed
+
+- name: Load new IPv6 rules
+  command: "/sbin/ip6tables-restore /etc/iptables/rules.v6"
+  when: new_rules.changed and ipv6_address | ipaddr 
+
+- name: Update the hosts.allow file
+  template:
+    src: hosts.allow.j2
+    dest: /etc/hosts.allow
+
+- name: Ensure fail2ban is installed
+  apt: 
+    name: fail2ban
+    state: latest
+    update_cache: yes
+    install_recommends: yes
+
+# Hack to prevent errors during provisioning
+- name: Check for mail log, disable jail if not found
+  command: "/usr/bin/test -f /var/log/mail.log"
+  register: mail_log
+  failed_when: false
+  changed_when: mail_log.rc == 1
+  when: "'mail' in group_names"
+
+- name: Check for roundcube log, disable jail if not found
+  command: "/usr/bin/test -f /var/www/roundcube/logs/errors.log"
+  register: roundcube_log
+  failed_when: false
+  changed_when: roundcube_log.rc == 1
+  when: "'webmail' in group_names"
+
+- name: Update the fail2ban config file
+  template:
+    src: jail.local.j2
+    dest: /etc/fail2ban/jail.local
+  notify: reload fail2ban
+
+- name: Ensure fail2ban is running
+  service: 
+    name: fail2ban
+    state: started

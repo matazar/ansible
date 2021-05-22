@@ -1,0 +1,11 @@
+- name: Enable contrib/non-free in repo
+  lineinfile:
+    regex: '(deb http:\/\/deb\.debian\.org\/debian buster .+)'
+    line: deb http://deb.debian.org/debian buster main contrib non-free
+    path: /etc/apt/sources.list
+
+- name: Install AMD drivers
+  apt:
+    state: present
+    update_cache: yes
+    name: [xserver-xorg-video-amdgpu, firmware-amd-graphics]

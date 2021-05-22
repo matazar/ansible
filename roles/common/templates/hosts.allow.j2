@@ -1,0 +1,48 @@
+# /etc/hosts.allow: list of hosts that are allowed to access the system.
+#                   See the manual pages hosts_access(5) and hosts_options(5).
+#
+# Example:    ALL: LOCAL @some_netgroup
+#             ALL: .foobar.edu EXCEPT terminalserver.foobar.edu
+#
+# If you're going to protect the portmapper use the name "rpcbind" for the
+# daemon name. See rpcbind(8) and rpc.mountd(8) for further information.
+#
+
+{% for host in trusted_hosts %}
+sshd : {{ host }} : allow
+{% endfor %}
+{% for host in trusted_ipv6_hosts %}
+{% if host.split('/')|length == 2 %}
+sshd : [{{ host.split('/')[0] }}]/{{ host.split('/')[1] }} : allow
+{% else %}
+sshd : [{{ host }}]: allow
+{% endif %}
+{% endfor %}
+{% if public_ssh_port %}
+# Allow SSH on non-standard port for all
+{{ public_ssh_port }} : ALL : allow
+{% endif %}
+sshd : ALL : deny
+
+
+slapd : localhost 127.0.0.1 : allow
+slapd : [::1] : allow
+# Replication
+{% for host in ldap_allow_list %}
+# host
+slapd : {{ hostvars[host]['ansible_host'] }} : allow
+{% if hostvars[host]['ipv6_address'] | default(False) %}
+slapd : [{{ hostvars[host]['ipv6_address'] }}]/64} : allow
+{% endif %}
+{% endfor %}
+
+slapd : ALL : deny
+
+{% if 'mail' in group_names %}
+mysqld : 127.0.0.1 : allow
+{% endif %}
+mysqld : ALL : deny
+
+# Allow anything from localhost.
+ALL : localhost 127.0.0.1 : allow
+ALL : [::1] : allow

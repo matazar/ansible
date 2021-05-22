@@ -1,0 +1,71 @@
+- name: Ensure we aren't using any CD repos from apt sources
+  lineinfile:
+    state: absent
+    regexp:  "deb cdrom:.+"
+    path: /etc/apt/sources.list
+
+- name: Ensure we are using the correct hostname
+  hostname: 
+    name: "{{ inventory_hostname }}"
+
+- name: Ensure the hostname file shows the correct hostname
+  template:
+    src: hostname.j2
+    dest: /etc/hostname
+
+- name: Set the system timezone
+  timezone:
+    name: "{{ timezone }}"
+
+- name: Ensure core app are installed
+  apt: 
+    name: '{{ core_apps }}' 
+    state: latest
+    install_recommends: yes
+
+- name: Ensure SSH is configured correctly
+  template: 
+    src: sshd_config.j2 
+    dest: /etc/ssh/sshd_config
+  register: sshd_config
+  
+  # SSH service name is a var, as Debian uses sshd, Raspbian uses ssh
+- name: "Restart {{ ssh_service_name | upper }}"
+  service: 
+    name: '{{ ssh_service_name }}'
+    state: restarted
+  when: sshd_config.changed
+
+- name: "Ensure {{ ssh_service_name | upper }} is enabled"
+  service:
+    name: '{{ ssh_service_name }}'
+    state: started
+    enabled: true
+
+- name: Set bash config for user primary_user
+  template:
+    dest: '/home/{{ primary_user }}/.bashrc'
+    src: .bashrc.j2
+    owner: '{{ primary_user}}'
+  when: 
+    - "primary_user in users"
+
+- name: Update sudoers file
+  template: 
+    src: sudoers.j2
+    dest: /etc/sudoers
+
+# We won't use apache anywhere, nginx and httpd
+- name: Ensure apache is not installed
+  apt:
+    name: 'apache*'
+    purge: yes
+    state: absent
+  register: apache_removal
+
+- name: Stop apache
+  service:
+    name: apache
+    state: stopped
+  failed_when: false
+  when: apache_removal.changed

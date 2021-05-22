@@ -1,0 +1,63 @@
+---
+- hosts: all
+  tasks:
+    # Set the locale
+    - name: Set the default locale
+      debconf:
+        name: locales
+        question: locales/default_environment_locale
+        value: en_US.UTF-8
+        vtype: select
+    - name: Update /etc/locale.gen
+      lineinfile:
+        dest: /etc/locale.gen
+        regexp: "{{ item.regexp }}"
+        line: "{{ item.line }}"
+        state: "{{ item.state }}"
+      with_items:
+        - { regexp: '^#? ?en_US ISO-8859-1', line: 'en_US ISO-8859-1', state: present }
+        - { regexp: '^#? ?en_US.ISO-8859-15 ISO-8859-15', line: 'en_US.ISO-8859-15 ISO-8859-15', state: present } 
+        - { regexp: '^#? ?en_US.UTF-8 UTF-8', line: 'en_US.UTF-8 UTF-8', state: present }
+      register: local_gen
+    - name: Rebuild locales database
+      command: "{{ item }}"
+      with_items:
+        - dpkg-reconfigure locales -f noninteractive
+        - /usr/sbin/locale-gen
+      when: local_gen.changed
+
+    - name: Update pkgs
+      apt:
+        name: "*"
+        update_cache: yes
+        state: latest
+        autoremove: yes
+        dpkg_options: 'force-confold,force-confdef'
+      when: 
+        - ansible_distribution == 'Debian'
+        - ansible_distribution == 'Ubuntu'
+
+    # Add the default users through the common role.
+    - include_tasks: roles/common/tasks/users.yml
+      with_dict: "{{ users }}"
+      no_log: true
+    
+    # Set up temporary sudo
+    - name: Add ansible user to sudoers
+      lineinfile:
+        path: /etc/sudoers
+        line: '{{ users.ansible.name }}  ALL=(ALL:ALL) ALL'
+    
+    # (Raspian has it off by default.)
+    - name: Ensure SSH is enabled.
+      service:
+        name: ssh
+        enabled: yes
+
+    - name: Set random password for Pi user on RPIs
+      user:
+        name: pi 
+        state: present
+        update_password: always
+        password: "{{ lookup('password', '/dev/null length=16 chars=ascii_letters') | password_hash('sha512') }}"
+      when: "'pi' in group_names"

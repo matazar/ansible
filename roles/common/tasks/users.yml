@@ -1,0 +1,38 @@
+- name: 'Ensure user "{{ item.key }}" exists'
+  user: 
+    name: "{{ item.key }}"
+    update_password: on_create
+    state: present
+    password: "{{ item.value.password | password_hash('sha512') }}"
+    shell: /bin/bash
+
+# Create keys for the main user on the primary hosts.
+- block:
+  - name: "Create ssh key for {{ item.key }}"
+    user:
+      name: "{{ item.key }}"
+      generate_ssh_key: yes
+      ssh_key_bits: 256
+      ssh_key_file: ".ssh/id_{{ ssh_keytype }}"
+      ssh_key_type: "{{ ssh_keytype }}"
+      ssh_key_comment: "{{ item.key }}@{{ inventory_hostname }}"
+  - name: Download a copy of the ssh key file from primary hosts.
+    fetch:
+      src: "/home/{{ item.key }}/.ssh/id_{{ ssh_keytype }}.pub"
+      dest: "{{ playbook_dir }}/env/{{ env }}/ssh_keys/{{ item.key }}_{{ inventory_hostname }}_{{ ssh_keytype }}.pub"
+      flat: yes
+  when: 
+    - "'primary' in group_names"
+    - "primary_user == item.key"
+    - "'bootstrap' not in group_names"
+
+- name: "Set up authorized keys file for {{ item.key }}"
+  authorized_key: 
+    user: "{{ item.key }}"
+    state: present 
+    key: "{{ lookup('file', key_item) }}"
+  with_fileglob:
+      - '{{ playbook_dir }}/env/{{ env }}/ssh_keys/*.pub'
+  loop_control:
+    loop_var: key_item
+

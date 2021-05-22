@@ -1,0 +1,61 @@
+# Fail2Ban configuration file.
+
+[INCLUDES]
+before = paths-debian.conf
+
+[DEFAULT]
+ignoreip = 127.0.0.1/8 {{ ' '.join(trusted_hosts) }} {{ ' '.join(trusted_ipv6_hosts) }}
+ignorecommand =
+bantime  = 2592000
+
+# A host is banned if it has generated "maxretry" during the last "findtime"
+# seconds.
+findtime  = 7200
+maxretry = 5
+backend = auto
+usedns = warn
+logencoding = auto
+enabled = false
+
+#
+# JAILS
+#
+[sshd]
+enabled = true
+filter  = sshd
+port    = ssh
+maxretry = 5
+
+{% if 'mail' in group_names and mail_log.rc == 0 %}
+[postfix]
+enabled = true
+port     = smtp,submission,smtps
+logpath  = /var/log/mail.log
+logencoding = utf-8
+
+[postfix-sasl]
+enabled = true
+port = smtp,ssmtp,smtps,submission
+logpath = /var/log/mail.log
+maxretry = 5
+logencoding = utf-8
+
+[dovecot]
+enabled = true
+port = imap,imaps
+filter = dovecot
+logpath = /var/log/mail.log
+maxretry  = 5
+logencoding = utf-8
+{% endif %}
+
+{% if 'webmail' in group_names and roundcube_log.rc == 0 %}
+[roundcube-auth]
+enabled  = true
+filter   = roundcube-auth
+port     = https
+logpath  = /var/www/roundcube/logs/errors.log
+{% endif %}
+
+
+

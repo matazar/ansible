@@ -1,0 +1,29 @@
+---
+# Stops a notice that can occasionally appear in plays.
+- name: Create tmp directory for ansible
+  file:
+    state: directory
+    owner: "{{ ansible_ssh_user }}"
+    group: "{{ ansible_ssh_user }}"
+    path: /root/.ansible/tmp
+    mode: '0770'
+  changed_when: False
+
+# Set up any automatic user accounts.
+- include: users.yml
+  with_dict: "{{ users }}"
+  no_log: true  # Keep this so passwords don't show in plain text.
+
+# Basic tasks for all hosts.
+- include: core.yml
+  when: ansible_distribution == 'Debian'
+
+- include: network.yml
+  when: ansible_distribution == 'Debian'
+
+# Deal with security
+- include: security.yml
+  when: "'cloud' in group_names"  
+
+# - include: ati_driver.yml
+#   when: "'ati' in group_names"

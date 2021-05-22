@@ -1,0 +1,49 @@
+
+bash_colour: 36
+ipv6_address: False
+ipv6_addresses: 
+  - '{{ ipv6_address }}'
+strict_ipv6_ssh: True
+trusted_hosts: []
+trusted_ipv6_hosts: []
+
+sshd_password: False
+public_ssh_port: False
+stale_host_keys: []
+ipv6_websites: []
+
+primary_mail_domain: example.com
+doveadm_port: 12345
+
+# PIs are different.
+ssh_service_name: sshd
+
+core_apps:
+  - sudo
+  - p7zip
+  - unzip
+  - nano
+  - rsync
+  - tmux
+  - wget
+  - curl
+  - dnsutils
+
+ssh_keytype: ed25519
+primary_user: "admin"
+default_editor: nano
+timezone: America/Toronto
+
+sudo_users:
+  - '{{ primary_user }}'
+  - '{{ ansible_ssh_user }}'
+sudo_nopasswd: []
+
+# Firewall
+bind_ipv6: '{{ ipv6_address }}'
+mail_ipv6: '{{ ipv6_address }}'
+website_ipv6: 
+  - '{{ ipv6_address }}'
+
+ldap_allow_list: []
+doveadm_allow_list: []

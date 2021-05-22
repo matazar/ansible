@@ -1,0 +1,38 @@
+# Adding additional IPv6s
+- name: Ensure IPv6 addresses are configured for boot
+  blockinfile:
+    path: /etc/network/interfaces
+    block: "{% for ip in ipv6_addresses %}iface {{ ansible_default_ipv6['interface'] }} inet6 static\n{{ '\t' }}address {{ ip }}/64\n\n{% endfor %}"
+    insertafter: "EOF"
+  when: ipv6_addresses != [False]
+
+- name: "Ensure IPv6 is configured on the host"
+  command: 'ip -6 addr add {{ item }}/64 dev {{ default_if | default("eth0") }}'
+  loop: "{{ ipv6_addresses | difference(ansible_all_ipv6_addresses) }}"
+  when: 
+    - "'vps' in group_names"
+    - ipv6_address
+
+- name: Add host entry for LDAP
+  lineinfile:
+    line: "127.0.1.2 {{ inventory_hostname }}"
+    regexp: "127.0.1.2 {{ inventory_hostname }}"
+    path: /etc/hosts
+    insertafter: EOF
+  when: "'mail' in group_names"
+
+- name: Add host entry for mail
+  lineinfile:
+    line: "127.0.1.1 mail.{{ primary_mail_domain }} mail"
+    regexp: "127.0.1.1 mail.{{ primary_mail_domain }} mail"
+    path: /etc/hosts
+    insertafter: EOF
+  when: "'mail' in group_names"
+   
+# Set up WiFi on those in the WiFi group
+- name: Configure WLAN
+  template:
+    src: wpa_supplicant.conf.j2
+    dest: /etc/wpa_supplicant/wpa_supplicant.conf
+  when: "'wifi' in group_names"
+  notify: restart network

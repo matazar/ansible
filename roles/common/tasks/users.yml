@@ -24,7 +24,7 @@
   when: 
     - "'primary' in group_names"
     - "primary_user == item.key"
-    - "'bootstrap' not in group_names"
+    - "not bootstrap | default(False)"
 
 - name: "Set up authorized keys file for {{ item.key }}"
   authorized_key: 

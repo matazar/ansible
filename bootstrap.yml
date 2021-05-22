@@ -2,6 +2,8 @@
 - hosts: all
   tasks:
     # Set the locale
+    - set_fact: 
+        bootstrap: True
     - name: Set the default locale
       debconf:
         name: locales

@@ -1,0 +1,14 @@
+dev_pkgs:
+  - chromium
+  - thunderbird
+  - jxplorer
+  - code
+  - ansible
+  - git
+  - whois
+  - python3-passlib
+  - python3-venv
+  - cifs-utils
+  - sshfs
+
+primary_user: 'admin'

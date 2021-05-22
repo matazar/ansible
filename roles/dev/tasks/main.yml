@@ -1,0 +1,35 @@
+- name: Import Visual Studio Code GPG key
+  apt_key:
+    url: 'https://packages.microsoft.com/keys/microsoft.asc'
+    key: EB3E94ADBE1229CF
+    state: present
+  when: "'code' in dev_pkgs"
+
+- name: Set up Visual Studio Code repo
+  template:
+    dest: /etc/apt/sources.list.d/vscode.list
+    src: vscode.list.j2
+  when: "'code' in dev_pkgs"
+
+- name: "Install dev packages ({{ ',  '.join(dev_pkgs) }})"
+  apt:
+    name: '{{ dev_pkgs }}'
+    state: latest
+    update_cache: yes
+
+- name: Set up ansible config
+  template:
+    src: "ansible.cfg.j2"
+    dest: "/home/{{ primary_user}}/.ansible.cfg"
+
+- name: Ensure we have a cert group
+  group:
+    name: ssl-certs
+    state: present
+
+- name: 'Ensure {{ primary_user}} is in the correct ssl-certs group'
+  user:
+    append: yes
+    groups: 
+      - ssl-certs
+    name: '{{ primary_user}}'

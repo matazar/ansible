@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Bootstraps debian based ansible host.
+Bootstraps Debian based ansible host.
 ./bootstrap.py <ip/hostname>
 """
 
@@ -31,7 +31,7 @@ class bootstrap(object):
 
     def __call__(self):
         """
-        PRepares the host for ansible plays.
+        Prepares each host for ansible plays.
         """
         for host in self.hosts:
             # Prompt for crendentials
@@ -45,6 +45,7 @@ class bootstrap(object):
             c.put(self.ssh_key)
             c.run('cat %s >> .ssh/authorized_keys' % (self.ssh_key.rsplit('/',1)[1]))
             c.close()
+            # Provide copy/paste command to run bootstrap play.
             print('\n\nNow run:\nansible-playbook -i %s bootstrap.yml -K -D -l %s' % (self.inv_file, host))
     
     def parse_hosts(self, hosts):
@@ -79,7 +80,7 @@ class bootstrap(object):
 
     def inventory_lookup(self, host):
         """
-        Searching the env inventory file for the IP address of the hostname.
+        Search the env inventory file for the IP address of the hostname.
         If the host isn't found, attempt to resolve it instead.
         """
         if not self.env:

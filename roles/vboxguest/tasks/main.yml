@@ -1,0 +1,37 @@
+# Missing guest additionas if we don't have this group.
+- name: Check for vboxfs group
+  shell: getent group | grep vboxsf | wc -l
+  register: server_groups
+  changed_when: server_groups.stdout == '0'
+
+- block:
+    - name: 'Please inset Guest Addition ISO and log in as {{ primary_user }}'
+      pause:
+        echo: no
+        minutes: 5
+    - name: Ensure CD is mounted
+      stat: 
+        path: '{{ guest_additions_path }}'
+      register: guestadditions
+      failed_when: not guestadditions.stat.exists
+    - name: Install tools for Guest Additions
+      apt:
+        name: '{{ guest_addition_pkgs }}'
+        state: latest
+    - name: Run VBox Installer
+      command: 'sh {{ guest_additions_path }}'
+      register: vbguest
+      failed_when: false
+      changed_when: vbguest.rc == 2
+  rescue:
+    - name: Mount Guest Addition
+      debug:
+        msg: 'ISO not found at {{ guest_additions_path }}'
+  when: server_groups.changed
+
+- name: "Ensure {{ primary_user}} is in the vboxsf group"
+  user:
+    append: yes
+    groups: 
+      - vboxsf
+    name: "{{ primary_user}}" 

@@ -1,0 +1,6 @@
+guest_addition_pkgs:
+  - build-essential
+  - dkms
+  - 'linux-headers-{{ ansible_kernel }}'
+
+guest_additions_path: /media/cdrom/VBoxLinuxAdditions.run

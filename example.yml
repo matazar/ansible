@@ -1,0 +1,15 @@
+---
+- hosts: all
+  roles: 
+    - {role: common, tags: common}
+
+- hosts: vm
+  roles:
+    - {role: dev, tags: dev}
+    - {role: vboxguest, tags: vbosguest}
+
+- hosts: dns
+  roles:
+    - dns
+  tags:
+    - dns

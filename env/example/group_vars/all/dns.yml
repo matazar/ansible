@@ -1,3 +1,4 @@
+# Top value is considered the master dns server.
 nameservers:
   - name: ns1
     ipv4: 10.0.50.2

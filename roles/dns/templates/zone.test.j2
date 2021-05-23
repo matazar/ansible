@@ -1,0 +1,65 @@
+$ORIGIN {{ domain.name }}. 
+
+$TTL 86400 
+{{ domain.name }}.	IN	SOA	{{ master_ns.name }}.{{ master_ns.domain }}.	root.{{ domain.name }}. (                 
+			{{ dns_zone_refresh }}     ; refresh after {{ dns_zone_refresh // 60 // 60 }} hours                     
+			{{ dns_zone_retry }}      ; retry after {{ dns_zone_retry // 60 // 60 }} hours                     
+			{{ dns_zone_expire }}     ; expire after {{ dns_zone_expire // 60 // 60 // 24 }} days                     
+			{{ dns_zone_ttl }} )    ; minimum TTL of {{ dns_zone_ttl // 60 // 60 }} hours  
+
+
+{% for ns in nameservers %}	IN	NS	{{ ns.name }}.{{ ns.domain }}.
+{% endfor %}
+
+{% if domain.mail | default(false) %}
+	IN	MX	10	{{ domain.mail }}.
+{% endif %}
+{% if domain.backup_mail | default(false) %}
+{% for bmail in  domain.backup_mail | default(false) %}
+	IN	MX	{{ loop.index * 20 }}	{{ bmail }}.
+{% endfor %}
+{% endif %}
+
+{{ domain.name }}.		IN	TXT 	"{{ spf_txt }}"     
+
+{% for ns in nameservers %}
+{% if ns.domain == domain.name %}
+{% if ns.ipv4 | default(false) %}{{ ns.name }}	IN	A	{{ ns.ipv4 }}
+{% endif %}
+{% if ns.ipv6 | default(false) %}{{ ns.name }}	IN	AAAA	{{ ns.ipv6 }}
+{% endif %}
+{% endif %}
+{% endfor %}
+
+{% if domain.hostnames | default(false) %}
+{% for hostname in domain.hostnames %}
+{% if  hostname.ipv4 | default(false) %}{{ hostname.name }}	IN	A 	{{ hostname.ipv4 }}
+{% endif %}
+{% if  hostname.ipv6 | default(false) %}{{ hostname.name }}	IN	AAAA 	{{ hostname.ipv6 }}
+{% endif %}
+{% endfor %}
+{% endif %}
+
+{% if domain.cnames | default(false) %}
+{% for hostname in domain.cnames %}
+{{ hostname }}	IN	CNAME	{{ domain.cnames[hostname] }}.
+{% endfor %}
+{% endif %}
+
+
+{% if domain.dmarc | default(false) %}
+_dmarc	IN	TXT		{{ domain.dmarc }}
+{% else %}
+_dmarc	IN	TXT		{{ dmarc }}
+{% endif %}
+
+{% if dkim_exists.rc == 0 %}
+{% for key in DKIM_KEYS %}
+$INCLUDE "{{ dkim_txt_dir }}/{{ domain.name }}_{{ DKIM_key }}.txt"
+{% endfor %}
+{% endif %}
+{% if domain.dnssec | default(False) %}
+{% for key_file in dnssec_keys.stdout_lines %}
+$INCLUDE "{{ key_file }}"
+{% endfor %}
+{% endif%}

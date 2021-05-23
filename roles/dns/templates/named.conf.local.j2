@@ -1,0 +1,28 @@
+//
+// Do any local configuration here
+//
+
+// Consider adding the 1918 zones here, if they are not used in your
+// organization
+include "/etc/bind/zones.rfc1918";
+
+{% for domain in dns_zones %}
+zone "{{ domain.name }}" {{ '{' }}
+{% if master_ns.ipv4 | default('') == ansible_host or master_ns.ipv6 | default('') == bind_ipv6 %}
+    type master;
+    allow-transfer {{ '{' }} {{ '; '.join(ns_allip) }}; {{ '}' }};
+{% else %}
+    type slave;
+    masters {{ '{' }} {{ master_ns.ipv4 }}; {{ master_ns.ipv6 }}; {{ '}' }};
+    allow-notify {{ '{' }} {{ '; '.join(ns_allip) }}; {{ '}' }};
+       // allow-transfer {{ '{' }} key "rndc-key"; {{ '}' }};
+     allow-transfer {{ '{' }} {{ '; '.join(ns_allip) }}; {{ '}' }};
+{% endif %}
+
+{% if domain.dnssec | default(false) %}
+    file "/var/lib/bind/{{ domain.name }}.db.signed"; # zone file path
+{% else %}
+    file "/var/lib/bind/{{ domain.name }}.db"; # zone file path
+{% endif %}
+{{ '}' }};
+{% endfor %}

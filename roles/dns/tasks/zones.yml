@@ -1,0 +1,100 @@
+# Output the domain to simplify troubleshooting
+- debug:
+    var: domain.name
+
+# Mail role handles DKIM creation, so attempt to restore but don't generate
+- block:
+  - name: Make sure rspamd DKIM keys exist before we try to include them in the zone.
+    command: '/usr/bin/test -f {{ dkim_txt_dir }}/{{ domain.name }}_{{ DKIM_key }}.txt'
+    register: dkim_exists
+    failed_when: false
+    changed_when: false
+    when: master_ns_host
+
+# See if we need to restore/generate DNSSEC keys
+- name: Check for DNSSEC keys
+  command: find /var/cache/bind/ -name "K{{ domain.name }}*.key"
+  register: dnssec_keys
+  changed_when: 
+    - dnssec_keys.stdout_lines == [] 
+    - domain.dnssec
+
+- block:
+  - name: Restore DNSSEC files
+    copy:
+      src: '{{ item }}'
+      dest: '/var/cache/bind/{{ item | basename }}'
+    with_fileglob: 
+      - '{{ backup_dir }}/dns/DNSSEC/K{{ domain.name }}*'
+    register: restore_dnssec
+  - name: Create DNSSEC keys if required.
+    command: '{{ item }}'
+    with_items:
+      - "dnssec-keygen -a NSEC3RSASHA1 -b 2048 -K /var/cache/bind/ -n ZONE {{ domain.name }}"
+      - "dnssec-keygen -f KSK -a NSEC3RSASHA1 -b 4096 -K /var/cache/bind/ -n ZONE {{ domain.name }}"
+    when: restore_dnssec.changed == False
+  when: dnssec_keys.changed
+
+# Download a copy of the DNSSEC keys
+- name: 'Get list of DNSSEC files for {{ domain.name }}'
+  command: find /var/cache/bind/ -name "K{{ domain.name }}*"
+  register: dnssec_files
+  changed_when: dnssec_files.stdout_lines == [] 
+  when: domain.dnssec
+- name: Fetch a copy of the DNSSEC keys
+  fetch:
+    src: '{{ item }}'
+    dest: '{{ backup_dir }}/dns/DNSSEC/{{ item.split("/")[-1] }}'
+    flat: yes
+  loop: '{{ dnssec_files.stdout_lines }}'
+  when: domain.dnssec
+
+# Get key files to include with zone
+- name: Get list of DNSSEC keys to include with zone
+  command: find /var/cache/bind/ -name "K{{ domain.name }}*.key"
+  register: dnssec_keys
+  changed_when: False
+  when: 
+    - domain.dnssec
+
+- name: Check zone info
+  template:
+    src: zone.test.j2
+    dest: '/etc/bind/zones/{{ domain.name }}.conf'
+  register: zone_test
+
+- set_fact:
+    serial: "{{ ansible_date_time.iso8601 | regex_replace('[^0-9]','') }}"
+  when: zone_test.changed or resign | default(False)
+
+- name: "Update zone files for {{ domain.name  }}"
+  template: 
+    src: zone.conf.j2 
+    dest: "/var/lib/bind/{{ domain.name }}.db"
+  when: zone_test.changed or resign | default(False)
+  notify: reload bind
+
+- name: Sign zone file for DNSSEC domains
+  command: "dnssec-signzone -A -3 {{ lookup('password', '/dev/null length=16 chars=hexdigits') }} -N INCREMENT -K /var/cache/bind -o {{ domain.name }} -t /var/lib/bind/{{ domain.name }}.db"
+  when: 
+    - domain.dnssec 
+    - zone_test.changed or resign | default(False)
+  register: signed_zone
+  notify: reload bind
+
+# This step doesn't really matter, downloading is good to have to compare though
+- block:
+  - name: Download a copy of the dsset file.
+    fetch: 
+      src: '/home/{{ ansible_ssh_user }}/dsset-{{ domain.name }}.'
+      dest: '{{ backup_dir }}/dns/dsset-{{ domain.name }}.'
+      flat: yes
+    when: 
+      - domain.dnssec
+  rescue:
+    - name: Restore dsset file
+      copy:
+        dest: '/home/{{ ansible_ssh_user }}/dsset-{{ domain.name }}.'
+        src: '{{ backup_dir }}/dns/dsset-{{ domain.name }}.'
+      register: restore_dsset
+

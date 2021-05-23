@@ -1,0 +1,29 @@
+// This is the primary configuration file for the BIND DNS server named.
+//
+// Please read /usr/share/doc/bind9/README.Debian.gz for information on the 
+// structure of BIND configuration files in Debian, *BEFORE* you customize 
+// this configuration file.
+//
+// If you are just adding zones, please do that in /etc/bind/named.conf.local
+
+// ACLs
+acl internals { 127.0.0.0/8; };
+
+// Options
+include "/etc/bind/named.conf.options";
+
+// TSIG key
+include "/etc/bind/ns-{{ "-".join(inventory_hostname.split(".")[-2:]) }}_rndc-key";
+
+controls {
+	inet 127.0.0.1 port 953 allow { 127.0.0.1; };
+};
+
+// Add Logging
+include "/etc/bind/named.conf.log";
+
+// Default
+include "/etc/bind/named.conf.default-zones";
+
+// My Domains
+include "/etc/bind/named.conf.local";

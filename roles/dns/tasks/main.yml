@@ -1,0 +1,127 @@
+# Pass the details of the first ns listed to the master ns variable
+- name: Set master nameserver
+  set_fact:
+    master_ns: "{{ nameservers | first }}"
+
+- name: Note if current host is master_ns
+  set_fact: 
+    master_ns_host: "{{ master_ns.ipv4 | default('') == ansible_host or master_ns.ipv6 | default('') == bind_ipv6 }}"
+
+- name: Create a list of nameserver IPs
+  set_fact:
+    ns_ipv4: "{{ ns_ipv4 | default([]) + [item.ipv4 | default()] | select() | list | difference([ansible_host]) }}"
+    ns_ipv6: "{{ ns_ipv6 | default([]) + [item.ipv6 | default()] | select() | list | difference([ipv6_address]) }}"
+  loop: "{{ nameservers | list}}"
+
+- name: Create a list of all nameserver IPs.
+  set_fact: 
+    ns_allip: "{{ ns_ipv4 }} + {{ ns_ipv6 }}"
+
+- name: Ensure bind and dns tools are installed
+  apt: 
+    name: [bind9, dnsutils]
+    state: present
+
+- name: Ensure bind config files are up to date
+  template: 
+    src: '{{ item }}.j2'
+    dest: '/etc/bind/{{ item }}'
+  with_items: 
+    - named.conf
+    - named.conf.options
+    - named.conf.log
+    - named.conf.local
+  notify: restart bind
+
+- name: Set up bind log folder
+  file: 
+    state: directory
+    path: /var/log/named
+    owner: bind
+
+- name: Ensure the log files exists
+  file:
+    state: touch
+    path: '/var/log/named/{{ item }}' 
+    owner: bind
+  changed_when: false
+  with_items:
+    - bind_security.log
+    - bind_debug.log
+    - bind.log
+
+- name: Check for rndc keyfile
+  command: '/usr/bin/test -f /etc/bind/ns-{{ "-".join(inventory_hostname.split(".")[-2:]) }}_rndc-key'
+  register: rndc
+  failed_when: false
+  changed_when: rndc.rc == 1
+
+- block:
+    - name: Attempt to restore the rndc key file
+      copy:
+        src: '{{ backup_dir }}/ns-{{ "-".join(inventory_hostname.split(".")[-2:]) }}_rndc-key'
+        dest: /etc/bind/ns-{{ "-".join(inventory_hostname.split(".")[-2:]) }}_rndc-key
+        mode: '0744'
+  rescue:
+    - name: Generate a new rndc key file
+      command: 'rndc-confgen -a -b 256 -c /etc/bind/ns-{{ "-".join(inventory_hostname.split(".")[-2:]) }}_rndc-key -k rndc-key'
+      register: new_rndc
+    - name: Set permissions on the new rndc key file
+      file:
+        state: touch
+        mode: '0744'
+        path: /etc/bind/ns-{{ "-".join(inventory_hostname.split(".")[-2:]) }}_rndc-key
+    - name: Save a copy of the neww rndc key file
+      fetch:
+        flat: yes
+        src: '/etc/bind/ns-{{ "-".join(inventory_hostname.split(".")[-2:]) }}_rndc-key'
+        dest: '{{ backup_dir }}/dns/ns-{{ "-".join(inventory_hostname.split(".")[-2:]) }}_rndc-key'
+  when: 'rndc.changed'
+
+- name: Make sure our zone folders exist
+  file:
+    state: directory
+    path: '{{ item }}'
+  with_items:
+    - /etc/bind/zones/
+    - /var/lib/bind/
+
+- name: Create a list of mail server hostnames
+  set_fact:
+    mail_hostnames: "{{ mail_hostnames + [ item ]}}"
+  with_inventory_hostnames:
+    - mail
+
+# Creation is handled in mail role.
+- name: Ensure the master ns has a copy of each DKIM text file
+  copy:
+    src: '{{ backup_dir }}/mail/dkim/{{ item[0][:2] }}{{ item[1] }}.txt'
+    dest: '{{ dkim_txt_dir }}/{{ item[0][:2] }}{{ item[1] }}.txt'
+    owner: bind
+    group: bind
+  with_nested: 
+    - "{{ mail_hostnames }}"
+    - "{{ DKIM_KEYS }}"
+  when: 
+    - master_ns_host
+  ignore_errors: yes
+
+- include: zones.yml
+  loop: "{{ dns_zones | list }}"
+  loop_control:
+    loop_var: domain
+  when: 
+    - master_ns_host
+  tags:
+    - dns_update
+    - dkim
+
+- name: Ensure bind is running
+  service:
+    name: bind9
+    state: started
+
+- name: Ensure bind is enabled
+  service:
+    name: bind9
+    enabled: true

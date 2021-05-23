@@ -1,0 +1,25 @@
+backup_dir: "{{ playbook_dir }}/env/{{ env }}/backups"
+
+# Zone Defaults
+dns_zone_refresh: 7200
+dns_zone_retry: 3600
+dns_zone_expire: 1209600  # recommended value by mxtoolbox
+dns_zone_ttl: 7200
+
+# DKIM
+dkim_txt_dir: /var/lib/bind/dkim
+DKIM_key: 'example'
+DKIM_KEYS: 
+  - '{{ DKIM_key }}'
+
+# Misc Security
+spf_txt: 'v=spf1 a mx -all'
+dmarc: "v=DMARC1;p=reject;sp=reject;adkim=s;aspf=s;fo=1;rf=afrf;rua=mailto:dmarc@{{ domain.name }}"
+
+# Bind Config
+bind_ipv6: 'any'
+trusted_dns_hosts: 
+  - 127.0.0.0/8
+
+# Leave empty, auto-populated by mail group
+mail_hostnames: []

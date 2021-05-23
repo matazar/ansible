@@ -2,3 +2,12 @@ ansible_connection: ssh
 ansible_ssh_user: ansible
 ansible_sudo_pass: "{{ users.ansible.password }}"
 env: "example"
+
+primary_user: admin
+trusted_hosts:
+  - 10.50.0.6
+  - 10.51.0.0/24
+
+trusted_ipv6_hosts:
+    - '2001:0db8:85a3:0000::/64'
+

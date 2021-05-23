@@ -1,0 +1,37 @@
+nameservers:
+  - name: ns1
+    ipv4: 10.0.50.2
+    ipv6: 2001:0db8:85a3:0000:0000:8a2e:0370:0001
+    domain: example.local
+  - name: ns2
+    ipv4: 10.0.50.3
+    domain: example.local
+
+dns_zones:
+  - name: example.local
+    mail: mail.example.local
+    backup_mail: 
+      - mail2.example.local
+    dnssec: true
+    hostnames:
+      - name: cloud1
+        ipv4: 10.0.50.2
+        ipv6: 2001:0db8:85a3:0000:0000:8a2e:0370:0001
+      - name: cloud2
+        ipv4: 10.0.50.3
+      - name: home_network
+        ipv4: 10.0.51.5
+        ipv6: 2001:0db8:85a3:0000:0000:8a2e:0370:0002
+      - name: mail
+        ipv4: 10.0.50.2
+        ipv6: 2001:0db8:85a3:0000:0000:8a2e:0370:0001
+      - name: mail2
+        ipv4: 10.0.50.3
+      - name: '@'
+        ipv4: 10.0.50.2
+        ipv6: 2001:0db8:85a3:0000:0000:8a2e:0370:0001
+    cnames:
+      autoconfig: 'mail.example.local'
+      autodiscover: 'mail.example.local'
+
+dmarc: "v=DMARC1; p=none; rua=mailto:dmarc@{{ domain.name }}; ruf=mailto:dmarc@{{ domain.name }}"

@@ -1,0 +1,82 @@
+# [bootstrap]
+# cloud1.example.local ansible_ssh_user=root
+# cloud2.example.local ansible_ssh_user=root
+# test4.example.local ansible_ssh_user=admin
+# test6.example.local ansible_ssh_user=admin
+
+[primary]
+dev_vm.example.local
+cloud1.example.local
+test6.example.local
+unifi.example.local
+
+[current]
+test4.example.local
+
+[cloud:children]
+vultr
+
+[cloud]
+cloud1.example.local ansible_host=10.0.50.2
+cloud2.example.local ansible_host=10.0.50.3
+
+[vm]
+test4.example.local ansible_host=192.168.1.196
+test6.example.local ansible_host=192.168.1.197
+
+[vboxguest]
+test4.example.local
+test6.example.local
+
+[dev]
+test4.example.local
+test6.example.local
+
+[pi]
+raspberrypi.example.local ansible_host=192.168.1.50
+
+[dns]
+cloud1.example.local
+cloud2.example.local
+
+[master_dns]
+cloud1.example.local
+
+[webmail]
+cloud2.example.local
+
+[mail]
+cloud1.example.local
+cloud2.example.local
+
+[unifi]
+test4.example.local
+test6.example.local
+
+[unifi_video]
+test4.example.local
+test6.example.local
+
+[local:children]
+dev
+
+[pbx]
+pbx.example.local
+
+[local_dns]
+test4.example.local
+test6.example.local
+
+[kodi]
+test4.example.local
+test6.example.local
+
+[wifi]
+raspberrypi.example.local
+
+[public_ssh]
+test4.example.local
+test6.example.local
+
+[ati]
+unifi.example.local

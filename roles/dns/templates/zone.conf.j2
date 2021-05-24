@@ -46,11 +46,10 @@ $TTL 86400
 {% endfor %}
 {% endif %}
 
-
 {% if domain.dmarc | default(false) %}
-_dmarc	IN	TXT		{{ domain.dmarc }}
+_dmarc	IN	TXT		"{{ domain.dmarc }}"
 {% else %}
-_dmarc	IN	TXT		{{ dmarc }}
+_dmarc	IN	TXT		"{{ dmarc }}"
 {% endif %}
 
 {% if dkim_exists.rc == 0 %}

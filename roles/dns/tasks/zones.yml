@@ -57,6 +57,7 @@
   when: 
     - domain.dnssec
 
+# Run a test as the real file needs an updated serial number.
 - name: Check zone info
   template:
     src: zone.test.j2

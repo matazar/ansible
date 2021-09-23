@@ -1,0 +1,94 @@
+- name: Ensure replication user exists.
+  ldap_entry:
+        dn: "{{ ldap_repl_user }}"
+        objectClass: 
+          - simpleSecurityObject
+          - organizationalRole
+        attributes:
+          cn: Replicator
+          description: Replication user
+          userPassword: "{{ ldap_repl_pw | password_hash('ldap_salted_sha1') }}"
+        bind_dn: "{{ ldap_user }}"
+        bind_pw: "{{ ldap_pw }}"
+  
+- name: Ensure we don't have an ldap hostname entry in host file.
+  lineinfile:
+    path: /etc/hosts
+    state: absent
+    regexp: "127.\\d{1,3}.\\d{1,3}.\\d{1,3}\\s+(\\w+\\s+)?{{ ldap_hostname }}.+"
+
+- name: Ensure replication ACLs are set.
+  ldap_attrs:
+    dn: olcDatabase={1}mdb,cn=config
+    attributes:
+      olcAccess: '{0}to * by dn.exact="{{ ldap_repl_user }}" read by * break'
+      olcLimits: dn.exact="{{ ldap_repl_user }}" time.soft=unlimited time.hard=unlimited size.soft=unlimited size.hard=unlimited
+  register: repl_acl
+  failed_when: 
+    - "not repl_acl.details | default('') | regex_search('Type or value exists') "
+    - "not repl_acl.changed"
+
+- name: Ensure replication module is enabled.
+  ldap_attrs:
+    dn: cn=module{0},cn=config
+    attributes:
+      olcModuleLoad: syncprov.la
+    state: present
+  failed_when:
+    - not repl_mod.changed
+    - not repl_mod.details | default('') | regex_search('Type or value exists') 
+  register: repl_mod
+
+- name: Enable replication on the databases
+  ldap_entry:
+    dn: "{{ item }}"
+    objectClass:
+      - olcOverlayConfig
+      - olcSyncProvConfig
+    attributes:
+      olcOverlay: syncprov
+      olcSpSessionlog: 100
+      olcSpCheckpoint: 100 10
+  with_items:
+    - olcOverlay={0}syncprov,olcDatabase={0}config,cn=config
+    - olcOverlay={1}syncprov,olcDatabase={1}mdb,cn=config
+  register: repl_enable
+
+- name: Set server IDs
+  ldap_attrs:
+    dn: cn=config
+    attributes:
+      olcServerID: '{{ ldap_repl_hosts[item]["id"] }} {{ ldap_replication_schema }}://{{ item }}'
+  with_items: '{{ ldap_repl_hosts }}'
+  when: ldap_hostname in ldap_repl_hosts
+
+# Wasn't able to import this with ldap_attrs
+- block:
+  - name: Check for olcSyncRepl
+    command: 'ldapsearch -Y EXTERNAL -H ldapi:/// -b "cn=config" -LLL "(olcSyncrepl=*)"'
+    register: olcsyncrepl
+    changed_when: olcsyncrepl.rc != 0
+    failed_when: olcsyncrepl.stdout_lines == []
+  rescue:
+    - name: Copy over replication LDIF
+      template: 
+          src: replicate.ldif.j2
+          dest: /root/replicate.ldif
+    - name: Add ldif to enable replication
+      command: ldapmodify -Y EXTERNAL -H ldapi:/// -f /root/replicate.ldif
+    - name: Remove LDIF
+      file:
+        path: /root/replicate.ldif
+        state: absent
+
+- name: Ensure replication attributes are indexed
+  ldap_attrs:
+    dn: olcDatabase={1}mdb,cn=config
+    state: present
+    attributes:
+      olcDbIndex: '{{ item }}'
+  with_items:
+    - entryCSN eq
+    - entryUUID eq
+          
+

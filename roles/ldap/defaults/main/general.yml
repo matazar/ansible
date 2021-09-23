@@ -1,0 +1,42 @@
+ldap_hostname: "{{ inventory_hostname }}"
+ldap_domain: "{{ primary_mail_domain }}"
+ldap_suffix: "{{ 'dc={0},dc={1}'.format(*ldap_domain.split('.')) }}"
+ldap_rootdn: "cn=admin,cn=config"
+ldap_user: "cn=admin,{{ ldap_suffix }}"
+ldap_schema: ldapi
+ldap_server: '%2Fvar%2Frun%2Fldapi'
+ldap_tls: false
+ldap_ipv6: '{{ ipv6_address | default(False) }}'
+ldap_localip: 127.0.0.2
+ldap_repl_user: "cn=replicator,{{ ldap_suffix }}"
+ldap_enable_replication: false
+ldap_replication_schema: ldaps
+ldap_log_level: 0x64 0x8        # https://www.openldap.org/doc/admin24/slapdconfig.html
+
+mail_domains:
+  - "{{ primary_mail_domain }}"
+mail_users: []
+
+# PPolicy
+ldap_enable_ppolicy: true
+pp_use_cracklib: 1
+pp_min_points: 3
+pp_min_upper: 1
+pp_min_lower: 1
+pp_min_digit: 1
+pp_min_punct: 1
+
+# Default Policy https://ldapwiki.com/wiki/PwdPolicy
+pwdExpireWarning: 0
+pwdMaxFailure: 5
+pwdSafeModify: 'FALSE'
+pwdMinLength: 10
+pwdCheckQuality: 2
+pwdMaxAge: 0
+pwdMinAge: 0
+pwdLockoutDuration: 0
+pwdAllowUserChange: 'TRUE'
+pwdGraceAuthNLimit: 5
+pwdInHistory: 5
+pwdLockout: 'TRUE'
+pwdFailureCountInterval: 0

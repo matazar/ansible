@@ -1,0 +1,87 @@
+- include: certs.yml
+
+- name: Ensure OpenLDAP is installed and up-to-date.
+  apt:
+    name: [slapd, ldap-utils, ldapscripts, python3-ldap]
+    state: latest
+
+- name: Ensure ldap user is in ssl-certs groups
+  user:
+    append: yes
+    create_home: no
+    groups: 
+      - ssl-certs
+    name: openldap
+
+- set_fact:
+    slapd_services: 'ldap:/// ldapi:/// ldaps:///'
+  when: not ldap_enable_replication
+- set_fact: 
+    slapd_services: 'ldap:/// ldapi:/// ldaps://{{ ldap_hostname }}'
+  when: ldap_enable_replication
+
+- name: Ensure Slapd uses TLS
+  lineinfile:
+    line: 'SLAPD_SERVICES="{{ slapd_services }}"'
+    regex: '^SLAPD_SERVICES=".+"'
+    state: present
+    path: /etc/default/slapd
+  notify:
+    - restart slapd
+
+- name: Ensure ldap hostname is in host file.
+  lineinfile:
+    path: /etc/hosts
+    line: "{{ ldap_localip }} {{ ldap_hostname }} {{ ldap_hostname.split('.')[0] }}"
+  when: not ldap_enable_replication
+
+- name: Ensure LDAP isn't stopped
+  service:
+    name: slapd
+    state: started
+
+# Find a way to allow admin user to remove pwdlocktime through jxplorer
+
+
+- name: Ensure LDAP is provisioned
+  block:
+    - name: Check if LDAP is configured
+      ldap_entry:
+        dn: "o=domains,{{ ldap_suffix }}"
+        objectClass: organization
+        attributes:
+          o: domains
+        bind_dn: '{{ ldap_user }}'
+        bind_pw: '{{ ldap_pw }}'
+  rescue:
+  - include: provision.yml
+
+- name: Update ldap.conf file
+  template:
+    src: ldap.conf.j2
+    dest: /etc/ldap/ldap.conf
+
+- name: Ensure SSF is set
+  ldap_attrs:
+    dn: cn=config
+    state: exact
+    attributes:
+      olcSecurity: ssf=128
+      olcLocalSSF: 128
+  
+# Ensure PPolicy is enabled/working
+- include: ppolicy.yml
+  when: ldap_enable_ppolicy
+
+# Replication
+- include: replication.yml
+  when: ldap_enable_replication
+
+- name: Set log level
+  ldap_attrs:
+    dn: cn=config
+    state: exact
+    attributes:
+      olcLogLevel: '{{ ldap_log_level }}'
+
+          

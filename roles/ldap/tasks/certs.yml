@@ -1,0 +1,8 @@
+  # LDAP
+- include_role:
+    name: certbot
+  vars:
+    cert_domain: "{{ ldap_hostname }}"
+    cert_ipv6: '{{ ldap_ipv6 }}'
+  tags:
+    - certbot

@@ -1,0 +1,146 @@
+- name: Update ppolicy settings
+  template:
+    src: check_password.conf.j2
+    dest: /etc/ldap/check_password.conf
+
+- name: Ensure cracklib is installed
+  apt:
+    state: present
+    name: [cracklib-runtime, libcrack2-dev]
+
+- block:
+  - name: Check for check_password.so
+    stat: 
+      path: /usr/lib/ldap/check_password.so
+    changed_when: check_password.stat.exists == false
+    register: check_password
+  - name: Restore check_password.so
+    copy: 
+      src: check_password.so
+      dest: /usr/lib/ldap/check_password.so
+    when: check_password.changed
+  rescue:
+    # Build it if we don't have a copy.
+    - name: Install dependencies
+      apt: 
+        name: [gcc, libldap2-dev, dpkg-dev, libdb-dev, git]
+        state: present
+    - name: Clone ppoolicy check_password.so repo
+      git: 
+        repo: https://github.com/onyxpoint/ppolicy-check-password.git
+        dest: /tmp/policy-check-password/
+
+    - name: Clone Debian OpenLDAP source for building
+      git:
+        repo: https://salsa.debian.org/openldap-team/openldap.git
+        dest: /tmp/openldap/
+
+    - name: Configure LDAP source
+      command: 
+          chdir: /tmp/openldap 
+          cmd: ./configure
+
+    - name: Build LDAP source
+      make:
+        chdir: /tmp/openldap
+
+    - name: Build ppolicy
+      make: 
+        chdir: /tmp/policy-check-password/
+        params: 
+            CONFIG="/etc/ldap/check_password.conf" 
+            LDAP_INC="-I/tmp/openldap/include/ -I/tmp/openldap/servers/slapd"
+            CRACKLIB="/var/cache/cracklib/"
+
+    - name: Copy check_password.so to ldap directory
+      copy:
+        dest: /usr/lib/ldap/
+        src: /tmp/policy-check-password/check_password.so
+        remote_src: True
+
+    - name: Save a copy of check_password.so
+      fetch: 
+        src: /usr/lib/ldap/check_password.so
+        dest: '{{ playbook_dir }}/roles/ldap/files/check_password.so'
+        flat: true
+
+    - name: Clean up temp folders
+      file:
+        state: absent
+        path: /tmp/openldap
+      with_items:
+        - /tmp/openldap
+        - /tmp/policy-check-password
+
+- name: Check for ppolicy module
+  ldap_attrs:
+    dn: cn=module{0},cn=config
+    attributes:
+      olcModuleLoad: ppolicy.la
+    state: present
+  register: ldap_test
+  failed_when: false
+
+- name: Add ppolicy schema
+  command: ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/ldap/schema/ppolicy.ldif
+  failed_when: false
+  changed_when: "not ppolicy_schema.stderr | regex_search('olcAttributeTypes: Duplicate attributeType:')"
+  register: ppolicy_schema
+
+- name: Apply ppolicy overlay
+  ldap_entry:
+    dn: olcOverlay={0}ppolicy,olcDatabase={1}mdb,cn=config
+    objectClass:
+      - olcOverlayConfig
+      - olcPPolicyConfig
+    attributes:
+      olcOverlay: ppolicy
+      olcPPolicyDefault: 'cn=default,ou=policies,{{ ldap_suffix }}'
+  register: ppolicy_overlay
+  
+- name: Update ACLs
+  ldap_attrs:
+    dn: olcDatabase={1}mdb,cn=config
+    state: present
+    attributes:
+      olcAccess: '{4}to attrs=pwdAccountLockedTime by dn={{ ldap_user }} write by anonymous auth by * none'
+
+- name: Ensure policy DN exists
+  ldap_entry:
+    dn: ou=policies,{{ ldap_suffix }}
+    objectClass: 
+      - organizationalUnit
+      - top
+    state: present
+    attributes:
+      ou: policies
+
+- name: Ensure default policy exists
+  ldap_entry:
+    dn: 'cn=default,ou=policies,{{ ldap_suffix }}'
+    state: present
+    objectClass:
+      - pwdPolicy
+      - pwdPolicyChecker
+      - inetOrgPerson
+      - top
+    attributes:
+      pwdExpireWarning: '{{ pwdExpireWarning }}'
+      pwdMaxFailure: '{{ pwdMaxFailure }}'
+      cn: Default
+      pwdSafeModify: '{{ pwdSafeModify }}'
+      pwdMinLength: '{{ pwdMinLength }}'
+      pwdCheckQuality: '{{ pwdCheckQuality }}'
+      pwdMaxAge: '{{ pwdMaxAge }}'
+      pwdMinAge: '{{ pwdMinAge }}'
+      pwdCheckModule: check_password.so
+      pwdLockoutDuration: '{{ pwdLockoutDuration }}'
+      pwdAllowUserChange: '{{ pwdAllowUserChange }}'
+      pwdGraceAuthNLimit: '{{ pwdGraceAuthNLimit }}'
+      sn: Policy
+      pwdMustChange: 'TRUE'
+      pwdInHistory: '{{ pwdInHistory }}'
+      pwdLockout: '{{ pwdLockout }}'
+      pwdAttribute: 2.5.4.35
+      pwdFailureCountInterval: '{{ pwdFailureCountInterval }}'
+ 

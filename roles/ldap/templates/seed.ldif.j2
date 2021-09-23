@@ -1,0 +1,48 @@
+dn: {{ ldap_suffix }}
+objectClass: top
+objectClass: dcObject
+objectClass: organization
+o: {{ ldap_domain.split('.')[0] }}
+dc: {{ ldap_domain.split('.')[0] }}
+
+dn: {{ ldap_user }}
+objectClass: simpleSecurityObject
+objectClass: organizationalRole
+cn: {{ ldap_user | regex_search('cn\=(\w+)\,dc\=.+') }} 
+description: LDAP administrator
+userPassword: {{ ldap_pw | password_hash('ldap_salted_sha1') | string }}
+
+dn: o=domains,{{ ldap_suffix }}
+o: domains
+objectClass: organization
+objectClass: top
+
+{% for domain in mail_domains %}
+dn: domainName={{ domain }},o=domains,{{ ldap_suffix }}
+cn: {{ domain.split('.')[0] }}
+domainName: {{ domain }}
+objectClass: mailDomain
+objectClass: top
+
+dn: ou=Users,domainName={{ domain }},o=domains,{{ ldap_suffix }}
+objectClass: organizationalUnit
+objectClass: top
+ou: Users
+
+{% for user in mail_users %}
+dn: mail={{ user }}@{{ domain }},ou=Users,domainName={{ domain }},o=domains,{{ ldap_suffix }}
+cn: {{ mail_users[user]['name'] }}
+homeDirectory: /var/vmail/{{ domain }}/{{ user }}
+mail: {{ user }}@{{ domain }}
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: shadowAccount
+objectClass: mailUser
+objectClass: person
+objectClass: top
+sn: {{ mail_users[user]['name'].split(' ',1)[1] | default('') }}
+givenName: {{ mail_users[user]['name'].split(' ',1)[0] }}
+uid: {{ user }}
+userPassword: {{ mail_users[user]['password'] | password_hash('ldap_salted_sha1') | string }}
+{% endfor %}
+{% endfor %}

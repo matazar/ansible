@@ -1,0 +1,26 @@
+- name: Export LDAP data
+  shell: 'slapcat -n {{ index }} > /root/{{ item }}.ldif'
+  with_items:
+    - config
+    - seed
+  loop_control:
+    index_var: index
+  changed_when: false       # Don't need this marked as changed every time.
+
+- name: Download a copy of LDAP data
+  fetch:
+    flat: yes
+    dest: "{{ backup_dir }}/ldap/{{ ldap_hostname }}/{{ item }}.ldif"
+    src: "/root/{{ item }}.ldif"
+  with_items:
+    - config
+    - seed
+
+- name: Remove temporary LDIFs
+  file:
+    path: "/root/{{ item }}.ldif"
+    state: absent
+  with_items:
+    - config
+    - seed
+  changed_when: false

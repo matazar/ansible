@@ -29,9 +29,9 @@
         msg: 'ISO not found at {{ guest_additions_path }}'
   when: server_groups.changed
 
-- name: "Ensure {{ primary_user}} is in the vboxsf group"
+- name: "Ensure {{ primary_user }} is in the vboxsf group"
   user:
     append: yes
     groups: 
       - vboxsf
-    name: "{{ primary_user}}" 
+    name: "{{ primary_user }}" 

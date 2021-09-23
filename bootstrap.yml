@@ -45,9 +45,13 @@
       no_log: true
     
     # Set up temporary sudo
+    - name: Create temp sudo file for ansible user
+      file:
+        state: touch
+        path: /etc/sudoers.d/temp
     - name: Add ansible user to sudoers
       lineinfile:
-        path: /etc/sudoers
+        path: /etc/sudoers.d/temp
         line: '{{ users.ansible.name }}  ALL=(ALL:ALL) ALL'
     
     # Raspian has SSH off by default.

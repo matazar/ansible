@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env ./bin/python
 
 """
 Bootstraps Debian based ansible host.
@@ -12,12 +12,6 @@ import os
 import re
 import socket
 import getpass
-
-# https://github.com/paramiko/paramiko/issues/1369
-import warnings
-from cryptography.utils import DeprecatedIn25
-warnings.simplefilter('ignore', DeprecatedIn25)
-
 
 class bootstrap(object):
     def __init__(self, args):
@@ -39,14 +33,14 @@ class bootstrap(object):
             password = getpass.getpass('Password for %s@%s: ' % (user, host))
             c = Connection(self.hosts[host], user=user, connect_kwargs={"password": password})
             # Ensure Python is installed
-            c.run('apt install -y python')
+            c.run('apt install -y python3 python3-apt')
             # Ensure the host has a copy of our ssh key.
             c.run('mkdir -p .ssh')
             c.put(self.ssh_key)
             c.run('cat %s >> .ssh/authorized_keys' % (self.ssh_key.rsplit('/',1)[1]))
             c.close()
             # Provide copy/paste command to run bootstrap play.
-            print('\n\nNow run:\nansible-playbook -i %s bootstrap.yml -K -D -l %s' % (self.inv_file, host))
+            print('\n\nNow run:\nansible-playbook -i %s bootstrap.yml -e "ansible_ssh_user=%s" -K -D -l %s' % (self.inv_file, user, host))
     
     def parse_hosts(self, hosts):
         """

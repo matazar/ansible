@@ -11,13 +11,13 @@
 # default value.
 
 Port 22
-{% if public_ssh_port %}
-Port {{ public_ssh_port }}
+{% if sshd_public_port %}
+Port {{ sshd_public_port }}
 {% endif %}
 #AddressFamily any
 ListenAddress 0.0.0.0
 {% if ipv6_address %}
-{% if strict_ipv6_ssh %}
+{% if sshd_strict_ipv6 %}
 ListenAddress {{ ipv6_address }}
 {% else %}
 ListenAddress ::

@@ -13,13 +13,13 @@
       name: "{{ item.key }}"
       generate_ssh_key: yes
       ssh_key_bits: 256
-      ssh_key_file: ".ssh/id_{{ ssh_keytype }}"
-      ssh_key_type: "{{ ssh_keytype }}"
+      ssh_key_file: ".ssh/id_{{ sshd_keytype }}"
+      ssh_key_type: "{{ sshd_keytype }}"
       ssh_key_comment: "{{ item.key }}@{{ inventory_hostname }}"
   - name: Download a copy of the ssh key file from primary hosts.
     fetch:
-      src: "/home/{{ item.key }}/.ssh/id_{{ ssh_keytype }}.pub"
-      dest: "{{ playbook_dir }}/env/{{ env }}/ssh_keys/{{ item.key }}_{{ inventory_hostname }}_{{ ssh_keytype }}.pub"
+      src: "/home/{{ item.key }}/.ssh/id_{{ sshd_keytype }}.pub"
+      dest: "{{ backup_dir }}/ssh_keys/{{ item.key }}_{{ inventory_hostname }}_{{ sshd_keytype }}.pub"
       flat: yes
   when: 
     - "'primary' in group_names"
@@ -32,7 +32,7 @@
     state: present 
     key: "{{ lookup('file', key_item) }}"
   with_fileglob:
-      - '{{ playbook_dir }}/env/{{ env }}/ssh_keys/*.pub'
+      - '{{ backup_dir }}/ssh_keys/*.pub'
   loop_control:
     loop_var: key_item
 

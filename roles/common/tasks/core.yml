@@ -30,19 +30,19 @@
   register: sshd_config
   
   # SSH service name is a var, as Debian uses sshd, Raspbian uses ssh
-- name: "Restart {{ ssh_service_name | upper }}"
+- name: "Restart {{ sshd_service_name | upper }}"
   service: 
-    name: '{{ ssh_service_name }}'
+    name: '{{ sshd_service_name }}'
     state: restarted
   when: sshd_config.changed
 
-- name: "Ensure {{ ssh_service_name | upper }} is enabled"
+- name: "Ensure {{ sshd_service_name | upper }} is enabled"
   service:
-    name: '{{ ssh_service_name }}'
+    name: '{{ sshd_service_name }}'
     state: started
     enabled: true
 
-- name: Set bash config for user primary_user
+- name: 'Set bash config for user {{ primary_user }}'
   template:
     dest: '/home/{{ primary_user }}/.bashrc'
     src: .bashrc.j2
@@ -53,9 +53,13 @@
 - name: Update sudoers file
   template: 
     src: sudoers.j2
-    dest: /etc/sudoers
+    dest: /etc/sudoers.d/common
 
-# We won't use apache anywhere, nginx and httpd
+- name: Remove temp sudoers file
+  file:
+    state: absent
+    path: /etc/sudoers.d/temp    
+
 - name: Ensure apache is not installed
   apt:
     name: 'apache*'

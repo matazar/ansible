@@ -8,41 +8,46 @@
 # daemon name. See rpcbind(8) and rpc.mountd(8) for further information.
 #
 
+{% if sshd_whitelist %}
 {% for host in trusted_hosts %}
+{% if host | ipv4 %}
 sshd : {{ host }} : allow
-{% endfor %}
-{% for host in trusted_ipv6_hosts %}
-{% if host.split('/')|length == 2 %}
-sshd : [{{ host.split('/')[0] }}]/{{ host.split('/')[1] }} : allow
-{% else %}
-sshd : [{{ host }}]: allow
+{% elif host | ipv6 %}
+sshd : {{ host | ipwrap }} : allow
 {% endif %}
 {% endfor %}
-{% if public_ssh_port %}
+{% if sshd_public_port %}
 # Allow SSH on non-standard port for all
-{{ public_ssh_port }} : ALL : allow
+{{ sshd_public_port }} : ALL : allow
 {% endif %}
 sshd : ALL : deny
+{% else %}
+sshd : ALL : allow
+{% endif %}
 
-
-slapd : localhost 127.0.0.1 : allow
+{% if 'ldap' in group_names %}
+slapd : 127.0.0.1 : allow
 slapd : [::1] : allow
-# Replication
 {% for host in ldap_allow_list %}
-# host
+{% if host | ipv4 %}
+slapd : {{ host }} : allow
+{% elif host | ipv6 %}
+slapd : {{ host | ipwrap }} : allow
+{% elif host in hostvars | default(False) %}
 slapd : {{ hostvars[host]['ansible_host'] }} : allow
 {% if hostvars[host]['ipv6_address'] | default(False) %}
-slapd : [{{ hostvars[host]['ipv6_address'] }}]/64} : allow
+slapd : {{ hostvars[host]['ipv6_address'] | ipwrap }} : allow
+{% endif %}
 {% endif %}
 {% endfor %}
-
 slapd : ALL : deny
+{% endif %}
 
 {% if 'mail' in group_names %}
 mysqld : 127.0.0.1 : allow
-{% endif %}
 mysqld : ALL : deny
+{% endif %}
 
 # Allow anything from localhost.
-ALL : localhost 127.0.0.1 : allow
+ALL : 127.0.0.1 : allow
 ALL : [::1] : allow

@@ -1,9 +1,3 @@
-# [bootstrap]
-# cloud1.example.local ansible_ssh_user=root
-# cloud2.example.local ansible_ssh_user=root
-# test4.example.local ansible_ssh_user=admin
-# test6.example.local ansible_ssh_user=admin
-
 [primary]
 dev_vm.example.local
 cloud1.example.local

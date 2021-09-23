@@ -1,3 +1,5 @@
+primary_user: 'admin'
+cert_group: ssl-certs
 dev_pkgs:
   - chromium
   - thunderbird
@@ -10,5 +12,3 @@ dev_pkgs:
   - python3-venv
   - cifs-utils
   - sshfs
-
-primary_user: 'admin'

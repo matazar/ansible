@@ -1,0 +1,29 @@
+- name: Ensure www-data belongs to cert group
+  user:
+    append: yes
+    create_home: no
+    groups:
+      - ssl-certs
+    name: www-domain
+
+- name: Ensure cert directory exists
+  file: 
+    path: /etc/letsencrypt/live
+    state: directory
+
+- name: Ensure certs group has access to the files
+  file:
+    path: "/etc/letsencrypt/{{ item }}"
+    state: directory
+    mode: '0750'
+    recurse: yes
+    group: ssl-certs
+  with_items:
+    - live
+    - archive
+  changed_when: false
+
+- name: Ensure certbot challenge directory exists
+  file:
+    path: /var/www/letsencrypt 
+    state: directory

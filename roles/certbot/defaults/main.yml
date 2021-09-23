@@ -1,0 +1,15 @@
+# role should fail without this set:
+# cert_domain:  example.com
+cert_extra_domains: []
+cert_services: ['nginx']
+cert_ipv6: '[::]'
+cert_email: 'certs@{{ cert_domain }}'
+cert_group: ssl-certs
+
+# Run certbot on playbook host, copy to remote host.
+local_cert_gen: false
+# This variable is only intended for NAT Port forwarding, certbot will be contacted on port 80 either way.
+# E.g. Port 8088 locally, but NAT Port forwarding of 80 --> 8088
+certbot_port: 80
+
+

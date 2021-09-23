@@ -1,0 +1,17 @@
+- name: Add all domains to a variable
+  set_fact:
+    cert_domains: "{{ [cert_domain] + cert_extra_domains }}"
+
+- name: Ensure we have a cert group
+  group:
+    name: '{{ cert_group }}'
+    state: present
+
+- include: provision.yml
+
+- include: local_certbot.yml
+  when: local_cert_gen
+
+- include: remote_certbot.yml
+  when: not local_cert_gen
+

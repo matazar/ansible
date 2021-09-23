@@ -1,0 +1,106 @@
+- name: Ensure certbot is up-to-date
+  local_action:
+    module: apt
+    name: python3-certbot-nginx
+    state: latest
+    install_recommends: yes
+  run_once: True
+
+- name: Update the certbot nginx configuration to accept certbot challenges
+  local_action:
+    module: template
+    src: nginx.conf.j2
+    dest: '/etc/nginx/sites-available/cert.{{ cert_domain }}.conf'
+  register: cert_config
+  run_once: True
+
+- name: Ensure the certbot nginx config is enabled
+  local_action:
+    module: file
+    src: '/etc/nginx/sites-available/cert.{{ cert_domain }}.conf'
+    dest: '/etc/nginx/sites-enabled/cert.{{ cert_domain }}.conf'
+    state: link
+  register: cert_enable
+  run_once: True
+
+- name: Restart nginx
+  local_action:
+    module: service
+    name: nginx
+    state: restarted
+  when: cert_enable.changed or cert_config.changed
+  run_once: True
+
+- name: Check if key file exists.
+  local_action:
+    module: command
+    cmd: '/usr/bin/test -f /etc/letsencrypt/live/{{ cert_domain }}/privkey.pem'
+  register: cert_key
+  failed_when: false
+  changed_when: cert_key.rc == 1
+  run_once: True
+
+- set_fact:
+    deploy_hook: "{{ cert_services |  map('regex_replace', '(.+)', 'service \\1 restart') | join(';') }}"
+
+# Used for cronjob time seed. 
+- name: Get localhost name
+  local_action:
+    module: command
+    cmd: hostname
+  register: hostname
+  changed_when: False
+  run_once: True
+
+- name: "Seed domain {{ cert_domain }}"
+  block:
+    - name: Restart nginx
+      local_action:
+        module: service
+        name: nginx
+        state: restarted
+    - name: Run certbot
+      local_action:
+        module: shell
+        cmd: "/usr/bin/certbot certonly --webroot -n --agree-tos --email {{ cert_email }} -w /var/www/letsencrypt --cert-name {{ cert_domain }} -d {{ cert_domains | join(' -d ') }}"
+  when: cert_key.changed or cert_config.changed
+  run_once: True
+
+- name: Update cron job for certbot renewal
+  local_action:
+    module: cron
+    name: Certbot automatic renewal.
+    job: '/usr/bin/certbot renew --quiet --deploy-hook "{{ deploy_hook }}"'
+    minute: "{{ (59 |random(seed=hostname.stdout)) }}"
+    hour: "08"
+  run_once: True
+
+- name: Ensure ssl-certs group can access the keys
+  local_action: 
+    module: file
+    state: directory
+    group: ssl-certs
+    mode: 760
+    path: "/etc/letsencrypt/live/{{ cert_domain }}"
+    recurse: yes
+  changed_when: false
+  run_once: True
+
+- name: Ensure cert directory exists.
+  file:
+    path: "/etc/letsencrypt/live/{{ cert_domain }}/"
+    state: directory
+    owner: root
+    group: ssl-certs
+    mode: 0760
+
+- name: Ensure the host has a copy of the SSL Cert
+  copy:
+    src: "/etc/letsencrypt/live/{{ cert_domain }}/{{ item }}.pem"
+    dest: "/etc/letsencrypt/live/{{ cert_domain }}/{{ item }}.pem"
+  with_items:
+    - fullchain
+    - cert
+    - privkey
+    - chain
+  register: new_certs

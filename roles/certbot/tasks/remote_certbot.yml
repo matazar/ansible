@@ -1,0 +1,60 @@
+- name: Ensure certbot is up-to-date
+  apt:
+    name: python3-certbot-nginx
+    state: latest
+    install_recommends: yes
+  register: certbot_update
+
+- name: Update the certbot nginx configuration to accept certbot challenges
+  template: 
+    src: nginx.conf.j2
+    dest: '/etc/nginx/sites-available/cert.{{ cert_domain }}.conf'
+  register: cert_config
+
+- name: Ensure the certbot nginx config is enabled
+  file:
+    src: '/etc/nginx/sites-available/cert.{{ cert_domain }}.conf'
+    dest: '/etc/nginx/sites-enabled/cert.{{ cert_domain }}.conf'
+    state: link
+  register: cert_enable
+
+- name: Restart nginx
+  service:
+    name: nginx
+    state: restarted
+  when: cert_enable.changed or cert_config.changed
+
+- name: Check if key file exists.
+  command: '/usr/bin/test -f /etc/letsencrypt/live/{{ cert_domain }}/privkey.pem'
+  register: cert_key
+  failed_when: false
+  changed_when: cert_key.rc == 1
+
+- set_fact:
+    deploy_hook: "{{ cert_services |  map('regex_replace', '(.+)', 'service \\1 restart') | join(';') }}"
+
+- name: "Seed domain {{ cert_domain }}"
+  block:
+    - name: Run certbot
+      shell: "/usr/bin/certbot certonly --webroot -n --agree-tos --email {{ cert_email }} -w /var/www/letsencrypt --cert-name {{ cert_domain }} -d {{ cert_domains | join(' -d ') }}"
+    - name: Restart nginx
+      service: 
+        name: nginx
+        state: restarted
+  when: cert_key.changed or cert_config.changed
+
+- name: Update cron job for certbot renewal
+  cron:
+    name: Certbot automatic renewal.
+    job: '/usr/bin/certbot renew --quiet --deploy-hook "{{ deploy_hook }}"'
+    minute: "{{ (59 |random(seed=ansible_hostname)) }}"
+    hour: "08"
+
+- name: Ensure ssl-certs group can access the keys
+  file:
+    state: directory
+    group: ssl-certs
+    mode: 760
+    path: "/etc/letsencrypt/live/{{ cert_domain }}"
+    recurse: yes
+  changed_when: false

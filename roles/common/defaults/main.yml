@@ -1,49 +1,39 @@
-
+# General
 bash_colour: 36
 primary_mail_domain: example.com
-
-# Network
-ipv6_address: False
-ipv6_addresses: 
-  - '{{ ipv6_address }}'
-
-strict_ipv6_ssh: True
-public_ssh_port: False
-sshd_password: False
-# PIs are different.
-ssh_service_name: sshd
-
-# Firewall
-trusted_hosts: []
-trusted_ipv6_hosts: []
-bind_ipv6: '{{ ipv6_address }}'
-mail_ipv6: '{{ ipv6_address }}'
-website_ipv6: 
-  - '{{ ipv6_address }}'
-ldap_allow_list: []
-doveadm_allow_list: []
-doveadm_port: 12345
-
-# General
-core_apps:
-  - sudo
-  - p7zip
-  - unzip
-  - nano
-  - rsync
-  - tmux
-  - wget
-  - curl
-  - dnsutils
-
-primary_user: "admin"
+primary_user: admin
+core_apps: [sudo, p7zip, unzip, nano, rsync, tmux, wget, curl, dnsutils]
 default_editor: nano
-ssh_keytype: ed25519
 timezone: America/Toronto
+
 sudo_users:
   - '{{ primary_user }}'
   - '{{ ansible_ssh_user }}'
 sudo_nopasswd: []
 
-# Clean Up
-stale_host_keys: []
+# SSHD
+sshd_keytype: ed25519
+sshd_password: false
+sshd_whitelist: true
+sshd_service_name: sshd    # PIs are different.
+sshd_strict_ipv6: true     # Only accept ssh connections on ipv6_address
+sshd_public_port: 0
+
+# Network
+local_nameservers: []
+
+ipv6_address: false
+bind_ipv6: '{{ ipv6_address }}'
+mail_ipv6: '{{ ipv6_address }}'
+
+website_ipv6:             # Opens port 80/443 for these IPv6 addresses
+  - '{{ ipv6_address }}'
+ipv6_addresses:           # This is used to configure the network interface only
+  - '{{ ipv6_address }}'
+
+trusted_hosts: []
+ldap_allow_list: []
+doveadm_allow_list: []
+doveadm_passwd: false
+doveadm_port: 12345
+sieve_port: 4190

@@ -1,0 +1,54 @@
+- name: "Check if {{ algorithm }} DNSSEC keys exist"
+  command: find /var/cache/bind/ -name "K{{ domain.name }}.+{{ '%03d' | format(dnssec_algorithm_ids[algorithm]|int) }}*"
+  register: dnssec_files
+  changed_when: dnssec_files.stdout_lines | length < 4
+
+- block: 
+  - name: 'Restore {{ algorithm }} DNSSEC keys'
+    copy:
+      src: '{{ item }}'
+      dest: '/var/cache/bind/{{ item | basename }}'
+      owner: bind
+      group: bind
+    with_fileglob: 
+      - '{{ backup_dir }}/dns/dnssec/K{{ domain.name }}.+{{ "%03d" | format(dnssec_algorithm_ids[algorithm]|int) }}*'
+    register: restore_dnssec
+  - debug:
+      var: restore_dnssec
+  - name: 'Generate new {{ algorithm }} DNSSEC key'
+    command: '{{ item }}'
+    with_items:
+      - "dnssec-keygen -a {{ algorithm }} -K /var/cache/bind/ -n ZONE {{ domain.name }}"
+      - "dnssec-keygen -f KSK -a {{ algorithm }} -K /var/cache/bind/ -n ZONE {{ domain.name }}"
+    when: restore_dnssec.skipped | default(false)
+  when: dnssec_files.changed
+
+- name: Ensure key folder permissions are correct
+  file:
+    state: directory
+    recurse: yes
+    path: /var/cache/bind/
+    owner: bind
+    group: bind
+
+- name: 'Create a list of {{ algorithm }} files'
+  command: find /var/cache/bind/ -name "K{{ domain.name }}.+{{ '%03d' | format(dnssec_algorithm_ids[algorithm]|int) }}*"
+  changed_when: false
+  register: dnssec_files
+  failed_when: dnssec_files.stdout_lines | length < 4 
+
+- name: 'Ensure we have a local copy of the {{ algorithm }} keys'
+  fetch:
+    src: '{{ item }}'
+    dest: '{{ backup_dir }}/dns/dnssec/{{ item.split("/")[-1] }}'
+    flat: yes
+  loop: '{{ dnssec_files.stdout_lines }}'
+
+- name: 'Create a list of {{ algorithm }} key files'
+  command: find /var/cache/bind/ -name "K{{ domain.name }}.+{{ '%03d' | format(dnssec_algorithm_ids[algorithm]|int) }}*.key"
+  register: dnssec_keys
+  changed_when: false
+  failed_when: dnssec_keys.stdout_lines | length < 2
+
+- set_fact:
+    domain_dnssec_keys: '{{ domain_dnssec_keys + dnssec_keys.stdout_lines }}'

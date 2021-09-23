@@ -1,0 +1,37 @@
+---
+- hosts: dns
+  tasks:
+    - name: Backup DNS
+      include_role:
+        name: dns
+        tasks_from: backups
+  tags:
+    - dns
+
+- hosts: ldap
+  tasks:
+    - name: Backup LDAP
+      include_role:
+        name: ldap
+        tasks_from: backups
+  tags:
+    - ldap
+
+- hosts: mail
+  tasks:
+  - name: Backup email
+    include_role:
+      name: mail
+      tasks_from: backups
+  tags:
+    - mail
+
+- hosts: webmail
+  tasks:
+  - name: Backup webmail
+    include_role:
+      name: roundcube
+      tasks_from: backups
+  tags:
+    - webmail
+    - roundcube

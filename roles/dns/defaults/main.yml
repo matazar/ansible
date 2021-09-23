@@ -1,25 +1,42 @@
 backup_dir: "{{ playbook_dir }}/env/{{ env }}/backups"
 
+# Bind Config
+bind_ipv6: 'any'
+bind_trusted_hosts:
+  - 127.0.0.0/8
+
 # Zone Defaults
 dns_zone_refresh: 7200
 dns_zone_retry: 3600
 dns_zone_expire: 1209600  # recommended value by mxtoolbox
 dns_zone_ttl: 7200
 
+nameservers: {}
+
+# DNSSEC
+dnssec_algorithms:
+  - NSEC3RSASHA1
+  - ECDSAP256SHA256
+  - ECDSAP384SHA384
+dnssec_algorithm_ids:
+  NSEC3RSASHA1: 7
+  RSASHA256: 8
+  ECDSAP256SHA256: 13
+  ECDSAP384SHA384: 14
+  ED25519: 15
+  ED448: 16
+
 # DKIM
 dkim_txt_dir: /var/lib/bind/dkim
-DKIM_key: 'example'
-DKIM_KEYS: 
-  - '{{ DKIM_key }}'
+dkim_key: 'dkim'
+dkim_keys: 
+  - '{{ dkim_key }}'
 
-# Misc Security
+# Text Records
 spf_txt: 'v=spf1 a mx -all'
-dmarc: "v=DMARC1;p=reject;sp=reject;adkim=s;aspf=s;fo=1;rf=afrf;rua=mailto:dmarc@{{ domain.name }}"
+dmarc_txt: "v=DMARC1;p=reject;sp=reject;adkim=s;aspf=s;fo=1;rf=afrf;rua=mailto:dmarc@{{ domain.name }}"
 
-# Bind Config
-bind_ipv6: 'any'
-trusted_dns_hosts: 
-  - 127.0.0.0/8
 
-# Leave empty, auto-populated by mail group
+# Leave empty, auto-populated variables
 mail_hostnames: []
+domain_dnssec_keys: []

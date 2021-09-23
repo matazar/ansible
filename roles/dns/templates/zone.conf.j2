@@ -49,16 +49,17 @@ $TTL 86400
 {% if domain.dmarc | default(false) %}
 _dmarc	IN	TXT		"{{ domain.dmarc }}"
 {% else %}
-_dmarc	IN	TXT		"{{ dmarc }}"
+_dmarc	IN	TXT		"{{ dmarc_txt }}"
 {% endif %}
 
 {% if dkim_exists.rc == 0 %}
-{% for key in DKIM_KEYS %}
-$INCLUDE "{{ dkim_txt_dir }}/{{ domain.name }}_{{ DKIM_key }}.txt"
+{% for key in dkim_keys %}
+$INCLUDE "{{ dkim_txt_dir }}/{{ domain.name }}_{{ key }}.txt"
 {% endfor %}
+
 {% endif %}
 {% if domain.dnssec | default(False) %}
-{% for key_file in dnssec_keys.stdout_lines %}
+{% for key_file in domain_dnssec_keys %}
 $INCLUDE "{{ key_file }}"
 {% endfor %}
 {% endif%}

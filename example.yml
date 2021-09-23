@@ -13,3 +13,25 @@
     - dns
   tags:
     - dns
+
+- hosts: ldap
+  vars_prompt:
+      - name: "reset_data"
+        prompt: "Do you want to reset LDAP data? (yes/no)"
+        private: no
+  roles:
+    - {role: ldap, tags: ldap}
+
+- hosts: mail
+  roles:
+    - mail
+  tags:
+    - mail
+    
+- hosts: webmail
+  roles:
+    - roundcube
+  tags:
+    - webmail
+    - roundcube
+

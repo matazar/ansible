@@ -1,0 +1,169 @@
+- include: certs.yml
+
+- name: Install prereqs
+  apt:
+    name: ['dbconfig-common', 'dictionaries-common', 'libmcrypt4', '{{ php_fpm }}', 'php-auth-sasl', 'php-pear',
+           'php-pgsql', 'php-pspell', 'php7.4-cli', 'php7.4-cgi', 'php7.4-common', 'php7.4-json', 'php7.4-ldap',
+           'php7.4-mbstring', 'php7.4-pgsql', 'postgresql', 'php7.4-xml', 'php7.4-zip', 'nginx-full', 'libgd-tools',
+            'python3-psycopg2']
+    state: present
+
+- set_fact: 
+    roundcube_des_key: "{{ lookup('password', '/dev/null length=24') }}"
+  when: roundcube_des_key == ''
+
+- name: Add roundcube des key to host var
+  local_action:
+    module:  blockinfile
+    path: "{{ playbook_dir }}/env/{{ env }}/host_vars/{{ inventory_hostname }}.yml"
+    block: "# Removed line to auto generate a new key at any point\nroundcube_des_key: {{ roundcube_des_key }}"
+    state: present
+  become: false
+
+- name: Check for roundcube folder
+  command: "/usr/bin/test -d /var/www/roundcube"
+  register: roundcube
+  failed_when: false
+  changed_when: roundcube.rc == 1
+
+- name: Copy over roundcube files
+  unarchive: 
+    src: "roundcubemail-{{ roundcube_version }}-complete.tar.gz"
+    dest: /var/www/
+  when: roundcube.changed
+
+- name: Rename the extracted folder
+  command: "/bin/mv /var/www/roundcubemail-{{ roundcube_version }} /var/www/roundcube"
+  when: roundcube.changed
+
+- name: Set permissions
+  file:
+    path: /var/www/roundcube
+    recurse: yes
+    owner: www-data
+    group: www-data
+
+- name: Configure roundcube
+  template:
+    src: config.inc.php.j2
+    dest: /var/www/roundcube/config/config.inc.php
+
+- name: Configure roundcube plugins
+  template:
+    src: "{{ item }}/config.inc.php.j2"
+    dest: "/var/www/roundcube/plugins/{{ item }}/config.inc.php"
+  with_items:
+    - password
+    - managesieve
+
+- name: Update ldap.conf file
+  template:
+    src: ldap.conf.j2
+    dest: /etc/ldap/ldap.conf
+
+- name: Copy over nginx file
+  template:
+    src: nginx.conf.j2
+    dest: "/etc/nginx/sites-available/{{ webmail_hostname }}"
+  notify: restart nginx
+  
+- name: Ensure the site is enabled
+  file: 
+    src: "/etc/nginx/sites-available/{{ webmail_hostname }}"
+    dest: "/etc/nginx/sites-enabled/{{ webmail_hostname }}"
+    state: link
+  notify: restart nginx
+
+- name: Check fastcgi params
+  template:
+    src: fastcgi_params.j2
+    dest: /etc/nginx/fastcgi_params
+  notify: 'restart {{ php_fpm }}'
+
+- name: Ensure the service is enabled
+  service:
+    name: '{{ php_fpm }}'
+    enabled: yes
+
+- name: Ensure www-data user can access certs
+  user:
+    append: yes
+    create_home: no
+    groups: ssl-certs
+    name: www-data
+  notify: restart nginx
+
+# Setup db
+- name: Ensure postgresql is running
+  service: 
+    name: postgresql
+    state: started
+
+- name: Set up postgresql root password
+  postgresql_user:
+    name: postgresql
+    state: present
+    password: "{{ postgresql_root_password }}"
+  become_user: postgres
+
+- name: Ensure mailman user exists.
+  postgresql_user:
+    name: "{{ roundcube_db_username }}"
+    password: "{{ roundcube_db_password }}"
+    state: present
+    login_password: "{{ postgresql_root_password }}"
+    login_user: postgres
+  become_user: postgres
+
+- name: Update postgresql config
+  template:
+    src: pg_hba.conf.j2
+    dest: "/etc/postgresql/{{ postgresql_version }}/main/pg_hba.conf"
+  notify:
+    - restart postgresql
+
+- name: Ensure the roundcube database exists
+  postgresql_db:
+    name: "{{ roundcube_db }}"
+    encoding: UTF-8
+    owner: "{{ roundcube_db_username }}"
+    login_password: "{{ postgresql_root_password }}"
+    login_user: postgres
+  become_user: postgres
+  register: new_db
+
+- name: Populate roundcube db
+  postgresql_db:
+    name: "{{ roundcube_db }}"
+    target: /var/www/roundcube/SQL/postgres.initial.sql
+    state: restore
+    login_password: "{{ roundcube_db_password }}"
+    login_user: "{{ roundcube_db_username }}"
+    login_unix_socket: "127.0.0.1"
+  when: new_db.changed
+
+- name: Make sure the errors.log file exists
+  file:
+      owner: www-data
+      group: www-data
+      path: /var/www/roundcube/logs/errors.log
+      state: touch
+  register: touch_feedback
+  changed_when: touch_feedback.diff.before.state == 'absent'
+
+- name: Add roundcube auth to fail2ban
+  template:
+    src: fail2ban.jail.j2
+    dest: /etc/fail2ban/jail.d/roundcube.conf
+  notify: restart fail2ban
+
+- name: Ensure setup files are no longer present
+  file:
+    path: "/var/www/roundcube/{{ item }}"
+    state: absent
+  with_items:
+    - CHANGELOG
+    - INSTALL
+    - installer
+    - README.md
+    - UPGRADING

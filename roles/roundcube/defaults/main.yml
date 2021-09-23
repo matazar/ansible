@@ -1,0 +1,22 @@
+ldap_schema: ldapi
+ldap_server: '%2Fvar%2Frun%2Fldapi'
+ldap_tls: true
+ldap_user: "cn=admin,{{ ldap_suffix }}"
+
+webmail_hostname: "webmail.{{ primary_mail_domain }}"
+webmail_ipv6: "{{ ipv6_address | default(False) }}"
+
+mail_server: "mail.{{ primary_mail_domain }}"
+
+roundcube_version: 1.4.11
+postgresql_version: 13
+php_version: php7.4
+php_fpm: '{{ php_version }}-fpm'
+
+roundcube_db_username: roundcube
+roundcube_db: roundcube
+
+sieve_port: 4190
+
+# Automatically generated during play
+roundcube_des_key: ''

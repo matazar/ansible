@@ -1,0 +1,21 @@
+- name: Export roundcube database
+  postgresql_db:
+    name: '{{ roundcube_db }}'
+    state: dump
+    target: /tmp/roundcube.sql
+    login_password: "{{ roundcube_db_password }}"
+    login_user: "{{ roundcube_db_username }}"
+    login_unix_socket: "127.0.0.1"
+  changed_when: false
+
+- name: Download roundcube database
+  fetch:
+    src: /tmp/roundcube.sql
+    dest: '{{ backup_dir }}/roundcube/{{ webmail_hostname }}.sql'
+    flat: yes
+
+- name: Delete tmp file
+  file:
+    path: /tmp/roundcube.sql
+    state: absent
+  changed_when: false

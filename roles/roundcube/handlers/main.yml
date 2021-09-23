@@ -1,0 +1,20 @@
+- name: 'restart {{ php_fpm }}'
+  service: 
+    name: '{{ php_fpm }}'
+    state: restarted
+
+- name: restart nginx
+  service:
+    name: nginx
+    state: restarted
+
+- name: restart postgresql
+  service:
+    name: postgresql
+    state: restarted
+
+- name: restart fail2ban
+  service:
+    name: fail2ban
+    state: reloaded
+    

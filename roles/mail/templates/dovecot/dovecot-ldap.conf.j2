@@ -1,0 +1,18 @@
+uris            = {{ ldap_schema }}://{{ ldap_server }}
+tls             = {% if ldap_tls %}yes{% else %}no{% endif %} 
+ldap_version    = 3
+auth_bind       = yes
+dn              = {{ ldap_user }}
+dnpass          = {{ ldap_pw }}
+base            = {{ ldap_suffix }}
+scope           = subtree
+deref           = never
+
+# Below two are required by command 'doveadm mailbox ...'
+iterate_attrs   = mail=user
+iterate_filter  = (objectClass=mailUser)
+user_filter     = (&(objectClass=mailUser)(|(mail=%u)(shadowAddress=%u)))
+user_attrs      = mail=user,homeDirectory=home,=mail=maildir:~/Maildir/,mailQuota=quota_rule=*:bytes=%$
+pass_filter     = (&(objectClass=mailUser)(|(mail=%u)(shadowAddress=%u)))
+pass_attrs      = mail=user,userPassword=password
+default_pass_scheme = SSHA

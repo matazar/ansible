@@ -1,0 +1,34 @@
+# Check for DKIM keys, restore if missing or generate a new set if none exist locally.
+- name: Output DKIM domain for debugging
+  debug:
+    var: '{{ item }}'
+
+# Always try to update DKIM, corrects issues when multiple hosts generate a key with the same name.
+- block: 
+  - name: Restore DKIM key/txt to host
+    copy:
+      dest: "/var/lib/rspamd/dkim/{{ item }}_{{ dkim_key }}.{{ type }}"
+      src: '{{ backup_dir }}/mail/dkim/{{ item }}_{{ dkim_key }}.{{ type }}'
+      owner: _rspamd
+      group: _rspamd
+    with_items:
+      - private
+      - txt
+    loop_control:
+      loop_var: type
+  rescue:
+  - name: Create DKIM keys if they do not already exist
+    shell: "rspamadm dkim_keygen -b 2048 -s {{ dkim_key }} -d {{ item }} -k /var/lib/rspamd/dkim/{{ item }}_{{ dkim_key }}.private > /var/lib/rspamd/dkim/{{ item }}_{{ dkim_key }}.txt"
+
+# Store a copy locally.
+- name: Store a copy of the DKIM key/txt file.
+  fetch:
+    src: '/var/lib/rspamd/dkim/{{ item }}_{{ dkim_key }}.{{ type }}'
+    # Playbooks dir.
+    dest: '{{ backup_dir }}/mail/dkim/{{ item }}_{{ dkim_key }}.{{ type }}'
+    flat: yes
+  with_items:
+    - txt
+    - private
+  loop_control:
+    loop_var: type

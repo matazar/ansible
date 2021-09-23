@@ -1,0 +1,14 @@
+extended_spam_headers = true;
+authenticated_headers = ["authentication-results"];
+use = ["x-spamd-bar", "authentication-results"];
+
+routines {
+  # settings for x-spamd-bar routine
+  x-spamd-bar {
+    # effectively disables negative spambar
+    negative = "";
+  }
+  authentication-results {
+    add_smtp_user = false;
+  }
+}

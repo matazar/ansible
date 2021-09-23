@@ -1,0 +1,105 @@
+- include: certs.yml
+
+- name: Set postfix for unattended install
+  debconf:
+    name: postfix
+    question: postfix/main_mailer_type
+    value: 'No configuration'
+    vtype: string
+
+- name: Set postfix mailname
+  debconf:
+    name: postfix
+    question: postfix/main_mailname
+    value: '{{ mail_hostname }}'
+    vtype: string
+
+- name: Ensure the mailname is correct
+  template: 
+    src: mailname.j2
+    dest: /etc/mailname
+
+- name: Add host entry for mail
+  lineinfile:
+    line: "{{ mail_localip }} {{ mail_hostname }} {{ mail_hostname.split('.')[0] }}"
+    regexp: "{{ mail_localip }} {{ mail_hostname }} {{ mail_hostname.split('.'[0]) }}"
+    path: /etc/hosts
+    insertafter: EOF
+
+- name: Ensure there is a vmail group
+  group: 
+    name: vmail
+    state: present
+    system: yes
+
+- name: Ensure we have a vmail user
+  user: 
+    name: vmail
+    group: vmail
+    groups: 'ssl-certs'
+    state: present
+    create_home: no
+    home: /var/vmail 
+    system: yes
+
+- name: Ensure the vmail folder exists
+  file:
+    path: /var/vmail/
+    state: directory
+    owner: vmail
+    group: vmail
+  register: vmail_folder
+
+- block:
+  - name: Restore emails
+    synchronize:
+        dest: '/var/'
+        src: '{{ backup_dir }}/mail/{{ mail_hostname }}/vmail'
+  - name: Set permissions on the restore emails
+    file:
+      path: /var/vmail/
+      recurse: yes
+      state: directory
+      owner: vmail
+      group: vmail
+  rescue:
+  - name: Ensure the domain folders exist
+    file:
+      path: "/var/vmail/{{ item }}/"
+      state: directory
+      owner: vmail
+      group: vmail
+    with_items: "{{ mail_domains }}"
+  when: vmail_folder.changed
+
+- name: Update ldap.conf file
+  template:
+    src: ldap.conf.j2
+    dest: /etc/ldap/ldap.conf
+
+  
+- include: postfix.yml
+
+- include: dovecot.yml
+
+- include: rspamd.yml
+  when: "spam_filter == 'rspamd'"
+
+- include: amavis.yml
+  when: "spam_filter == 'amavisd'"
+
+- name: Add dovecot and postfix to fail2ban
+  template:
+    src: fail2ban.jail.j2
+    dest: /etc/fail2ban/jail.d/mail.conf
+  notify: restart fail2ban
+
+# restart service if provisioning, for certs
+- name: Restart mail services
+  when: vmail_folder.changed
+  service:
+    name: '{{ item }}' 
+    state: reloaded
+  with_items: [dovecot,postfix]
+  
+

@@ -1,0 +1,18 @@
+require ["envelope","fileinto","imap4flags","subaddress"];
+
+if header :contains "X-Spam-Flag" "YES" {
+    fileinto "Junk"; 
+    stop;
+}
+
+if anyof (
+	header :contains "X-Amavis-Alert" "INFECTED",
+	header :contains "X-Amavis-Alert" "BANNED") {
+	discard;
+	stop;
+}
+
+if header :contains "subject" ["[SPAM]"] {
+        fileinto "Junk";
+        stop;
+}

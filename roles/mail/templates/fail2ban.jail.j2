@@ -1,0 +1,24 @@
+[postfix]
+enabled = true
+port     = smtp,submission,smtps
+logpath  = /var/log/mail.log
+logencoding = utf-8
+maxretry = 5
+bantime = 31556952
+
+[postfix-sasl]
+enabled = true
+port = smtp,ssmtp,smtps,submission
+logpath = /var/log/mail.log
+maxretry = 5
+logencoding = utf-8
+bantime = 31556952
+
+[dovecot]
+enabled = true
+#port = imap,imaps
+filter = dovecot
+logpath = /var/log/mail.log
+maxretry  = 5
+logencoding = utf-8
+bantime = 31556952

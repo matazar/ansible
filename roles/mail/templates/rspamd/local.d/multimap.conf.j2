@@ -1,0 +1,71 @@
+email_denylist_header {
+  type = "header";
+  header = "from";
+  map = "$DBDIR/email_denylist.inc";
+  filter = email;
+  prefilter = true;
+  action = "reject";
+  description = "Blacklist map for email addresses using headers";
+}
+email_denylist_envelope {
+  type = "from";
+  map = "$DBDIR/email_denylist.inc";
+  filter = email;
+  prefilter = true;
+  action = "reject";
+  description = "Blacklist map for email addresses";
+}
+domain_denylist_header {
+  type = "header";
+  header = "from";
+  map = "$DBDIR/domain_denylist.inc";
+  filter = email:domain:tld;
+  prefilter = true;
+  action = "reject";
+  description = "Blacklist map for domains";
+}
+domain_denylist_envelope {
+  type = "from";
+  map = "$DBDIR/domain_denylist.inc";
+  filter = email:domain:tld;
+  prefilter = true;
+  action = "reject";
+  description = "Blacklist map for domains";
+}
+regex_denylist {
+  type = "from";
+  map = "$DBDIR/regex_denylist.inc";
+  filter = email;
+  prefilter = true;
+  regexp = true;
+  action = "reject";
+  description = "Regex blacklist";
+}
+domain_allowlist {
+  type = "from";
+  map = "$DBDIR/domain_allowlist.inc";
+  filter = email:domain:tld;
+  score = -10.0;
+  description = "Whitelist map for domains";
+}
+email_allowlist {
+  type = "from";
+  map = "$DBDIR/email_allowlist.inc";
+  filter = email:addr;
+  score = -10.0;
+  description = "Whitelist map for emails";
+}
+custom_tld_score {
+  type = "from";
+  filter = email:domain:tld;
+  regexp = true;
+  map = "$CONFDIR/maps.d/custom_tld_scoring.inc";
+  description = "Increase spam score by TLD";
+}
+envfrom_spam {
+  type = "from";
+  map = "$CONFDIR/maps.d/envfrom_regex.inc";
+  score = 1.0;
+  regexp = true;
+  description = "Envelope-From regexp checks";
+} 

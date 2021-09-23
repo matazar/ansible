@@ -1,0 +1,46 @@
+# Backup maildir
+- name: Ensure local vamil backup folder exists.
+  local_action:
+    module: file
+    state: directory
+    path: '{{ backup_dir }}/mail/{{ mail_hostname }}/'
+  become: false
+  
+- name: Take a snapshot of the vmail folder
+  synchronize:
+    dest: "{{ backup_dir }}/mail/{{ mail_hostname }}/"
+    src: /var/vmail
+    mode: pull
+    copy_links: yes
+    links: no
+    delete: yes
+    recursive: yes
+
+# DKIM
+- set_fact:
+    dkim_dir: /etc/opendkim/keys
+  when: "spam_filter == 'amavisd'"
+
+- set_fact:
+    dkim_dir: /var/lib/rspamd/dkim
+  when: "spam_filter == 'rspamd'"
+
+- name: Store a copy of the DKIM key/txt file.
+  fetch:
+    src: '{{ dkim_dir }}/{{  item[0] }}_{{ item[1] }}.{{ item[2] }}'
+    dest: '{{ backup_dir }}/dkim/{{ item[0] }}_{{ item[1] }}.{{ item[2] }}'
+    flat: yes
+  ignore_errors: true
+  with_nested:
+    - '{{ mail_domains }}'
+    - '{{ dkim_keys }}'
+    - [txt, private]
+  when: "spam_filter == 'rspamd' or spam_filter == 'amavisd'"
+
+# rspamd
+- name: Fecth a copy of the rspamd dynamic lists
+  fetch:
+    src: /var/lib/rspamd/{{ item }}
+    dest: '{{ backup_dir }}/mail/{{ mail_hostname }}/{{ item }}'
+  with_items: '{{ rspamd_list_dbs }}'
+  when: "spam_filter == 'rspamd'"

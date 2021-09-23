@@ -1,0 +1,12 @@
+clamav {
+  # If set force this action if any virus is found (default unset: no action is forced)
+  action = "reject";
+  message = '${SCANNER}: virus found: "${VIRUS}"';
+  scan_mime_parts = true; # After 1.8.1
+  symbol = "CLAM_VIRUS";
+  type = "clamav";
+  # If set true, log message is emitted for clean messages
+  log_clean = true;
+  prefix = "rs_cl_";
+  servers = "/var/run/clamav/clamd.ctl";
+}

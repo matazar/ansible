@@ -1,0 +1,4 @@
+{% for domain in mail_domains %}
+(?!bounce).+\+(?!caf).+\={{ domain }}\@.+
+(?!bounce).+\-.+\={{ domain }}\@.+
+{% endfor %}

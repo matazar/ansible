@@ -1,0 +1,9 @@
+dns {
+        nameserver = ["127.0.0.1"];
+}
+neighbours {
+{% for m in groups['mail'] %}
+        {{ m }} { host = "https://{{ hostvars[m]['rspamd_hostname'] }}:443"; }
+{% endfor %}
+}
+

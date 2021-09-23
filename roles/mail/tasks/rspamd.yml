@@ -1,0 +1,151 @@
+- name: Add the rspamd gpg key
+  apt_key:
+    url: https://rspamd.com/apt-stable/gpg.key
+
+- name: Ensure we have the rspamd repo added.
+  template:
+    src: rspamd/apt.list
+    dest: /etc/apt/sources.list.d/rspamd.list
+
+- name: Ensure rspamd/redis are installed
+  apt: 
+    name: [rspamd, redis, clamav, clamav-daemon]
+    state: present
+    update_cache: yes
+    install_recommends: yes
+
+- name: Add clamav user to vmail group
+  user:
+    append: yes
+    create_home: no
+    groups: vmail
+    name: "clamav"
+
+- name: Update rspamd nginx file
+  template:
+    src: rspamd/nginx.conf.j2
+    dest: '/etc/nginx/sites-available/{{ rspamd_hostname }}.conf'
+
+- name: Ensure the site is enabled
+  file: 
+    src: '/etc/nginx/sites-available/{{ rspamd_hostname }}.conf'
+    dest: '/etc/nginx/sites-enabled/{{ rspamd_hostname }}.conf'
+    state: link
+  notify: restart nginx
+
+- name: Ensure we have the required rspamd folders
+  file:
+    state: directory
+    path: '/etc/rspamd/{{ item }}'
+  with_items:
+    - maps.d
+    - local.d
+    - override.d
+
+- name: Deal with controller password.
+  block:
+    # Storing encrypted copy of the password to allow us to check for changes.
+    - name: Check current rspamd controller password
+      template:
+        src: rspamd/controller.j2
+        dest: /etc/rspamd/controller.txt
+      register: rspamd_pwd
+    - name: Encrypt rspamd controller password
+      command: "rspamadm pw -p {{ rspamd_controller_password }}"
+      register: rspamd_encrypted_password
+      no_log: true
+      when: rspamd_pwd.changed
+    - name: Set rspamd controller password
+      template:
+        src: rspamd/worker-controller.inc.j2
+        dest: /etc/rspamd/local.d/worker-controller.inc
+      when: rspamd_pwd.changed
+      notify:
+        - restart rspamd
+
+- name: Update rspamd local.d config files
+  template:
+    src: '{{ item }}'
+    dest: "/etc/rspamd/local.d/{{ item | basename | regex_replace('.j2', '') }}"
+  with_fileglob:
+    - '{{ role_path }}/templates/rspamd/local.d/*'
+  notify:
+    - reload rspamd
+
+- name: Update rspamd override.d config files
+  template:
+    src: '{{ item }}'
+    dest: "/etc/rspamd/override.d/{{ item | basename | regex_replace('.j2', '') }}"
+  with_fileglob:
+    - '{{ role_path }}/templates/rspamd/override.d/*'
+  notify:
+    - reload rspamd
+
+- block:
+    - name: Ensure local allow/block lists exist.
+      stat: 
+        path: '/var/lib/rspamd/{{ item }}'
+      with_items: "{{ rspamd_list_dbs }}"
+      register: rspamd_dbs
+      changed_when: not rspamd_dbs.stat.exists
+    - name: Restore local allow/block lists.
+      copy:
+        dest: '/var/lib/rspamd/{{ item }}'
+        src: '{{ backup_dir }}/mail/{{ mail_hostname  }}/{{ item }}'
+        owner: _rspamd
+        group: _rspamd
+      with_items: "{{ rspamd_list_dbs }}"
+      when: rspamd_dbs.changed
+    - name: Fetch a copy of the rspamd allow/block lists
+      fetch:
+        flat: yes
+        src: '/var/lib/rspamd/{{ item }}'
+        dest: '{{ backup_dir }}/mail/{{ mail_hostname  }}/{{ item }}'
+      with_items: "{{ rspamd_list_dbs }}"
+      when: not rspamd_dbs.changed
+  rescue:
+    - name: Create new allow/block lists files.
+      with_items: "{{ rspamd_list_dbs }}"
+      file:
+        owner: _rspamd
+        group: _rspamd
+        path: '/var/lib/rspamd/{{ item }}'
+        state: touch
+
+- name: Update rspamd maps.d config files
+  template:
+    src: '{{ item }}'
+    dest: "/etc/rspamd/maps.d/{{ item | basename | regex_replace('.j2', '') }}"
+  with_fileglob:
+    - '{{ role_path }}/templates/rspamd/maps.d/*'
+
+- name: Ensure rspamd dkim folder exists
+  file:
+    state: directory
+    path: /var/lib/rspamd/dkim
+    mode: 0770
+    owner: _rspamd
+    group: _rspamd
+
+- include: rspamd_dkim.yml
+  with_items: '{{ mail_domains }}'
+
+- name: Ensure rspamd services are enabled
+  service:
+    name: '{{ item }}'
+    enabled: yes
+  with_items:
+    - rspamd
+    - redis-server
+    - clamav-freshclam
+    - clamav-daemon
+
+- name: Ensure rspamd services are running
+  service:
+    name: '{{ item }}'
+    state: started
+  with_items:
+    - rspamd
+    - redis-server
+    - clamav-freshclam
+    - clamav-daemon

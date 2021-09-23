@@ -1,0 +1,201 @@
+# This is the right place to customize your installation of SpamAssassin.
+#
+# See 'perldoc Mail::SpamAssassin::Conf' for details of what can be
+# tweaked.
+#
+# Only a small subset of options are listed below
+#
+###########################################################################
+
+#   Add *****SPAM***** to the Subject header of spam e-mails
+#
+rewrite_header Subject *****SPAM*****
+
+
+#   Save spam messages as a message/rfc822 MIME attachment instead of
+#   modifying the original message (0: off, 2: use text/plain instead)
+#
+# report_safe 1
+add_header all RelaysUntrusted _RELAYSUNTRUSTED_
+
+#   Set which networks or hosts are considered 'trusted' by your mail
+#   server (i.e. not spammers)
+#
+# trusted_networks 212.17.35.
+trusted_networks {{ " ".join(trusted_hosts) }}
+
+#   Set file-locking method (flock is not safe over NFS, but is faster)
+#
+# lock_method flock
+
+
+#   Set the threshold at which a message is considered spam (default: 5.0)
+#
+# required_score 5.0
+
+
+#   Use Bayesian classifier (default: 1)
+#
+# use_bayes 1
+
+
+#   Bayesian classifier auto-learning (default: 1)
+#
+# bayes_auto_learn 1
+
+
+#   Set headers which may provide inappropriate cues to the Bayesian
+#   classifier
+#
+# bayes_ignore_header X-Bogosity
+# bayes_ignore_header X-Spam-Flag
+# bayes_ignore_header X-Spam-Status
+
+
+#   Whether to decode non- UTF-8 and non-ASCII textual parts and recode
+#   them to UTF-8 before the text is given over to rules processing.
+#
+# normalize_charset 1
+
+#   Some shortcircuiting, if the plugin is enabled
+# 
+ifplugin Mail::SpamAssassin::Plugin::Shortcircuit
+#
+#   default: strongly-whitelisted mails are *really* whitelisted now, if the
+#   shortcircuiting plugin is active, causing early exit to save CPU load.
+#   Uncomment to turn this on
+#
+# shortcircuit USER_IN_WHITELIST       on
+# shortcircuit USER_IN_DEF_WHITELIST   on
+# shortcircuit USER_IN_ALL_SPAM_TO     on
+# shortcircuit SUBJECT_IN_WHITELIST    on
+
+#   the opposite; blacklisted mails can also save CPU
+#
+# shortcircuit USER_IN_BLACKLIST       on
+# shortcircuit USER_IN_BLACKLIST_TO    on
+# shortcircuit SUBJECT_IN_BLACKLIST    on
+
+#   if you have taken the time to correctly specify your "trusted_networks",
+#   this is another good way to save CPU
+#
+# shortcircuit ALL_TRUSTED             on
+
+#   and a well-trained bayes DB can save running rules, too
+#
+# shortcircuit BAYES_99                spam
+# shortcircuit BAYES_00                ham
+
+endif # Mail::SpamAssassin::Plugin::Shortcircuit
+
+#use_dcc 1
+#dcc_timeout 10
+#dcc_home /usr/local/dcc
+#dcc_dccifd_path /usr/local/dcc/dccifd
+
+use_razor2 1
+razor_config /etc/razor/razor-agent.conf
+
+use_pyzor 1
+pyzor_options --homedir /etc/spamassassin/.pyzor
+
+{% for entry in blacklist_emails %}
+blacklist_from {{ entry }}
+{% endfor %}
+
+{% for entry in whitelist_emails %}
+whitelist_from {{ entry }}
+{% endfor %}
+
+score URIBL_BLACK 3.250
+score RAZOR2_CHECK 3.250
+score PYZOR_CHECK 2.5
+score BAYES_999 5.200
+score BAYES_99 5.15
+score BAYES_95 4.9
+score BAYES_80 4.0
+score BAYES_60 3.0
+score BAYES_50 1.500
+score BAYES_00 -0.500
+
+# Adapt some ideas for scoring adjustments from http://forums.kerio.com/t/25319//
+score HTML_IMAGE_ONLY_04 3.0
+score HTML_IMAGE_ONLY_28 0.5
+score HTML_IMAGE_RATIO_02 1.5
+score HTML_IMAGE_RATIO_04 1.2
+score HTML_IMAGE_RATIO_06 1.0
+score HTML_IMAGE_RATIO_08 0.8
+score HTML_OBFUSCATE_05_10 1.3
+score HTML_SHORT_CENTER 2.1
+score HTML_SHORT_LINK_IMG_2 2.1
+score HTML_TITLE_SUBJ_DIFF 1.4
+score HTTP_77 2.5
+
+# Change defaults for RBL lists
+# Disabled URIBL lookups since we get back URIBL_BLOCKED
+score URIBL_BLACK 0
+score URIBL_RED 0
+score URIBL_GREY 0
+score URIBL_BLOCKED 0
+# Increase scoring for other lists
+score RCVD_IN_SORBS_DUL 3
+score RCVD_IN_SORBS_WEB 3
+score RCVD_IN_SORBS_SMTP 3
+score RCVD_IN_SORBS_HTTP 3
+score RCVD_IN_XBL 3
+score RCVD_IN_BRBL_LASTEXT 3.5
+score URIBL_WS_SURBL 3
+score URIBL_ABUSE_SURBL 3
+score BITCOIN_EXTORT_01 10
+score RP_MATCHES_RCVD -0.5 -1.0 -0.5 -1.0
+score RCVD_IN_MSPIKE_H2 0 -0.001 0 -0.001
+
+score HTML_EXTRA_CLOSE 3.0
+# DKIM invalid e-mail seems to be getting through, trying 
+# to close the loophole Aug 7, 2014 D.M.
+#
+# Removing, due to false positive a mailing list email
+#  May 19, 2015 D.M.
+# score T_DKIM_INVALID 3
+
+score MISSING_SUBJECT 0.5
+
+body		VC_AMAZON_PRIME	/Amazon and Amazon-Prime members. \(Expires/
+describe	VC_AMAZON_PRIME	Phony Amazon Phishing
+score		VC_AMAZON_PRIME	4.0
+
+{% for (from, score) in spam_from_scoring.items() %}
+header 		VC_{{ from | upper | replace(' ','') | replace('-', '_') }}_FROM	From =~ /{{ from }}/i
+describe	VC_{{ from | upper | replace(' ','') | replace('-', '_') }}_FROM	Contains From value, {{ from }}
+score 		VC_{{ from | upper | replace(' ','') | replace('-', '_') }}_FROM	{{ score }}
+
+{% endfor %}
+
+# Reduce this score for evite email, linked-in, etc.
+score FREEMAIL_FORGED_REPLYTO 1.0
+
+header		RPATH_EMBEDS_FROM_ADDR ALL =~ /\bReturn-Path: <([^\r\n]{0,99})-([\w.]+)=([\w.-]{1,99}\.[a-z]{2,8})\@([^>]+)>.+From:[^<]+<\1@\4>/ism
+describe	RPATH_EMBEDS_FROM_ADDR Return path embeds from address
+score		RPATH_EMBEDS_FROM_ADDR 5.0
+
+{% for (domain, score) in tld_spam_score.items() %}
+uri		LR_{{ domain | upper }}_TLD	 /^(?:https?:\/\/|mailto:)[^\/]+\.{{ domain }}(?:\/|$)/i
+describe	LR_{{ domain | upper }}_TLD	 Contains a URL in the {{ domain | upper }} top-level domain
+score 		LR_{{ domain | upper }}_TLD	{{ score }}
+
+{% endfor %}
+
+header __EMPTY_FROM From =~ /^\s*$/
+header __EMPTY_TO   To =~ /^\s*$/
+header __EMPTY_CC   Cc =~ /^\s*$/
+header __HAS_FROM         exists:From
+header __HAS_TO           exists:To
+header __HAS_CC           exists:CC
+
+meta EMPTY_TO_OR_FROM_OR_CC (__HAS_TO && __EMPTY_TO) || (__HAS_FROM && __EMPTY_FROM) || (__HAS_CC &&  __EMPTY_CC)
+describe EMPTY_TO_OR_FROM_OR_CC Mail contains headers that are blank and shouldn't be.
+score EMPTY_TO_OR_FROM_OR_CC 3.0
+
+header MULTIPLE_FROM         From =~ /([^<]*<[^>]+@[^>]+>){2}/i
+describe MULTIPLE_FROM       Multiple from emails
+score MULTIPLE_FROM          5

@@ -1,0 +1,58 @@
+- name: restart postfix
+  service: 
+    name: postfix 
+    state: restarted
+
+- name: reload postfix
+  service: 
+    name: postfix
+    state: reloaded
+
+- name: reload dovecot
+  service:
+    name: dovecot
+    state: reloaded
+
+- name: reload spamassassin
+  service: 
+    name: spamassassin
+    state: reloaded
+
+- name: restart amavisd
+  service:
+    name: amavis
+    state: restarted
+
+- name: restart clamav-daemon
+  service:
+    name: clamav-daemon
+    state: restarted
+
+- name: restart clamav-freshclam
+  service:
+    name: clamav-freshclam
+    state: restarted
+
+- name: restart opendkim
+  service:
+    name: opendkim
+    state: restarted
+  
+- name: reload rspamd
+  service:
+    name: rspamd
+    state: restarted
+
+- name: restart rspamd
+  service:
+    name: rspamd
+    state: restarted
+
+# - name: hash virtual
+#   command: '/usr/sbin/postmap hash:/etc/postfix/virtual' 
+
+- name: restart fail2ban
+  service:
+    name: fail2ban
+    state: reloaded
+    

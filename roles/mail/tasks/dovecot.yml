@@ -1,0 +1,93 @@
+- name: Ensure dovecot is installed
+  apt: 
+    name: [dovecot-core, dovecot-imapd, dovecot-lmtpd, dovecot-managesieved, dovecot-sieve, dovecot-ldap]
+    state: present
+    install_recommends: yes
+
+- name: Add dovecot user to vmail and ssl certs groups
+  user:
+    append: yes
+    create_home: no
+    groups: ['vmail, ssl-certs']
+    name: dovecot
+
+- name: Update main dovecot config file
+  template: 
+    src: dovecot/dovecot.conf.j2
+    dest: /etc/dovecot/dovecot.conf
+  notify:
+    - reload dovecot
+
+- name: Update dovecot-ldap config file
+  template: 
+    src: dovecot/dovecot-ldap.conf.j2
+    dest: /etc/dovecot/dovecot-ldap.conf.ext
+  notify:
+    - reload dovecot
+
+- name: Update other dovecot config files
+  template: 
+    src: "dovecot/{{ item }}.j2"
+    dest: "/etc/dovecot/conf.d/{{ item }}"
+  with_items:
+    - 10-auth.conf
+    - 10-logging.conf
+    - 10-mail.conf
+    - 10-master.conf
+    - 10-ssl.conf
+    - 15-lda.conf
+    - 15-mailboxes.conf
+    - 20-managesieve.conf
+    - 20-imap.conf
+    - 20-lmtp.conf
+    - 90-plugin.conf
+    - 90-sieve.conf
+    - auth-ldap.conf.ext
+    - auth-system.conf.ext
+  notify:
+    - reload dovecot
+
+- name: Set up sieve folders
+  file:
+    state: directory
+    path: "/var/lib/dovecot/{{ item }}"
+    owner: vmail
+    group: vmail
+    mode: 0770
+  with_items:
+    - sieve.d
+    - pipe
+
+- name: Update sieve files
+  template:
+    src: 'sieve/{{ item }}.j2'
+    dest: '/var/lib/dovecot/sieve.d/{{ item }}'
+    owner: vmail
+    group: vmail
+    mode: 0770
+  with_items:
+    - default.sieve
+    - report-ham.sieve
+    - report-spam.sieve
+    - processjunk.sieve
+
+- name: Update spam/ham learning scripts
+  template:
+    src: 'sieve/{{ item }}.j2'
+    dest: '/var/lib/dovecot/pipe/{{ item }}'
+    mode: 0770
+    group: vmail
+    owner: vmail
+  with_items:
+    - learn-ham.sh
+    - learn-spam.sh
+
+- name: Ensure dovecot is enabled
+  service: 
+    name: dovecot
+    enabled: yes
+
+- name: Ensure dovecot is running
+  service: 
+    name: dovecot
+    state: started

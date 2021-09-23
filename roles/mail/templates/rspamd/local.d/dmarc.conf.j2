@@ -1,0 +1,9 @@
+# Enables storing reporting information to redis
+reporting = true;
+# If Redis server is not configured below, settings from redis {} will be used
+servers = "127.0.0.1:6379"; # Servers to use for reads and writes (can be a list)
+
+actions = {
+	quarantine = "add_header";
+	reject = "reject";
+}

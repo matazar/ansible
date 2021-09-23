@@ -1,0 +1,16 @@
+- include_role:
+    name: certbot
+  vars:
+    cert_domain: "{{ mail_hostname }}"
+    cert_ipv6: '{{ mail_ipv6 }}'
+  tags:
+    - certbot
+
+- include_role:
+    name: certbot
+  vars:
+    cert_domain: "{{ rspamd_hostname  }}"
+    cert_ipv6: '{{ rspamd_ipv6 }}'
+  when: spam_filter == 'rspamd'
+  tags:
+    - certbot

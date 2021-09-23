@@ -1,0 +1,3 @@
+{% for tld in tld_spam_score %}
+\w+\.{{ tld }}$ CUSTOM_TLD_SCORE:{{ tld_spam_score[tld] }}
+{% endfor %}

@@ -1,0 +1,9 @@
+{% if dqs_key %}
+{{ dqs_key }}.sbl.dq.spamhaus.net=127.0.0.[2..255]      $rbl_code Service unavailable; $rbl_class [$rbl_what] blocked using sbl.spamhaus.org${rbl_reason?; $rbl_reason}
+{{ dqs_key }}.xbl.dq.spamhaus.net=127.0.0.[2..255]      $rbl_code Service unavailable; $rbl_class [$rbl_what] blocked using xbl.spamhaus.org${rbl_reason?; $rbl_reason}
+{{ dqs_key }}.pbl.dq.spamhaus.net=127.0.0.[2..255]      $rbl_code Service unavailable; $rbl_class [$rbl_what] blocked using pbl.spamhaus.org${rbl_reason?; $rbl_reason}
+{{ dqs_key }}.sbl-xbl.dq.spamhaus.net=127.0.0.[2..255]  $rbl_code Service unavailable; $rbl_class [$rbl_what] blocked using sbl-xbl.spamhaus.org${rbl_reason?; $rbl_reason}
+{{ dqs_key }}.zen.dq.spamhaus.net=127.0.0.[2..255]      $rbl_code Service unavailable; $rbl_class [$rbl_what] blocked using zen.spamhaus.org${rbl_reason?; $rbl_reason}
+{{ dqs_key }}.dbl.dq.spamhaus.net=127.0.1.[2..99]       $rbl_code Service unavailable; $rbl_class [$rbl_what] blocked using dbl.spamhaus.org${rbl_reason?; $rbl_reason}
+{{ dqs_key }}.zrd.dq.spamhaus.net=127.0.2.[2..24]      $rbl_code Service unavailable; $rbl_class [$rbl_what] blocked using zrd.spamhaus.org${rbl_reason?; $rbl_reason}
+{% endif %}

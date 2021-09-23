@@ -1,0 +1,2 @@
+deb [arch=amd64] http://rspamd.com/apt-stable/ bullseye main
+deb-src [arch=amd64] http://rspamd.com/apt-stable/ bullseye main

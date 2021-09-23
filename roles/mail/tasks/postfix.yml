@@ -1,0 +1,82 @@
+- name: Ensure postfix is installed
+  apt: 
+    name: [postfix, postfix-ldap, postfix-pcre]
+    state: present
+    install_recommends: yes
+
+- name: Ensure postfix is enabled
+  service: 
+    name: postfix
+    enabled: yes
+
+- name: Update postfix config files
+  template: 
+    src: "postfix/{{ item }}.j2" 
+    dest: "/etc/postfix/{{ item }}"
+  with_items: 
+    - main.cf 
+    - master.cf
+  notify: restart postfix
+
+- name: Copy over LDAP config
+  template: 
+    src: 'postfix/{{ item }}.j2'
+    dest: '/etc/postfix/{{ item }}'
+  with_items:
+    - domains.cf
+    - forwards.cf
+    - mail.cf
+  notify: restart postfix
+
+- name: Update hashed files
+  template:
+    src: 'postfix/{{ item }}.j2'
+    dest: '/etc/postfix/{{ item }}'
+  with_items:
+    - virtual
+    - network_table
+    - dnsbl-reply-map
+    - rejected_addresses
+  register: new_virtual
+  tags:
+    - update_alias
+
+- name: Hash virtual files
+  command: '/usr/sbin/postmap hash:/etc/postfix/{{ item }}' 
+  with_items:
+    - virtual
+    - network_table
+    - dnsbl-reply-map
+    - rejected_addresses
+  when: new_virtual.changed
+  tags:
+    - update_alias
+
+- name: Update aliases file
+  template:
+    src: postfix/aliases.j2
+    dest: /etc/aliases
+  register: newaliases
+  tags:
+    - update_alias
+
+- name: Hash /etc/aliases
+  command: /usr/bin/newaliases
+  when: newaliases.changed
+  tags:
+    - update_alias
+
+- name: Add postfix to vmail, ssl-certs groups
+  user:
+    append: yes
+    create_home: no
+    groups: 
+      - vmail
+      - ssl-certs
+    name: postfix
+  notify: restart postfix
+
+- name: Ensure postfix is running
+  service: 
+    name: postfix
+    state: started

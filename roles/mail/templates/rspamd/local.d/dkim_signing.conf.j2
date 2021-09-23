@@ -1,0 +1,32 @@
+domain {
+{% for domain in mail_domains %}
+    {{ domain }} {
+        selector = "{{ dkim_key }}";
+        path = "/var/lib/rspamd/dkim/{{ domain }}_{{ dkim_key }}.private";
+    }
+{% endfor %}
+}
+
+allow_envfrom_empty = true;
+allow_hdrfrom_mismatch = true;
+allow_hdrfrom_multiple = false;
+allow_username_mismatch = true;
+
+path = "/var/lib/rspamd/dkim/$domain_$selector.private";
+selector = "{{ dkim_key }}";
+
+sign_authenticated = true;
+sign_local = true;
+
+symbol = "DKIM_SIGNED";
+try_fallback = true;
+
+use_domain = "header";
+use_domain_sign_networks = "header";
+use_esld = false;
+use_redis = false;
+
+key_prefix = "DKIM_KEYS";
+
+check_pubkey = false;
+allow_pubkey_mismatch = true;

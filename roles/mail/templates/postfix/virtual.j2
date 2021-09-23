@@ -1,0 +1,5 @@
+do-not-reply@{{ primary_mail_domain }}	devnull
+null@{{ primary_mail_domain }}    devnull
+{% for email in spammed_accounts %}
+{{ email }}    devnull 
+{% endfor %}

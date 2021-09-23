@@ -1,7 +1,7 @@
-- name: Enable contrib/non-free in repo
+- name: Enable contrib/non-free repo
   lineinfile:
-    regex: '(deb http:\/\/deb\.debian\.org\/debian buster .+)'
-    line: deb http://deb.debian.org/debian buster main contrib non-free
+    regex: '(deb http:\/\/deb\.debian\.org\/debian buslleye .+)'
+    line: deb http://deb.debian.org/debian bullseye main contrib non-free
     path: /etc/apt/sources.list
 
 - name: Install AMD drivers

@@ -50,33 +50,26 @@
     - bind_debug.log
     - bind.log
 
-- name: Check for rndc keyfile
-  command: '/usr/bin/test -f /etc/bind/ns-{{ "-".join(inventory_hostname.split(".")[-2:]) }}_rndc-key'
-  register: rndc
-  failed_when: false
-  changed_when: rndc.rc == 1
-
 - block:
     - name: Attempt to restore the rndc key file
       copy:
-        src: '{{ backup_dir }}/ns-{{ "-".join(inventory_hostname.split(".")[-2:]) }}_rndc-key'
-        dest: /etc/bind/ns-{{ "-".join(inventory_hostname.split(".")[-2:]) }}_rndc-key
+        src: '{{ backup_dir }}/dns/{{ inventory_hostname }}/ns-{{ primary_mail_domain }}_rndc-key'
+        dest: '/etc/bind/ns-{{ primary_mail_domain }}_rndc-key'
         mode: '0744'
   rescue:
     - name: Generate a new rndc key file
-      command: 'rndc-confgen -a -b 256 -c /etc/bind/ns-{{ "-".join(inventory_hostname.split(".")[-2:]) }}_rndc-key -k rndc-key'
+      command: 'rndc-confgen -a -b 512 -c /etc/bind/ns-{{ primary_mail_domain }}_rndc-key -k rndc-key'
       register: new_rndc
     - name: Set permissions on the new rndc key file
       file:
         state: touch
         mode: '0744'
-        path: /etc/bind/ns-{{ "-".join(inventory_hostname.split(".")[-2:]) }}_rndc-key
-    - name: Save a copy of the neww rndc key file
+        path: /etc/bind/ns-{{ primary_mail_domain }}_rndc-key
+    - name: Save a copy of the new rndc key file
       fetch:
         flat: yes
-        src: '/etc/bind/ns-{{ "-".join(inventory_hostname.split(".")[-2:]) }}_rndc-key'
-        dest: '{{ backup_dir }}/dns/ns-{{ "-".join(inventory_hostname.split(".")[-2:]) }}_rndc-key'
-  when: 'rndc.changed'
+        src: '/etc/bind/ns-{{ primary_mail_domain }}_rndc-key'
+        dest: '{{ backup_dir }}/dns/{{ inventory_hostname }}/ns-{{ primary_mail_domain }}_rndc-key'
 
 - name: Make sure our zone folders exist
   file:
@@ -86,24 +79,25 @@
     - /etc/bind/zones/
     - /var/lib/bind/
 
-- name: Create a list of mail server hostnames
-  set_fact:
-    mail_hostnames: "{{ mail_hostnames + [ item ]}}"
-  with_inventory_hostnames:
-    - mail
+- name: Ensure DKIM directory exists
+  file:
+    state: directory
+    owner: bind
+    group: bind
+    path: '{{ dkim_txt_dir }}'
 
 # Creation is handled in mail role.
 - name: Ensure the master ns has a copy of each DKIM text file
   copy:
-    src: '{{ backup_dir }}/mail/dkim/{{ item[0][:2] }}{{ item[1] }}.txt'
-    dest: '{{ dkim_txt_dir }}/{{ item[0][:2] }}{{ item[1] }}.txt'
+    src: '{{ backup_dir }}/mail/dkim/{{ item[0]}}_{{ item[1] }}.txt'
+    dest: '{{ dkim_txt_dir }}/{{ item[0] }}_{{ item[1] }}.txt'
     owner: bind
     group: bind
   with_nested: 
-    - "{{ mail_hostnames }}"
-    - "{{ DKIM_KEYS }}"
+    - "{{ mail_domains }}"
+    - "{{ dkim_keys }}"
   when: 
-    - master_ns_host
+    - master_ns_host | default(false)
   ignore_errors: yes
 
 - include: zones.yml
@@ -111,7 +105,7 @@
   loop_control:
     loop_var: domain
   when: 
-    - master_ns_host
+    - master_ns_host | default(false)
   tags:
     - dns_update
     - dkim

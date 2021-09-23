@@ -1,0 +1,79 @@
+- name: Ensure we have a cert group
+  group:
+    name: ssl-certs
+    state: present
+
+- name: Ensure www-data belongs to cert group
+  user:
+    append: yes
+    create_home: no
+    groups:
+      - ssl-certs
+    name: www-domain
+
+- block:
+  - name: Ensure nginx is installed
+    apt: 
+      name: nginx-full
+      state: latest
+      install_recommends: yes
+  rescue:
+    - name: Set nonstandard port to ensure nginx starts
+      lineinfile:
+        path: /etc/nginx/sites-available/default
+        line: "        listen {{ rescue_port }} default_server;"
+        regexp: "^\\s+listen \\d+ default_server;"
+    - name: Change the IPv6 port for the default site
+      lineinfile:
+        path: /etc/nginx/sites-available/default
+        line: "        listen [::]:{{ rescue_port }} default_server;"
+        regexp: "^\\s+listen \\[\\:\\:\\]\\:\\d+ default_server;"
+    - name: Start nginx
+      service:
+        name: nginx
+        state: started
+
+- name: Ensure the main nginx.conf config file is updated
+  template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/nginx.conf
+  notify: restart nginx
+
+- name: Check for dhparam file
+  command: "/usr/bin/test -f /etc/nginx/ssl/dhparam.pem"
+  register: dhparam
+  failed_when: false
+  changed_when: dhparam.rc == 1
+
+- name: Create nginx ssl folder
+  file:
+    path: /etc/nginx/ssl
+    state: directory
+  when: dhparam.changed
+
+- name: Generate the dhparam if missing
+  command: openssl dhparam -out /etc/nginx/ssl/dhparam.pem 4096
+  when: dhparam.changed
+  notify: restart nginx
+
+  # This fixes a known nginx bug on Debian/Ubuntu: https://bugs.launchpad.net/ubuntu/+source/nginx/+bug/1581864
+- name: Create nginx override folder
+  file:
+    state: directory
+    path: /etc/systemd/system/nginx.service.d
+
+- name: Copy override config
+  template:
+    src: override.conf.j2
+    dest: /etc/systemd/system/nginx.service.d/override.conf
+  register: pid_override
+
+- name: Reload systemd daemon config
+  systemd:
+    daemon_reload: yes
+  when: pid_override.changed
+
+- name: Ensure nginx virtual host directory exists
+  file: 
+    path: /etc/nginx/sites-available
+    state: directory

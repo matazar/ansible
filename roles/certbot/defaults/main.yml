@@ -8,6 +8,7 @@ cert_group: ssl-certs
 
 # Run certbot on playbook host, copy to remote host.
 local_cert_gen: false
+local_sudo_password: '{{ users[primary_user]["password"] }}'
 # This variable is only intended for NAT Port forwarding, certbot will be contacted on port 80 either way.
 # E.g. Port 8088 locally, but NAT Port forwarding of 80 --> 8088
 certbot_port: 80

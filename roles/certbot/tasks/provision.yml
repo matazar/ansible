@@ -27,3 +27,4 @@
   file:
     path: /var/www/letsencrypt 
     state: directory
+  when: not local_cert_gen

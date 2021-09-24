@@ -7,11 +7,11 @@
     name: '{{ cert_group }}'
     state: present
 
-# - include: provision.yml
+- include: provision.yml
 
 - include: local_certbot.yml
   when: local_cert_gen
 
-# - include: remote_certbot.yml
-#   when: not local_cert_gen
+- include: remote_certbot.yml
+  when: not local_cert_gen
 

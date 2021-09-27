@@ -42,5 +42,6 @@
   fetch:
     src: /var/lib/rspamd/{{ item }}
     dest: '{{ backup_dir }}/mail/{{ mail_hostname }}/{{ item }}'
+    flat: yes
   with_items: '{{ rspamd_list_dbs }}'
   when: "spam_filter == 'rspamd'"

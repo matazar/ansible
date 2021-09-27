@@ -5,7 +5,7 @@ Bootstraps Debian based ansible host.
 ./bootstrap.py <ip/hostname>
 """
 
-from fabric import Connection
+from fabric import Connection, Config
 import argparse
 import sys
 import os
@@ -31,9 +31,13 @@ class bootstrap(object):
             # Prompt for crendentials
             user = input('Username for %s: ' % (host))
             password = getpass.getpass('Password for %s@%s: ' % (user, host))
-            c = Connection(self.hosts[host], user=user, connect_kwargs={"password": password})
-            # Ensure Python is installed
-            c.run('apt install -y python3 python3-apt')
+            if user == 'root':
+                c = Connection(self.hosts[host], user=user, connect_kwargs={"password": password})
+                c.run('apt install -y python3 python3-apt')           
+            else:
+                config = Config(overrides={'sudo': {'password': password}})
+                c = Connection(self.hosts[host], user=user, connect_kwargs={"password": password}, config=config)
+                c.sudo('apt install -y python3 python3-apt')
             # Ensure the host has a copy of our ssh key.
             c.run('mkdir -p .ssh')
             c.put(self.ssh_key)

@@ -54,7 +54,7 @@
   file:
     state: directory
     group: ssl-certs
-    mode: 760
+    mode: 750
     path: "/etc/letsencrypt/live/{{ cert_domain }}"
     recurse: yes
   changed_when: false

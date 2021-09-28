@@ -14,7 +14,7 @@ sudo_nopasswd: []
 # SSHD
 sshd_keytype: ed25519
 sshd_password: false
-sshd_whitelist: true
+sshd_allowlist: true
 sshd_service_name: sshd    # PIs are different.
 sshd_strict_ipv6: true     # Only accept ssh connections on ipv6_address
 sshd_public_port: 0
@@ -26,8 +26,7 @@ ipv6_address: false
 bind_ipv6: '{{ ipv6_address }}'
 mail_ipv6: '{{ ipv6_address }}'
 
-website_ipv6:             # Opens port 80/443 for these IPv6 addresses
-  - '{{ ipv6_address }}'
+website_ipv6: []            # Opens port 80/443 for these IPv6 addresses
 ipv6_addresses:           # This is used to configure the network interface only
   - '{{ ipv6_address }}'
 

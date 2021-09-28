@@ -8,7 +8,7 @@
 # daemon name. See rpcbind(8) and rpc.mountd(8) for further information.
 #
 
-{% if sshd_whitelist %}
+{% if sshd_allowlist %}
 {% for host in trusted_hosts %}
 {% if host | ipv4 %}
 sshd : {{ host }} : allow

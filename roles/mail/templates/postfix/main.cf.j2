@@ -21,7 +21,6 @@ message_size_limit = {{ message_size_limit }}
 
 smtpd_sender_login_maps = proxy:ldap:/etc/postfix/mail.cf
 smtpd_helo_required = yes
-#smtpd_relay_restrictions = permit_mynetworks permit_sasl_authenticated reject_unauth_destination
 smtp_tls_security_level = may
 smtpd_tls_security_level = may
 smtpd_tls_auth_only = yes
@@ -50,7 +49,7 @@ smtpd_recipient_restrictions =
     reject_rbl_client           {{ dqs_key }}.zen.dq.spamhaus.net=127.0.0.[2..255]
 {% endif %}
     check_recipient_access      hash:/etc/postfix/rejected_addresses
-{% if spam_filter == 'amavisd' %}
+{% if spam_milter == 'amavisd' %}
     check_policy_service unix:private/policyd-spf
 {% endif %}
 virtual_uid_maps = static:1002
@@ -59,7 +58,7 @@ virtual_alias_maps =
     proxy:ldap:/etc/postfix/mail.cf, proxy:ldap:/etc/postfix/forwards.cf, hash:/etc/postfix/virtual
 virtual_mailbox_domains = proxy:ldap:/etc/postfix/domains.cf
 virtual_transport = lmtp:unix:private/dovecot-lmtp
-{% if spam_filter == 'rspamd' %}
+{% if spam_milter == 'rspamd' %}
 # rspamd
 #smtpd_milters = unix:/var/lib/rspamd/milter.sock
 smtpd_milters = inet:localhost:11332
@@ -73,6 +72,7 @@ content_filter = smtp-amavis:[127.0.0.1]:10024
 policyd-spf_time_limit = 3600
 smtpd_milters = local:/opendkim/opendkim.sock
 {% endif %}
+header_checks = pcre:/etc/postfix/header_checks
 
 smtpd_sasl_type = dovecot
 smtpd_sasl_path = private/auth
@@ -87,7 +87,6 @@ mydestination = localdomain, localhost, localhost.localdomain, localhost, {{ mai
 relayhost = 
 mynetworks = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128
 
-#mailbox_command = procmail -a "$EXTENSION"
 mailbox_size_limit = 0
 recipient_delimiter = -
 {% if mail_ipv6 %}

@@ -1,7 +1,7 @@
 backup_dir: "{{ playbook_dir }}/env/{{ env }}/backups"
 
 # Bind Config
-bind_ipv6: 'any'
+bind_ipv6: false
 bind_trusted_hosts:
   - 127.0.0.0/8
 
@@ -36,7 +36,5 @@ dkim_keys:
 spf_txt: 'v=spf1 a mx -all'
 dmarc_txt: "v=DMARC1;p=reject;sp=reject;adkim=s;aspf=s;fo=1;rf=afrf;rua=mailto:dmarc@{{ domain.name }}"
 
-
 # Leave empty, auto-populated variables
-mail_hostnames: []
 domain_dnssec_keys: []

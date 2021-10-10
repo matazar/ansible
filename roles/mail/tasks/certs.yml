@@ -11,6 +11,6 @@
   vars:
     cert_domain: "{{ rspamd_hostname  }}"
     cert_ipv6: '{{ rspamd_ipv6 }}'
-  when: spam_filter == 'rspamd'
+  when: spam_milter == 'rspamd'
   tags:
     - certbot

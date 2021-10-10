@@ -81,7 +81,7 @@ $config['ldap_public'] = array (
 
     'user_specific' => true,
     'base_dn' => 'ou=Users,domainName=%d,o=domains,{{ ldap_suffix }}',
-    'bind_dn' => '{{ ldap_user }}',
+    'bind_dn' => '{{ ldap_admin }}',
     'bind_pass' => '{{ ldap_pw }}',
     'writable' => false,
     'LDAP_Object_Classes' => 

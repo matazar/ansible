@@ -2,7 +2,7 @@ backup_dir: "{{ playbook_dir }}/env/{{ env }}/backups"
 
 ldap_domain: "{{ primary_mail_domain }}"
 ldap_suffix: "{{ 'dc={0},dc={1}'.format(*ldap_domain.split('.')) }}"
-ldap_user: "cn=admin,{{ ldap_suffix }}"
+ldap_admin: "cn=admin,{{ ldap_suffix }}"
 # Default has LDAP on local mail host
 ldap_schema: ldapi
 ldap_server: '%2Fvar%2Frun%2Fldapi'
@@ -16,9 +16,9 @@ mail_localip: 127.0.0.3
 mail_debug: false
 message_size_limit: 20480000
 
-tld_spam_score: {'cam': 4.0, 'us': 1.0, 'clud': 4.0}
+tld_spam_score: {'cam': 4.0, 'us': 1.0, 'club': 4.0}
 spammed_accounts: []
-spam_filter: rspamd
+spam_milter: rspamd
 rspamd_hostname: "rspamd.{{ primary_mail_domain }}"
 rspamd_ipv6: "{{ ipv6_address | default(false) }}"
 # Score actions

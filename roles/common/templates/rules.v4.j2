@@ -40,8 +40,8 @@
 #  Don't let anything connect to Amavisd
 -A INPUT -p tcp -m multiport --dports 10024,10025,10026 -j DROP
 
-# Mail Replication
 {% if doveadm_passwd %}
+# Mail Replication
 {% for host in groups['mail'] | difference([mail_hostname]) %}
 -A INPUT -s {{ hostvars[host]['ansible_host'] }}/32 -p tcp -m multiport --dport {{ doveadm_port }} -j ACCEPT
 # Drop everyone else

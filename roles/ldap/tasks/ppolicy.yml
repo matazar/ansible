@@ -103,7 +103,7 @@
     dn: olcDatabase={1}mdb,cn=config
     state: present
     attributes:
-      olcAccess: '{4}to attrs=pwdAccountLockedTime by dn={{ ldap_user }} write by anonymous auth by * none'
+      olcAccess: '{4}to attrs=pwdAccountLockedTime by dn={{ ldap_admin }} write by anonymous auth by * none'
 
 - name: Ensure policy DN exists
   ldap_entry:

@@ -23,8 +23,13 @@
 {% if 'dns' in group_names %}
 {% if bind_ipv6 %}
 # DNS
+{% if bind_ipv6 == 'any' %}
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 53 -j ACCEPT
+-A INPUT -p udp -m state --state NEW -m udp --dport 53 -j ACCEPT
+{% else %}
 -A INPUT -d {{ bind_ipv6 }} -p tcp -m state --state NEW -m tcp --dport 53 -j ACCEPT
 -A INPUT -d {{ bind_ipv6 }} -p udp -m state --state NEW -m udp --dport 53 -j ACCEPT
+{% endif %}
 {% endif %}
 {% endif %}
 
@@ -42,8 +47,8 @@
 #  Don't let anything connect to Amavisd
 -A INPUT -p tcp -m multiport --dports 10024,10025,10026 -j DROP
 
-# Mail Replication
 {% if doveadm_passwd %}
+# Mail Replication
 {% for host in groups['mail'] %}
 {% if hostvars[host]['ipv6_address'] | default(False) %}
 # doveadm

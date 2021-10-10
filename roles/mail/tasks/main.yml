@@ -83,10 +83,10 @@
 - include: dovecot.yml
 
 - include: rspamd.yml
-  when: "spam_filter == 'rspamd'"
+  when: "spam_milter == 'rspamd'"
 
 - include: amavis.yml
-  when: "spam_filter == 'amavisd'"
+  when: "spam_milter == 'amavisd'"
 
 - name: Add dovecot and postfix to fail2ban
   template:

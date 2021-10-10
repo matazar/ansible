@@ -19,11 +19,11 @@
 # DKIM
 - set_fact:
     dkim_dir: /etc/opendkim/keys
-  when: "spam_filter == 'amavisd'"
+  when: "spam_milter == 'amavisd'"
 
 - set_fact:
     dkim_dir: /var/lib/rspamd/dkim
-  when: "spam_filter == 'rspamd'"
+  when: "spam_milter == 'rspamd'"
 
 - name: Store a copy of the DKIM key/txt file.
   fetch:
@@ -35,7 +35,7 @@
     - '{{ mail_domains }}'
     - '{{ dkim_keys }}'
     - [txt, private]
-  when: "spam_filter == 'rspamd' or spam_filter == 'amavisd'"
+  when: "spam_milter == 'rspamd' or spam_milter == 'amavisd'"
 
 # rspamd
 - name: Fecth a copy of the rspamd dynamic lists
@@ -44,4 +44,4 @@
     dest: '{{ backup_dir }}/mail/{{ mail_hostname }}/{{ item }}'
     flat: yes
   with_items: '{{ rspamd_list_dbs }}'
-  when: "spam_filter == 'rspamd'"
+  when: "spam_milter == 'rspamd'"

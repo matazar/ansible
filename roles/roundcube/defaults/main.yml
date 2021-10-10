@@ -1,7 +1,7 @@
 ldap_schema: ldapi
 ldap_server: '%2Fvar%2Frun%2Fldapi'
 ldap_tls: true
-ldap_user: "cn=admin,{{ ldap_suffix }}"
+ldap_admin: "cn=admin,{{ ldap_suffix }}"
 
 webmail_hostname: "webmail.{{ primary_mail_domain }}"
 webmail_ipv6: "{{ ipv6_address | default(False) }}"

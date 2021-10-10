@@ -8,7 +8,7 @@
           cn: Replicator
           description: Replication user
           userPassword: "{{ ldap_repl_pw | password_hash('ldap_salted_sha1') }}"
-        bind_dn: "{{ ldap_user }}"
+        bind_dn: "{{ ldap_admin }}"
         bind_pw: "{{ ldap_pw }}"
   
 - name: Ensure we don't have an ldap hostname entry in host file.

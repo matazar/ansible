@@ -5,10 +5,10 @@ objectClass: organization
 o: {{ ldap_domain.split('.')[0] }}
 dc: {{ ldap_domain.split('.')[0] }}
 
-dn: {{ ldap_user }}
+dn: {{ ldap_admin }}
 objectClass: simpleSecurityObject
 objectClass: organizationalRole
-cn: {{ ldap_user | regex_search('cn\=(\w+)\,dc\=.+') }} 
+cn: {{ ldap_admin | regex_search('cn\=(\w+)\,dc\=.+') }} 
 description: LDAP administrator
 userPassword: {{ ldap_pw | password_hash('ldap_salted_sha1') | string }}
 

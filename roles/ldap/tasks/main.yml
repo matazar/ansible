@@ -40,9 +40,6 @@
     name: slapd
     state: started
 
-# Find a way to allow admin user to remove pwdlocktime through jxplorer
-
-
 - name: Ensure LDAP is provisioned
   block:
     - name: Check if LDAP is configured
@@ -51,7 +48,7 @@
         objectClass: organization
         attributes:
           o: domains
-        bind_dn: '{{ ldap_user }}'
+        bind_dn: '{{ ldap_admin }}'
         bind_pw: '{{ ldap_pw }}'
   rescue:
   - include: provision.yml

@@ -66,6 +66,12 @@
   tags:
     - update_alias
 
+- name: Update header checks file
+  template:
+    src: postfix/header_checks.j2
+    dest: /etc/postfix/header_checks
+  notify: restart postfix
+
 - name: Add postfix to vmail, ssl-certs groups
   user:
     append: yes

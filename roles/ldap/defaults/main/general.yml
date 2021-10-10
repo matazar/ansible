@@ -1,8 +1,9 @@
 ldap_hostname: "{{ inventory_hostname }}"
 ldap_domain: "{{ primary_mail_domain }}"
 ldap_suffix: "{{ 'dc={0},dc={1}'.format(*ldap_domain.split('.')) }}"
-ldap_rootdn: "cn=admin,cn=config"
-ldap_user: "cn=admin,{{ ldap_suffix }}"
+ldap_rootdn: "cn=root,{{ ldap_suffix }}"
+# ldap_rootpw: 
+ldap_admin: "cn=admin,{{ ldap_suffix }}"
 ldap_schema: ldapi
 ldap_server: '%2Fvar%2Frun%2Fldapi'
 ldap_tls: false

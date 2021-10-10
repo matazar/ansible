@@ -818,14 +818,14 @@ olcDatabase: {1}mdb
 olcDbDirectory: /var/lib/ldap
 olcSuffix: {{ ldap_suffix }}
 olcAccess: {0}to * by dn.exact=gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth manage by * break
-olcAccess: {1}to * by self write by dn="{{ ldap_rootdn }}" manage by dn.exact="{{ ldap_user }}" manage by * read
-olcAccess: {2}to attrs=userPassword by self write by dn={{ ldap_user }} write by anonymous auth by * none
+olcAccess: {1}to * by self write by dn="{{ ldap_admin }}" manage by dn.exact="{{ ldap_admin }}" manage by * read
+olcAccess: {2}to attrs=userPassword by self write by dn={{ ldap_admin }} write by anonymous auth by * none
 olcAccess: {3}to attrs=shadowLastChange by self write by * read
 olcAccess: {4}to * by users read by * none
 olcLastMod: TRUE
-olcRootDN: {{ ldap_user }}
+olcRootDN: {{ ldap_rootdn }}
 # This password will be replaced with a stronger encryption later.
-olcRootPW: {{ ldap_pw | b64encode }}  
+olcRootPW: {{ ldap_rootpw | b64encode }}  
 olcDbCheckpoint: 512 30
 olcDbIndex: objectClass eq,pres
 olcDbIndex: cn,uid,mail,ou,surname,givenname eq,pres,sub

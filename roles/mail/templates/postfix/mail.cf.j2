@@ -2,7 +2,7 @@ server_host     = {{ ldap_schema }}://{{ ldap_server }}
 tls             = {% if ldap_tls %}yes{% else %}no{% endif %} 
 version         = 3
 bind            = yes
-bind_dn   	    = {{ ldap_user }}
+bind_dn   	    = {{ ldap_admin }}
 bind_pw         = {{ ldap_pw }}
 search_base     = o=domains,{{ ldap_suffix }}
 scope           = sub

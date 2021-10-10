@@ -10,7 +10,7 @@
 - name: Create a list of nameserver IPs
   set_fact:
     ns_ipv4: "{{ ns_ipv4 | default([]) + [item.ipv4 | default()] | select() | list | difference([ansible_host]) }}"
-    ns_ipv6: "{{ ns_ipv6 | default([]) + [item.ipv6 | default()] | select() | list | difference([ipv6_address]) }}"
+    ns_ipv6: "{{ ns_ipv6 | default([]) + [item.ipv6 | default()] | select() | list | difference([bind_ipv6]) }}"
   loop: "{{ nameservers | list}}"
 
 - name: Create a list of all nameserver IPs.

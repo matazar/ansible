@@ -12,38 +12,38 @@
 -A INPUT -p icmp -m icmp --icmp-type 8 -j ACCEPT
 # SSH
 {% for host in trusted_hosts | ipv4 %}
--A INPUT -s {{ host }}/32 -p tcp -m tcp --dport 22 -j ACCEPT
+-A INPUT -s {{ host | ipaddr('address') }}/{{ host | ipaddr('prefix') }} -p tcp -m tcp --dport 22 -j ACCEPT
 {% endfor %}
 {% if sshd_public_port %}
 # Accept external SSH 
--A INPUT -d {{ ansible_host }}/32 -p tcp -m tcp --dport {{ sshd_public_port }} -j ACCEPT
+-A INPUT -d {{ ansible_host | ipaddr('address') }}/{{ ansible_host | ipaddr('prefix') }} -p tcp -m tcp --dport {{ sshd_public_port }} -j ACCEPT
 {% endif %}
 -A INPUT -p tcp -m tcp --dport 22 -j DROP
 -A INPUT -p tcp -m tcp --dport 115 -j DROP
 
 {% if 'dns' in group_names %}
 # DNS Queries
--A INPUT -d {{ ansible_host }}/32 -p tcp -m tcp --dport 53 -j ACCEPT
--A INPUT -d {{ ansible_host }}/32 -p udp -m udp --dport 53 -j ACCEPT
+-A INPUT -d {{ ansible_host | ipaddr('address') }}/{{ ansible_host | ipaddr('prefix') }} -p tcp -m tcp --dport 53 -j ACCEPT
+-A INPUT -d {{ ansible_host | ipaddr('address') }}/{{ ansible_host | ipaddr('prefix') }} -p udp -m udp --dport 53 -j ACCEPT
 {% endif %}
 
 {% if 'mail'  in group_names %}
 # Mail Outgoing
--A INPUT -d {{ ansible_host }}/32 -p tcp -m tcp --dport 25 -j ACCEPT
--A INPUT -d {{ ansible_host }}/32 -p tcp -m tcp --dport 465 -j ACCEPT
--A INPUT -d {{ ansible_host }}/32 -p tcp -m tcp --dport 587 -j ACCEPT
+-A INPUT -d {{ ansible_host | ipaddr('address') }}/{{ ansible_host | ipaddr('prefix') }} -p tcp -m tcp --dport 25 -j ACCEPT
+-A INPUT -d {{ ansible_host | ipaddr('address') }}/{{ ansible_host | ipaddr('prefix') }} -p tcp -m tcp --dport 465 -j ACCEPT
+-A INPUT -d {{ ansible_host | ipaddr('address') }}/{{ ansible_host | ipaddr('prefix') }} -p tcp -m tcp --dport 587 -j ACCEPT
 # Mail Incoming
--A INPUT -d {{ ansible_host }}/32 -p tcp -m tcp --dport 143 -j ACCEPT
--A INPUT -d {{ ansible_host }}/32 -p tcp -m tcp --dport 993 -j ACCEPT
+-A INPUT -d {{ ansible_host | ipaddr('address') }}/{{ ansible_host | ipaddr('prefix') }} -p tcp -m tcp --dport 143 -j ACCEPT
+-A INPUT -d {{ ansible_host | ipaddr('address') }}/{{ ansible_host | ipaddr('prefix') }} -p tcp -m tcp --dport 993 -j ACCEPT
 # Managesieve
--A INPUT -d {{ ansible_host }}/32 -p tcp -m tcp --dport {{ sieve_port }} -j ACCEPT
+-A INPUT -d {{ ansible_host | ipaddr('address') }}/{{ ansible_host | ipaddr('prefix') }} -p tcp -m tcp --dport {{ sieve_port }} -j ACCEPT
 #  Don't let anything connect to Amavisd
 -A INPUT -p tcp -m multiport --dports 10024,10025,10026 -j DROP
 
 {% if doveadm_passwd %}
 # Mail Replication
 {% for host in groups['mail'] | difference([mail_hostname]) %}
--A INPUT -s {{ hostvars[host]['ansible_host'] }}/32 -p tcp -m multiport --dport {{ doveadm_port }} -j ACCEPT
+-A INPUT -s {{ hostvars[host]['ansible_host'] | ipaddr('address') }}/{{ hostvars[host]['ansible_host'] | ipaddr('prefix') }} -p tcp -m multiport --dport {{ doveadm_port }} -j ACCEPT
 # Drop everyone else
 -A INPUT -p tcp -m multiport --dport {{ doveadm_port }} -j DROP
 {% endfor %}
@@ -55,13 +55,25 @@
 -A INPUT -s 127.0.0.1/32 -p tcp -m multiport --dport 389,636 -j ACCEPT
 {% for host in ldap_allow_list %}
 {% if host | ipv4 %}
--A INPUT -s {{ host }}/32 -p tcp -m multiport --dport 389,636 -j ACCEPT
-{% elif host in hostvars | default(False) %}
+-A INPUT -s {{ host | ipaddr('address') }}/{{ host | ipaddr('prefix') }} -p tcp -m multiport --dport 389,636 -j ACCEPT
+{% elif host in hostvars | default([]) %}
 -A INPUT -s {{ hostvars[host]['ansible_host'] }}/32 -p tcp -m multiport --dport 389,636 -j ACCEPT
 {% endif %}
 {% endfor %}
+{# LDAP replication is a bit messy since the inventory_hostname doesn't always match the ldap_hostname
+and we need to extract the values. This keeps the hostvar simple at least. #}
+{% if ldap_replication_hosts != [] | default([]) %}
+# LDAP Replication
+{% for host in ldap_replication_hosts %}
+{% for inv_host in groups['ldap'] %}
+{% if host == hostvars[inv_host]['ldap_hostname'] and inv_host != inventory_hostname %}
+-A INPUT -s {{ hostvars[inv_host]['ansible_host'] | ipaddr('address') }}/{{ hostvars[inv_host]['ansible_host'] | ipaddr('prefix') }} -p tcp -m multiport --dport 389,636 -j ACCEPT
+{% endif %}
+{% endfor%}
+{% endfor %}
+{% endif %}
 # Drop everyone else
-#-A INPUT -p tcp -m multiport --dport 389,636 -j DROP
+-A INPUT -p tcp -m multiport --dport 389,636 -j DROP
 {% endif %}
 
 # Block MYSQL

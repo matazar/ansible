@@ -11,11 +11,11 @@
 -A INPUT -p ipv6-icmp -j ACCEPT
 # SSH
 {% for host in trusted_hosts | ipv6 %}
--A INPUT -s {{ host }} -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT
+-A INPUT -s {{ host| ipaddr('address') }}/{{ host | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT
 {% endfor %}
 {% if sshd_public_port %}
 # SSH
--A INPUT -d {{ ipv6_address }} -p tcp -m state --state NEW -m tcp --dport {{ sshd_public_port }} -j ACCEPT
+-A INPUT -d {{ ipv6_address | ipaddr('address') }}/{{ ipv6_address | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport {{ sshd_public_port }} -j ACCEPT
 {% endif %}
 -A INPUT -p tcp -m state --state NEW -m tcp --dport 22 -j DROP
 -A INPUT -p tcp -m state --state NEW -m tcp --dport 115 -j DROP
@@ -27,32 +27,30 @@
 -A INPUT -p tcp -m state --state NEW -m tcp --dport 53 -j ACCEPT
 -A INPUT -p udp -m state --state NEW -m udp --dport 53 -j ACCEPT
 {% else %}
--A INPUT -d {{ bind_ipv6 }} -p tcp -m state --state NEW -m tcp --dport 53 -j ACCEPT
--A INPUT -d {{ bind_ipv6 }} -p udp -m state --state NEW -m udp --dport 53 -j ACCEPT
+-A INPUT -d {{ bind_ipv6 | ipaddr('address') }}/{{ bind_ipv6 | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 53 -j ACCEPT
+-A INPUT -d {{ bind_ipv6 | ipaddr('address') }}/{{ bind_ipv6 | ipaddr('prefix') }} -p udp -m state --state NEW -m udp --dport 53 -j ACCEPT
 {% endif %}
 {% endif %}
 {% endif %}
 
 {% if 'mail'  in group_names %}
 # Mail Outgoing
--A INPUT -d {{ mail_ipv6}} -p tcp -m state --state NEW -m tcp --dport 25 -j ACCEPT
--A INPUT -d {{ mail_ipv6 }} -p tcp -m state --state NEW -m tcp --dport 465 -j ACCEPT
--A INPUT -d {{ mail_ipv6 }} -p tcp -m state --state NEW -m tcp --dport 587 -j ACCEPT
+-A INPUT -d {{ mail_ipv6 | ipaddr('address') }}/{{ mail_ipv6 | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 25 -j ACCEPT
+-A INPUT -d {{ mail_ipv6 | ipaddr('address') }}/{{ mail_ipv6 | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 465 -j ACCEPT
+-A INPUT -d {{ mail_ipv6 | ipaddr('address') }}/{{ mail_ipv6 | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 587 -j ACCEPT
 # Mail Incoming
--A INPUT -d {{ mail_ipv6 }} -p tcp -m state --state NEW -m tcp --dport 143 -j ACCEPT
--A INPUT -d {{ mail_ipv6 }} -p tcp -m state --state NEW -m tcp --dport 993 -j ACCEPT
+-A INPUT -d {{ mail_ipv6 | ipaddr('address') }}/{{ mail_ipv6 | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 143 -j ACCEPT
+-A INPUT -d {{ mail_ipv6 | ipaddr('address') }}/{{ mail_ipv6 | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 993 -j ACCEPT
 # Sieve
--A INPUT -d {{ mail_ipv6 }} -p tcp -m state --state NEW -m tcp --dport {{ sieve_port }} -j ACCEPT
-
+-A INPUT -d {{ mail_ipv6 | ipaddr('address') }}/{{ mail_ipv6 | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport {{ sieve_port }} -j ACCEPT
 #  Don't let anything connect to Amavisd
 -A INPUT -p tcp -m multiport --dports 10024,10025,10026 -j DROP
-
 {% if doveadm_passwd %}
 # Mail Replication
 {% for host in groups['mail'] %}
 {% if hostvars[host]['ipv6_address'] | default(False) %}
 # doveadm
--A INPUT -s {{ hostvars[host]['mail_ipv6'] }}/32 -p tcp -m multiport --dport {{ doveadm_port }} -j ACCEPT
+-A INPUT -s {{ hostvars[host]['mail_ipv6'] | ipaddr('address') }}/{{ hostvars[host]['mail_ipv6'] | ipaddr('prefix') }} -p tcp -m multiport --dport {{ doveadm_port }} -j ACCEPT
 {% endif %}
 {% endfor %}
 {% endif %}
@@ -62,26 +60,40 @@
 # LDAP
 {% for host in ldap_allow_list %}
 {% if host | ipv6 %}
--A INPUT -s {{ host }} -p tcp -m multiport --dport 389,636 -j ACCEPT
-{% elif host in hostvars | default(False) %}
+-A INPUT -s {{ host | ipaddr('address') }}/{{ host | ipaddr('prefix') }} -p tcp -m multiport --dport 389,636 -j ACCEPT
+{% elif host in hostvars | default([]) %}
 {% if hostvars[host]['ipv6_address'] | default(False) %}
--A INPUT -s {{ hostvars[host]['ipv6_address'] }} -p tcp -m multiport --dport 389,636 -j ACCEPT
+-A INPUT -s {{ hostvars[host]['ipv6_address'] | ipaddr('address') }}/{{ hostvars[host]['ipv6_address'] | ipaddr('prefix') }} -p tcp -m multiport --dport 389,636 -j ACCEPT
 {% endif %}
 {% endif %}
+{% endfor %}
+{# LDAP replication is a bit messy since the inventory_hostname doesn't always match the ldap_hostname
+and we need to extract the values. This keeps the hostvar simple at least. Don't assume all hosts have IPv6. #}
+{% if ldap_replication_hosts != [] | default([]) %}
+# LDAP Replication
+{% for host in ldap_replication_hosts %}
+{% for inv_host in groups['ldap'] %}
+{% if host == hostvars[inv_host]['ldap_hostname'] and inv_host != inventory_hostname %}
+{% if hostvars[inv_host]['ldap_ipv6'] | default(False) %}
+-A INPUT -s {{ hostvars[inv_host]['ldap_ipv6'] | ipaddr('address') }}/{{ hostvars[inv_host]['ldap_ipv6'] | ipaddr('prefix') }} -p tcp -m multiport --dport 389,636 -j ACCEPT
+{% endif %}
+{% endif %}
+{% endfor %}
 {% endfor %}
 # Deny everyone else
 #-A INPUT -p tcp -m state --state NEW -m tcp --dport 389 -j DROP
 #-A INPUT -p tcp -m state --state NEW -m tcp --dport 636 -j DROP
 {% endif %}
+{% endif %}
 
 
 # Hostname
--A INPUT -d {{ ipv6_address }} -p tcp -m state --state NEW -m tcp --dport 80 -j ACCEPT
--A INPUT -d {{ ipv6_address }} -p tcp -m state --state NEW -m tcp --dport 443 -j ACCEPT
+-A INPUT -d {{ ipv6_address | ipaddr('address') }}/{{ ipv6_address | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 80 -j ACCEPT
+-A INPUT -d {{ ipv6_address | ipaddr('address') }}/{{ ipv6_address | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 443 -j ACCEPT
 
 #{% for address in website_ipv6 %}
-#-A INPUT -d {{ address }} -p tcp -m state --state NEW -m tcp --dport 80 -j ACCEPT
-#-A INPUT -d {{ address }} -p tcp -m state --state NEW -m tcp --dport 443 -j ACCEPT
+#-A INPUT -d {{ address | ipaddr('address') }}/{{ address | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 80 -j ACCEPT
+#-A INPUT -d {{ address | ipaddr('address') }}/{{ address | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 443 -j ACCEPT
 #{% endfor %}
 
 COMMIT

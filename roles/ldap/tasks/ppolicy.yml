@@ -96,6 +96,8 @@
     attributes:
       olcOverlay: ppolicy
       olcPPolicyDefault: 'cn=default,ou=policies,{{ ldap_suffix }}'
+      olcPPolicyUseLockout: '{{ ppolicy_use_lockout | upper }}'
+      olcPPolicyHashCleartext: '{{ ppolicy_hash_cleartext | upper }}'
   register: ppolicy_overlay
   
 - name: Update ACLs

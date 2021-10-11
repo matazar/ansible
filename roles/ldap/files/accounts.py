@@ -16,8 +16,12 @@ default_config = """
 ; ldap_pw = SpareDormHousePass
 ; ldap_server = ldap.example.com
 ; ldap_basedn = dc=example,dc=com
-; ldap_port = 389
-; ldap_tls = True
+; TLS with 389, SSL with 636
+; ldap_port = 636
+; ldap_tls = False
+; ldap_ssl = True
+; Set to False when using ppolicy
+; ldap_hash_pw = False
 """
 
 class Settings(object):
@@ -60,9 +64,11 @@ class Settings(object):
                         'ldap_server': 'LDAP server',
                         'ldap_port': 'LDAP Port',
                         'ldap_tls': 'Use TLS',
+                        'ldap_ssl': 'Use SSL',
                         'ldap_basedn': 'LDAP Base DN',
                         'ldap_user': 'LDAP Bind DN',
-                        'password': 'LDAP Password'
+                        'password': 'LDAP Password',
+                        'ldap_hash_pw': 'Hash passwords before transmission.'
                 }
                 i = get_user_input(prompts)
                 # Update LDAP password var and remove 'password' entry
@@ -122,6 +128,16 @@ class ManageAccount(object):
                                  verbose=self.verbose)
         # Set the basedn
         self.basedn = self.settings('ldap_basedn')
+        # We need TLS as bool
+        if self.settings('ldap_tls').lower() in ['yes', 'y', 'true', 't', '1']:
+            self.ldap_tls = True
+        else:
+            self.ldap_tls = False
+        # We need SSL as bool
+        if self.settings('ldap_ssl').lower() in ['yes', 'y', 'true', 't', '1']:
+            self.ldap_ssl = True
+        else:
+            self.ldap_ssl = False
         # Set up the ldap connection
         self.ldap_conn()
 
@@ -131,16 +147,18 @@ class ManageAccount(object):
         """
         # Connect to LDAP
         server = ldap3.Server(host=self.settings('ldap_server'), 
-                              port=int(self.settings('ldap_port')))
+                              port=int(self.settings('ldap_port')),
+                              use_ssl=self.ldap_ssl,)
         self.conn = ldap3.Connection(server, 
                         user=self.settings('ldap_user'),
                         password=self.settings('ldap_pw'),
                         auto_bind=False,
                         )
         try:
-            # Enable TLS/Bind to LDAP
-            if self.settings('ldap_tls'):
+            # Enable TLS
+            if self.ldap_tls:
                 self.conn.start_tls()
+            # Bind to LDAP
             self.conn.bind()
         except:
             print('\nUnable to reach LDAP server %s:%s.' % (self.settings('ldap_server'),
@@ -310,7 +328,10 @@ class ManageAccount(object):
         i['uid'], i['domain'] = i['mail'].split('@')        
         i['mailbox'] = '/var/vmail/%s/%s' % (i['domain'], i['uid'])
         i['shadow'] = i['aliases'].split(',')
-        i['password'] = hashed(ldap3.HASHED_SALTED_SHA, i['password'])
+        # Don't has with PPolicy...which we can just query from lday.
+        if self.settings('ldap_hash_pw').lower in ['yes', 'y', 'true', 't', '1']:
+            # Only hash if we aren't using ppolicy
+            i['password'] = hashed(ldap3.HASHED_SALTED_SHA, i['password'])
         # Add the account
         c = self.conn.add('mail=%s,ou=Users,domainName=%s,o=domains,%s' % 
                           (i['mail'], i['domain'], self.basedn),
@@ -325,7 +346,7 @@ class ManageAccount(object):
         # Output results on failure or with verbose on
         if not c or self.verbose:
             print('\n%s' % (self.conn.result))
-    
+       
     def delete_account(self):
         """
         Delete an email account

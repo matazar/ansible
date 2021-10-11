@@ -20,6 +20,8 @@ mail_users: []
 
 # PPolicy
 ldap_enable_ppolicy: true
+ppolicy_use_lockout: false
+ppolicy_hash_cleartext: true
 pp_use_cracklib: 1
 pp_min_points: 3
 pp_min_upper: 1

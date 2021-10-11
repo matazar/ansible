@@ -1,15 +1,15 @@
 - name: Ensure replication user exists.
   ldap_entry:
-        dn: "{{ ldap_repl_user }}"
+        dn: "{{ ldap_replication_user }}"
         objectClass: 
           - simpleSecurityObject
           - organizationalRole
         attributes:
           cn: Replicator
           description: Replication user
-          userPassword: "{{ ldap_repl_pw | password_hash('ldap_salted_sha1') }}"
-        bind_dn: "{{ ldap_admin }}"
-        bind_pw: "{{ ldap_pw }}"
+          userPassword: "{{ ldap_replication_pw | password_hash('ldap_salted_sha1') }}"
+        bind_dn: "{{ ldap_rootdn }}"
+        bind_pw: "{{ ldap_rootpw }}"
   
 - name: Ensure we don't have an ldap hostname entry in host file.
   lineinfile:
@@ -21,8 +21,8 @@
   ldap_attrs:
     dn: olcDatabase={1}mdb,cn=config
     attributes:
-      olcAccess: '{0}to * by dn.exact="{{ ldap_repl_user }}" read by * break'
-      olcLimits: dn.exact="{{ ldap_repl_user }}" time.soft=unlimited time.hard=unlimited size.soft=unlimited size.hard=unlimited
+      olcAccess: '{0}to * by dn.exact="{{ ldap_replication_user }}" read by * break'
+      olcLimits: dn.exact="{{ ldap_replication_user }}" time.soft=unlimited time.hard=unlimited size.soft=unlimited size.hard=unlimited
   register: repl_acl
   failed_when: 
     - "not repl_acl.details | default('') | regex_search('Type or value exists') "
@@ -58,9 +58,9 @@
   ldap_attrs:
     dn: cn=config
     attributes:
-      olcServerID: '{{ ldap_repl_hosts[item]["id"] }} {{ ldap_replication_schema }}://{{ item }}'
-  with_items: '{{ ldap_repl_hosts }}'
-  when: ldap_hostname in ldap_repl_hosts
+      olcServerID: '{{ ldap_replication_hosts[item]["id"] }} {{ ldap_replication_schema }}://{{ item }}'
+  with_items: '{{ ldap_replication_hosts }}'
+  when: ldap_hostname in ldap_replication_hosts
 
 # Wasn't able to import this with ldap_attrs
 - block:

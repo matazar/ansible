@@ -1,0 +1,34 @@
+bash_colour: 35
+
+# Network
+ipv6_address: 2001:db8:40::e6d8
+bind_ipv6: 2001:db8:40::1111
+mail_ipv6: 2001:db8:40::10
+rspamd_ipv6: 2001:db8:40::11
+ldap_ipv6: 2001:db8:40::12
+
+website_ipv6:
+   - '2001:db8:40::aaaa'  # example.local 
+   - '{{ rspamd_ipv6 }}'  # rspamd
+   - '2001:db8:40::c'  # webmail
+   - '2001:db8:40::222'  # ip site
+
+# Automatically configured when joined below
+additional_ipv6:
+  - "{{ ipv6_address }}"
+  - "{{ bind_ipv6 }}"
+  - '{{ mail_ipv6 }}'
+  - '{{ ldap_ipv6 }}'
+
+ipv6_addresses: '{{ website_ipv6 | union(additional_ipv6) }}'
+
+primary_mail_domain: example.local
+rspamd_hostname: rspamd.example.local
+ldap_hostname: ldap.example.local
+mail_hostname: mail.example.local
+
+cert_services: ['nginx', 'slapd', 'dovecot', 'postfix']
+
+ldap_allow_list:
+  - "{{ home_ip }}"
+  - '{{ home_ipv6 }}'

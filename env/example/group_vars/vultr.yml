@@ -1,0 +1,5 @@
+php_fpm: php7.4-fpm
+ldap_log_level: 0
+
+# Required for LDAP provisioning
+reset_data: true

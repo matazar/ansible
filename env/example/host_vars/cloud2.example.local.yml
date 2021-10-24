@@ -1,0 +1,33 @@
+bash_colour: 32
+
+# Network
+ipv6_address: 2001:db8:50::e6b4
+bind_ipv6: 2001:db8:50::2222
+mail_ipv6: 2001:db8:50::2
+rspamd_ipv6: 2001:db8:50::4e
+ldap_ipv6: 2001:db8:50::b
+
+website_ipv6:
+ - 2001:db8:50::ac  # example2.local
+ - '{{ rspamd_ipv6 }}'   # rspamd
+
+additional_ipv6:
+  - "{{ ipv6_address }}"
+  - "{{ bind_ipv6 }}"
+  - '{{ mail_ipv6 }}'
+  - '{{ ldap_ipv6 }}'
+
+ipv6_addresses: '{{ website_ipv6 | union(additional_ipv6) }}'
+
+rspamd_hostname: rspamd.example2.local
+ldap_hostname: ldap.example2.local
+mail_hostname: mail.example2.local
+
+cert_services: ['nginx', 'slapd', 'dovecot', 'postfix']
+
+roundcube_db_username: frank
+roundcube_db: roundcube
+
+ldap_allow_list:
+  - "{{ home_ip }}"
+  - '{{ home_ipv6 }}'

@@ -1,0 +1,4 @@
+local_dns:
+  pbx.home.local: 192.168.1.10
+  dns1.home.local: 192.168.1.2
+  dns2.home.local: 192.168.1.3

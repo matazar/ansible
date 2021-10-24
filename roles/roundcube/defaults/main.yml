@@ -1,3 +1,5 @@
+backup_dir: "{{ playbook_dir }}/env/{{ env }}/backups"
+
 ldap_schema: ldapi
 ldap_server: '%2Fvar%2Frun%2Fldapi'
 ldap_tls: true

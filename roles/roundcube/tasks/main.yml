@@ -10,7 +10,7 @@
 
 - set_fact: 
     roundcube_des_key: "{{ lookup('password', '/dev/null length=24') }}"
-  when: roundcube_des_key == ''
+  when: roundcube_des_key | default('') == ''
 
 - name: Add roundcube des key to host var
   local_action:
@@ -132,14 +132,28 @@
   become_user: postgres
   register: new_db
 
-- name: Populate roundcube db
-  postgresql_db:
-    name: "{{ roundcube_db }}"
-    target: /var/www/roundcube/SQL/postgres.initial.sql
-    state: restore
-    login_password: "{{ roundcube_db_password }}"
-    login_user: "{{ roundcube_db_username }}"
-    login_unix_socket: "127.0.0.1"
+- block:
+    - name: Upload roundcube db
+      copy: 
+        src: '{{ backup_dir }}/roundcube/{{ webmail_hostname }}.sql'
+        dest: /tmp/roundcube.sql
+    - name: Import roundcube db
+      postgresql_db:
+        name: "{{ roundcube_db }}"
+        target: /tmp/roundcube.sql
+        state: restore
+        login_password: "{{ roundcube_db_password }}"
+        login_user: "{{ roundcube_db_username }}"
+        login_unix_socket: "127.0.0.1"
+  rescue:
+  - name: Populate roundcube db with empty roundcube database.
+    postgresql_db:
+      name: "{{ roundcube_db }}"
+      target: /var/www/roundcube/SQL/postgres.initial.sql
+      state: restore
+      login_password: "{{ roundcube_db_password }}"
+      login_user: "{{ roundcube_db_username }}"
+      login_unix_socket: "127.0.0.1"
   when: new_db.changed
 
 - name: Make sure the errors.log file exists

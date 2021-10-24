@@ -1,52 +1,60 @@
 # Output the domain to simplify troubleshooting
 - debug:
-    var: domain.name
+    var: domain
 
 # Mail role handles DKIM creation, so attempt to restore but don't generate
 - block:
   - name: Make sure rspamd DKIM keys exist before we try to include them in the zone.
-    command: '/usr/bin/test -f {{ dkim_txt_dir }}/{{ domain.name }}_{{ dkim_key }}.txt'
+    command: '/usr/bin/test -f {{ dkim_txt_dir }}/{{ domain }}_{{ dkim_key }}.txt'
     register: dkim_exists
     failed_when: false
     changed_when: false
-    when: master_ns_host | default(False)
+  when: master_ns_host | default(False)
+
+# Empty var before the next domain
+- set_fact:
+    domain_dnssec_keys: []
 
 - include: dnssec.yml
   loop: '{{ dnssec_algorithms }}'
   loop_control: 
     loop_var: algorithm
-  when: domain.dnssec
+  when: dns_zones[domain].dnssec
 
 # Run a test as the real file needs an updated serial number.
 - name: Check zone info
   template:
     src: zone.test.j2
-    dest: '/etc/bind/zones/{{ domain.name }}.conf'
+    dest: '/etc/bind/zones/{{ domain }}.conf'
   register: zone_test
 
 - set_fact:
     serial: "{{ ansible_date_time.iso8601 | regex_replace('[^0-9]','') }}"
   when: zone_test.changed or resign | default(False)
 
-- name: "Update zone files for {{ domain.name  }}"
+- name: "Update zone files for {{ domain  }}"
   template: 
     src: zone.conf.j2 
-    dest: "/var/lib/bind/{{ domain.name }}.db"
+    dest: "/var/lib/bind/{{ domain }}.db"
   when: zone_test.changed or resign | default(False)
   notify: reload bind
 
 - name: Sign zone file for DNSSEC domains
-  command: "dnssec-signzone -A -3 {{ lookup('password', '/dev/null length=16 chars=hexdigits') }} -N INCREMENT -K /var/cache/bind -o {{ domain.name }} -t /var/lib/bind/{{ domain.name }}.db"
+  command: "dnssec-signzone -A -3 {{ lookup('password', '/dev/null length=16 chars=hexdigits') }} -N INCREMENT -K /var/cache/bind -o {{ domain }} -t /var/lib/bind/{{ domain }}.db"
   when: 
-    - domain.dnssec 
+    - dns_zones[domain].dnssec 
     - zone_test.changed or resign | default(False)
   register: signed_zone
   notify: reload bind
 
 - name: Download a copy of the dsset file.
   fetch: 
-    src: '/home/{{ ansible_ssh_user }}/dsset-{{ domain.name }}.'
-    dest: '{{ backup_dir }}/dns/dsset-{{ domain.name }}.'
+    src: '/home/{{ ansible_ssh_user }}/dsset-{{ domain }}.'
+    dest: '{{ backup_dir }}/dns/dsset-{{ domain }}.'
     flat: yes
+  register: dsst
   when: 
-    - domain.dnssec
+    - dns_zones[domain].dnssec
+  
+- debug:
+    var: dsst

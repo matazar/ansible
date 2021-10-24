@@ -45,12 +45,11 @@
 -A INPUT -d {{ mail_ipv6 | ipaddr('address') }}/{{ mail_ipv6 | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport {{ sieve_port }} -j ACCEPT
 #  Don't let anything connect to Amavisd
 -A INPUT -p tcp -m multiport --dports 10024,10025,10026 -j DROP
-{% if doveadm_passwd %}
+{% if doveadm_password %}
 # Mail Replication
-{% for host in groups['mail'] %}
-{% if hostvars[host]['ipv6_address'] | default(False) %}
-# doveadm
--A INPUT -s {{ hostvars[host]['mail_ipv6'] | ipaddr('address') }}/{{ hostvars[host]['mail_ipv6'] | ipaddr('prefix') }} -p tcp -m multiport --dport {{ doveadm_port }} -j ACCEPT
+{% for host in doveadm_allow_list %}
+{% if host | ipv6 %}
+-A INPUT -s {{ host | ipaddr('address') }}/{{ host | ipaddr('prefix') }} -p tcp -m multiport --dport {{ doveadm_port }} -j ACCEPT
 {% endif %}
 {% endfor %}
 {% endif %}
@@ -86,14 +85,13 @@ and we need to extract the values. This keeps the hostvar simple at least. Don't
 {% endif %}
 {% endif %}
 
-
 # Hostname
 -A INPUT -d {{ ipv6_address | ipaddr('address') }}/{{ ipv6_address | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 80 -j ACCEPT
 -A INPUT -d {{ ipv6_address | ipaddr('address') }}/{{ ipv6_address | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 443 -j ACCEPT
-
-#{% for address in website_ipv6 %}
-#-A INPUT -d {{ address | ipaddr('address') }}/{{ address | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 80 -j ACCEPT
-#-A INPUT -d {{ address | ipaddr('address') }}/{{ address | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 443 -j ACCEPT
-#{% endfor %}
+# Websites
+{% for address in website_ipv6 %}
+-A INPUT -d {{ address | ipaddr('address') }}/{{ address | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 80 -j ACCEPT
+-A INPUT -d {{ address | ipaddr('address') }}/{{ address | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 443 -j ACCEPT
+{% endfor %}
 
 COMMIT

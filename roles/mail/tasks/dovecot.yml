@@ -81,6 +81,14 @@
   with_items:
     - learn-ham.sh
     - learn-spam.sh
+  
+- block:
+    - name: Check for Dovecot Diffie Hellman parameters file
+      command: '/usr/bin/test -f /etc/dovecot/dh.pem'
+      changed_when: false
+  rescue:
+    - name: Generate Dovecot Diffie Hellman parameters file
+      shell: 'openssl dhparam 4096 > /etc/dovecot/dh.pem'
 
 - name: Ensure dovecot is enabled
   service: 

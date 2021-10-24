@@ -11,7 +11,7 @@
 
 # some basic default values...
 
-inventory      = /home/{{ primary_user }}/ansible/env/production/inventory.yml
+inventory      = {{ ansible_default_inventory }}
 #library        = /usr/share/my_modules/
 #module_utils   = /usr/share/my_module_utils/
 #remote_tmp     = ~/.ansible/tmp
@@ -137,7 +137,7 @@ log_path = /var/log/ansible.log
 
 # If set, configures the path to the Vault password file as an alternative to
 # specifying --vault-password-file on the command line.
-vault_password_file = /home/{{ primary_user }}/.ssh/ansible
+vault_password_file = {{ ansible_vault_password_file }}
 
 # format of string {{ ansible_managed }} available within Jinja2
 # templates indicates to users editing templates files will be replaced.

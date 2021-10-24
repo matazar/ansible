@@ -5,12 +5,12 @@
 
 - name: Note if current host is master_ns
   set_fact: 
-    master_ns_host: "{{ master_ns.ipv4 | default('') == ansible_host or master_ns.ipv6 | default('') == bind_ipv6 }}"
+    master_ns_host: "{{ nameservers[master_ns].ipv4 | default('') == ansible_host or nameservers[master_ns].ipv6 | default('') == bind_ipv6 }}"
 
 - name: Create a list of nameserver IPs
   set_fact:
-    ns_ipv4: "{{ ns_ipv4 | default([]) + [item.ipv4 | default()] | select() | list | difference([ansible_host]) }}"
-    ns_ipv6: "{{ ns_ipv6 | default([]) + [item.ipv6 | default()] | select() | list | difference([bind_ipv6]) }}"
+    ns_ipv4: "{{ ns_ipv4 | default([]) + [nameservers[item].ipv4 | default()] | select() | list | difference([ansible_host]) }}"
+    ns_ipv6: "{{ ns_ipv6 | default([]) + [nameservers[item].ipv6 | default()] | select() | list | difference([bind_ipv6]) }}"
   loop: "{{ nameservers | list}}"
 
 - name: Create a list of all nameserver IPs.
@@ -51,25 +51,33 @@
     - bind.log
 
 - block:
+    - name: Check for rndc key
+      command: '/usr/bin/test -f /etc/bind/ns-{{ primary_mail_domain | regex_replace("\.", "-") }}_rndc-key'
+      register: rndc_key
+      failed_when: false
+      changed_when: rndc_key.rc == 1
     - name: Attempt to restore the rndc key file
       copy:
-        src: '{{ backup_dir }}/dns/{{ inventory_hostname }}/ns-{{ primary_mail_domain }}_rndc-key'
-        dest: '/etc/bind/ns-{{ primary_mail_domain }}_rndc-key'
+        src: '{{ backup_dir }}/dns/{{ inventory_hostname }}/ns-{{ primary_mail_domain | regex_replace("\.", "-") }}_rndc-key'
+        dest: '/etc/bind/ns-{{ primary_mail_domain | regex_replace("\.", "-") }}_rndc-key'
         mode: '0744'
+      when: rndc_key.changed
   rescue:
     - name: Generate a new rndc key file
-      command: 'rndc-confgen -a -b 512 -c /etc/bind/ns-{{ primary_mail_domain }}_rndc-key -k rndc-key'
+      command: 'rndc-confgen -a -b 512 -c /etc/bind/ns-{{ primary_mail_domain | regex_replace("\.", "-") }}_rndc-key -k rndc-key'
       register: new_rndc
     - name: Set permissions on the new rndc key file
       file:
         state: touch
+        owner: bind
+        group: bind
         mode: '0744'
-        path: /etc/bind/ns-{{ primary_mail_domain }}_rndc-key
+        path: '/etc/bind/ns-{{ primary_mail_domain | regex_replace("\.", "-") }}_rndc-key'
     - name: Save a copy of the new rndc key file
       fetch:
         flat: yes
-        src: '/etc/bind/ns-{{ primary_mail_domain }}_rndc-key'
-        dest: '{{ backup_dir }}/dns/{{ inventory_hostname }}/ns-{{ primary_mail_domain }}_rndc-key'
+        src: '/etc/bind/ns-{{ primary_mail_domain | regex_replace("\.", "-") }}_rndc-key'
+        dest: '{{ backup_dir }}/dns/{{ inventory_hostname }}/ns-{{ primary_mail_domain | regex_replace("\.", "-") }}_rndc-key'
 
 - name: Make sure our zone folders exist
   file:
@@ -89,7 +97,7 @@
 # Creation is handled in mail role.
 - name: Ensure the master ns has a copy of each DKIM text file
   copy:
-    src: '{{ backup_dir }}/mail/dkim/{{ item[0]}}_{{ item[1] }}.txt'
+    src: '{{ backup_dir }}/dkim/{{ item[0]}}_{{ item[1] }}.txt'
     dest: '{{ dkim_txt_dir }}/{{ item[0] }}_{{ item[1] }}.txt'
     owner: bind
     group: bind

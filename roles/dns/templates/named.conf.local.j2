@@ -7,21 +7,21 @@
 include "/etc/bind/zones.rfc1918";
 
 {% for domain in dns_zones %}
-zone "{{ domain.name }}" {{ '{' }}
-{% if master_ns.ipv4 | default('') == ansible_host or master_ns.ipv6 | default('') == ipv6_address %}
+zone "{{ domain }}" {{ '{' }}
+{% if nameservers[master_ns].ipv4 | default('') == ansible_host or nameservers[master_ns].ipv6 | default('') == ipv6_address %}
     type master;
     allow-transfer {{ '{' }} {{  '; '.join(ns_ipv4) }};{% if ipv6_address | default(false) and ns_ipv6 | length > 0 %} {{ '; '.join(ns_ipv6) }};{% endif %} {{ '}' }};
 {% else %}
     type slave;
-    masters {{ '{' }} {{ master_ns.ipv4 }};{% if ipv6_address | default(false) and ns_ipv6 | length > 0 %} {{ master_ns.ipv6 }}; {% endif %} {{ '}' }};
+    masters {{ '{' }} {{ nameservers[master_ns].ipv4 }};{% if ipv6_address | default(false) and ns_ipv6 | length > 0 %} {{ nameservers[master_ns].ipv6 }}; {% endif %} {{ '}' }};
     allow-notify {{ '{' }} {{  '; '.join(ns_ipv4) }};{% if ipv6_address | default(false) and ns_ipv6 | length > 0 %} {{ '; '.join(ns_ipv6) }};{% endif %} {{ '}' }};
     allow-transfer {{ '{' }} {{  '; '.join(ns_ipv4) }};{% if ipv6_address | default(false) and ns_ipv6 | length > 0 %} {{ '; '.join(ns_ipv6) }};{% endif %} {{ '}' }};
 {% endif %}
 
-{% if domain.dnssec | default(false) %}
-    file "/var/lib/bind/{{ domain.name }}.db.signed"; # zone file path
+{% if dns_zones[domain].dnssec | default(false) %}
+    file "/var/lib/bind/{{ domain }}.db.signed"; # zone file path
 {% else %}
-    file "/var/lib/bind/{{ domain.name }}.db"; # zone file path
+    file "/var/lib/bind/{{ domain }}.db"; # zone file path
 {% endif %}
 {{ '}' }};
 {% endfor %}

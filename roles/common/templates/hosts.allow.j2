@@ -43,7 +43,7 @@ slapd : {{ hostvars[host]['ipv6_address'] | ipwrap }} : allow
 slapd : ALL : deny
 {% endif %}
 
-{% if 'mail' in group_names %}
+{% if 'webmail' in group_names %}
 mysqld : 127.0.0.1 : allow
 mysqld : ALL : deny
 {% endif %}

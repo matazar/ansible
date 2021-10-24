@@ -1,5 +1,5 @@
 - name: "Check if {{ algorithm }} DNSSEC keys exist"
-  command: find /var/cache/bind/ -name "K{{ domain.name }}.+{{ '%03d' | format(dnssec_algorithm_ids[algorithm]|int) }}*"
+  command: find /var/cache/bind/ -name "K{{ domain }}.+{{ '%03d' | format(dnssec_algorithm_ids[algorithm]|int) }}*"
   register: dnssec_files
   changed_when: dnssec_files.stdout_lines | length < 4
 
@@ -11,15 +11,15 @@
       owner: bind
       group: bind
     with_fileglob: 
-      - '{{ backup_dir }}/dns/dnssec/K{{ domain.name }}.+{{ "%03d" | format(dnssec_algorithm_ids[algorithm]|int) }}*'
+      - '{{ backup_dir }}/dns/dnssec/K{{ domain }}.+{{ "%03d" | format(dnssec_algorithm_ids[algorithm]|int) }}*'
     register: restore_dnssec
   - debug:
       var: restore_dnssec
   - name: 'Generate new {{ algorithm }} DNSSEC key'
     command: '{{ item }}'
     with_items:
-      - "dnssec-keygen -a {{ algorithm }} -K /var/cache/bind/ -n ZONE {{ domain.name }}"
-      - "dnssec-keygen -f KSK -a {{ algorithm }} -K /var/cache/bind/ -n ZONE {{ domain.name }}"
+      - "dnssec-keygen -b {{ dnssec_bytes }} -a {{ algorithm }} -K /var/cache/bind/ -n ZONE {{ domain }}"
+      - "dnssec-keygen -b {{ dnssec_bytes }} -f KSK -a {{ algorithm }} -K /var/cache/bind/ -n ZONE {{ domain }}"
     when: restore_dnssec.skipped | default(false)
   when: dnssec_files.changed
 
@@ -32,7 +32,7 @@
     group: bind
 
 - name: 'Create a list of {{ algorithm }} files'
-  command: find /var/cache/bind/ -name "K{{ domain.name }}.+{{ '%03d' | format(dnssec_algorithm_ids[algorithm]|int) }}*"
+  command: find /var/cache/bind/ -name "K{{ domain }}.+{{ '%03d' | format(dnssec_algorithm_ids[algorithm]|int) }}*"
   changed_when: false
   register: dnssec_files
   failed_when: dnssec_files.stdout_lines | length < 4 
@@ -45,10 +45,12 @@
   loop: '{{ dnssec_files.stdout_lines }}'
 
 - name: 'Create a list of {{ algorithm }} key files'
-  command: find /var/cache/bind/ -name "K{{ domain.name }}.+{{ '%03d' | format(dnssec_algorithm_ids[algorithm]|int) }}*.key"
+  command: find /var/cache/bind/ -name "K{{ domain }}.+{{ '%03d' | format(dnssec_algorithm_ids[algorithm]|int) }}*.key"
   register: dnssec_keys
   changed_when: false
   failed_when: dnssec_keys.stdout_lines | length < 2
 
 - set_fact:
     domain_dnssec_keys: '{{ domain_dnssec_keys + dnssec_keys.stdout_lines }}'
+
+

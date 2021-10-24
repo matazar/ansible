@@ -175,7 +175,7 @@ $config['password_ldap_port'] = '{{ ldap_port | default(636) }}';
 // TLS is started after connecting
 // Using TLS for password modification is recommended.
 // Default: false
-$config['password_ldap_starttls'] = {% if ldap_tls %}yes{% else %}no{% endif %};
+$config['password_ldap_starttls'] = {% if ldap_tls %}'yes'{% else %}'no'{% endif %};
 
 // LDAP version
 // Default: '3'

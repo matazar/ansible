@@ -1,8 +1,8 @@
 - name: Save a copy of the rndc key file
   fetch:
     flat: yes
-    src: '/etc/bind/ns-{{ primary_mail_domain }}_rndc-key'
-    dest: '{{ backup_dir }}/dns/{{ inventory_hostname }}/ns-{{ primary_mail_domain }}_rndc-key'
+    src: '/etc/bind/ns-{{ primary_mail_domain | regex_replace("\.", "-") }}_rndc-key'
+    dest: '{{ backup_dir }}/dns/{{ inventory_hostname }}/ns-{{ primary_mail_domain | regex_replace("\.", "-") }}_rndc-key'
 
 - name: 'Create a list of DNSSEC files'
   command: find /var/cache/bind/ -name "K*"

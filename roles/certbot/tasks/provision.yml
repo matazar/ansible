@@ -3,7 +3,7 @@
     append: yes
     create_home: no
     groups:
-      - ssl-certs
+      - '{{ cert_group }}'
     name: www-domain
 
 - name: Ensure cert directory exists
@@ -17,7 +17,7 @@
     state: directory
     mode: '0750'
     recurse: yes
-    group: ssl-certs
+    group: '{{ cert_group }}'
   with_items:
     - live
     - archive

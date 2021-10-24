@@ -1,8 +1,8 @@
-{% for u in sudo_users %}
-{% if  u in sudo_nopasswd  %}
-{{ u }}	ALL=(ALL:ALL) NOPASSWD:ALL
+{% for user in sudo_users %}
+{% if  user in sudo_nopasswd  %}
+{{ user }}	ALL=(ALL:ALL) NOPASSWD:ALL
 {% else %}
-{{ u }}	ALL=(ALL:ALL) ALL
+{{ user }}	ALL=(ALL:ALL) ALL
 {% endif %}
 {% endfor %}
 # ansible synchonize

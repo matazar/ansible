@@ -3,10 +3,10 @@
     name: "{{ item.key }}"
     update_password: on_create
     state: present
-    password: "{{ item.value.password | password_hash('sha512') }}"
+    password: "{{ users[item.key].password | password_hash('sha512') }}"
     shell: /bin/bash
 
-# Create keys for the main user on the primary hosts.
+# Only create keys for the main user on the primary hosts.
 - block:
   - name: "Create ssh key for {{ item.key }}"
     user:
@@ -23,7 +23,7 @@
       flat: yes
   when: 
     - "'primary' in group_names"
-    - "primary_user == item.key"
+    - "primary_user == item"
     - "not bootstrap | default(False)"
 
 - name: "Set up authorized keys file for {{ item.key }}"

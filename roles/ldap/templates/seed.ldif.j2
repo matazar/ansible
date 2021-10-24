@@ -53,3 +53,4 @@ givenName: {{ mail_users[user]['name'].split(' ',1)[0] }}
 uid: {{ user }}
 userPassword: {{ mail_users[user]['password'] | password_hash('ldap_salted_sha1') | string }}
 {% endfor %}
+

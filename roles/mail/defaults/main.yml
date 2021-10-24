@@ -39,4 +39,5 @@ dkim_key: 'dkim'
 
 doveadm_passwd: false
 doveadm_port: 12345
+doveadm_allow_list: []
 sieve_port: 4190

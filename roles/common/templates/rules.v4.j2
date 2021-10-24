@@ -39,14 +39,18 @@
 -A INPUT -d {{ ansible_host | ipaddr('address') }}/{{ ansible_host | ipaddr('prefix') }} -p tcp -m tcp --dport {{ sieve_port }} -j ACCEPT
 #  Don't let anything connect to Amavisd
 -A INPUT -p tcp -m multiport --dports 10024,10025,10026 -j DROP
-
-{% if doveadm_passwd %}
+{% if doveadm_password %}
 # Mail Replication
 {% for host in groups['mail'] | difference([mail_hostname]) %}
 -A INPUT -s {{ hostvars[host]['ansible_host'] | ipaddr('address') }}/{{ hostvars[host]['ansible_host'] | ipaddr('prefix') }} -p tcp -m multiport --dport {{ doveadm_port }} -j ACCEPT
+{% endfor %}
+{% for host in doveadm_allow_list %}
+{% if host | ipv4 %}
+-A INPUT -s {{ host | ipaddr('address') }}/{{ host | ipaddr('prefix') }} -p tcp -m multiport --dport {{ doveadm_port }} -j ACCEPT
+{% endif %}
+{% endfor %}
 # Drop everyone else
 -A INPUT -p tcp -m multiport --dport {{ doveadm_port }} -j DROP
-{% endfor %}
 {% endif %}
 {% endif %}
 

@@ -1,6 +1,6 @@
 server {
     # HTTPS configuration
-    listen 443 ssl http2;
+    listen {{ ansible_host }}:443 ssl http2;
 {% if webmail_ipv6 %}
     listen {{ webmail_ipv6 | ipwrap }}:443  ssl http2;
 {% endif %}

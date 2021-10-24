@@ -44,7 +44,7 @@ class bootstrap(object):
             c.run('cat %s >> .ssh/authorized_keys' % (self.ssh_key.rsplit('/',1)[1]))
             c.close()
             # Provide copy/paste command to run bootstrap play.
-            print('\n\nNow run:\nansible-playbook -i %s bootstrap.yml -e "ansible_ssh_user=%s" -K -D -l %s' % (self.inv_file, user, host))
+            print('\n\nNow run:\nansible-playbook -i %s bootstrap.yml -e "ansible_ssh_user=%s" -D -l %s' % (self.inv_file, user, host))
     
     def parse_hosts(self, hosts):
         """
@@ -64,7 +64,6 @@ class bootstrap(object):
         hostname = re.compile('^(([a-zA-Z]|[a-zA-Z][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z]|[A-Za-z][A-Za-z0-9\-]*[A-Za-z0-9])$', re.IGNORECASE)
         for h in hosts:
             if re.match(ipv4, h):
-                results.append(h)
                 results[h] = h
             if re.match(ipv6, h):
                 results[h] = h
@@ -72,7 +71,7 @@ class bootstrap(object):
                 # Find IP of host, assume DNS isn't set up.
                 ip = self.inventory_lookup(h)
                 if ip:
-                    results[h] = ip
+                    results[h] = ip.strip(' ')
         # Return a list of IPs to bootstrap.
         return results
 

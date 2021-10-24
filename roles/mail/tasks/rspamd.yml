@@ -14,6 +14,28 @@
     update_cache: yes
     install_recommends: yes
 
+- block:
+  - name: Verify redis data exists.
+    command: '/usr/bin/test -f /var/lib/redis/dump.rdb'
+    register: redis_db
+    changed_when: false
+  rescue:
+  - name: Stop redis
+    service:
+      name: redis
+      state: stopped
+  - name: Attempt to restore DB
+    copy:
+      dest: /var/lib/redis/dump.rdb
+      src: '{{ backup_dir }}/mail/{{ mail_hostname }}/redis.rdb'
+      owner: redis
+      group: redis
+    ignore_errors: true
+  - name: Start redis
+    service:
+      name: redis
+      state: started
+
 - name: Add clamav user to vmail group
   user:
     append: yes

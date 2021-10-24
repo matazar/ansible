@@ -2,12 +2,12 @@
   - name: Ensure IPv6 addresses are configured for boot
     blockinfile:
       path: /etc/network/interfaces
-      block: "{% for ip in ipv6_addresses %}iface {{ ansible_default_ipv6['interface'] }} inet6 static\n{{ '\t' }}address {{ ip }}/64\n\n{% endfor %}"
+      block: "{% for ip in ipv6_addresses %}{% if ip %}iface {{ ansible_default_ipv6['interface'] }} inet6 static\n{{ '\t' }}address {{ ip }}/64\n\n{% endif %}{% endfor %}"
       insertafter: "EOF"
-
+  # Find out what IPv6 addresses are missing from the host
   - set_fact:
-      missing_ipv6: "{{ ipv6_addresses | difference(ansible_all_ipv6_addresses) }}"
-
+      missing_ipv6: "{% if item not in ansible_all_ipv6_addresses and item != false %}{{ missing_ipv6 | default([]) + [item] }}{% else %}{{ missing_ipv6 | default([]) }}{% endif %}"
+    with_items: "{{ ipv6_addresses }}"
   - name: "Ensure IPv6 is configured on the host"
     command: "ip -6 addr add {{ item }}/64 dev {{ ansible_default_ipv6['interface'] | default(False) }}"
     loop: "{{ missing_ipv6 }}"
@@ -15,13 +15,12 @@
       - 'missing_ipv6 | length > 0'
   when: ipv6_address
 
-- name: Update nameservers, if defined
+- name: Update DNS resolvers when defined
   template:
     src: resolv.conf.j2
     dest: /etc/resolv.conf
-  when: local_nameservers != []
+  when: dns_resolvers != []
   
-# Set up WiFi on those in the WiFi group
 - name: Configure WLAN
   template:
     src: wpa_supplicant.conf.j2

@@ -15,10 +15,10 @@
 
 - set_fact:
     slapd_services: 'ldap:/// ldapi:/// ldaps:///'
-  when: not ldap_enable_replication
+  when: not ldap_replication_enable
 - set_fact: 
     slapd_services: 'ldap:/// ldapi:/// ldaps://{{ ldap_hostname }}'
-  when: ldap_enable_replication
+  when: ldap_replication_enable
 
 - name: Ensure Slapd uses TLS
   lineinfile:
@@ -33,7 +33,7 @@
   lineinfile:
     path: /etc/hosts
     line: "{{ ldap_localip }} {{ ldap_hostname }} {{ ldap_hostname.split('.')[0] }}"
-  when: not ldap_enable_replication
+  when: not ldap_replication_enable
 
 - name: Ensure LDAP isn't stopped
   service:
@@ -68,11 +68,11 @@
   
 # Ensure PPolicy is enabled/working
 - include: ppolicy.yml
-  when: ldap_enable_ppolicy
+  when: ldap_ppolicy_enable
 
 # Replication
 - include: replication.yml
-  when: ldap_enable_replication
+  when: ldap_replication_enable
 
 - name: Set log level
   ldap_attrs:

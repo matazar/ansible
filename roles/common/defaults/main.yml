@@ -1,6 +1,7 @@
 # General
+backup_dir: "{{ playbook_dir }}/env/{{ env }}/backups"
 bash_colour: 36
-primary_mail_domain: example.com
+primary_mail_domain: example.local
 primary_user: admin
 core_apps: [sudo, p7zip, unzip, nano, rsync, tmux, wget, curl, dnsutils]
 default_editor: nano
@@ -20,19 +21,20 @@ sshd_strict_ipv6: true     # Only accept ssh connections on ipv6_address
 sshd_public_port: 0
 
 # Network
-local_nameservers: []
+dns_resolvers: []
 
 ipv6_address: false
 bind_ipv6: '{{ ipv6_address }}'
 mail_ipv6: '{{ ipv6_address }}'
+ldap_ipv6: '{{ ipv6_address }}'
 
 website_ipv6: []            # Opens port 80/443 for these IPv6 addresses
-ipv6_addresses:           # This is used to configure the network interface only
-  - '{{ ipv6_address }}'
+ipv6_addresses: []
 
 trusted_hosts: []
 ldap_allow_list: []
+ldap_replication_hosts: []
 doveadm_allow_list: []
-doveadm_passwd: false
+doveadm_password: false
 doveadm_port: 12345
 sieve_port: 4190

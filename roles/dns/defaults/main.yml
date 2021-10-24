@@ -25,6 +25,7 @@ dnssec_algorithm_ids:
   ECDSAP384SHA384: 14
   ED25519: 15
   ED448: 16
+dnssec_bytes: 2048
 
 # DKIM
 dkim_txt_dir: /var/lib/bind/dkim
@@ -34,7 +35,7 @@ dkim_keys:
 
 # Text Records
 spf_txt: 'v=spf1 a mx -all'
-dmarc_txt: "v=DMARC1;p=reject;sp=reject;adkim=s;aspf=s;fo=1;rf=afrf;rua=mailto:dmarc@{{ domain.name }}"
+dmarc_txt: "v=DMARC1;p=reject;sp=reject;adkim=s;aspf=s;fo=1;rf=afrf;rua=mailto:dmarc@{{ domain }}"
 
 # Leave empty, auto-populated variables
 domain_dnssec_keys: []

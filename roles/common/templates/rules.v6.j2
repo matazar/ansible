@@ -48,8 +48,13 @@
 {% if doveadm_password %}
 # Mail Replication
 {% for host in doveadm_allow_list %}
-{% if host | ipv6 %}
--A INPUT -s {{ host | ipaddr('address') }}/{{ host | ipaddr('prefix') }} -p tcp -m multiport --dport {{ doveadm_port }} -j ACCEPT
+{% if host in hostvars %}
+{% if 'ipv6_address' in hostvars[host] | default(False) %}
+-A INPUT -s {{ hostvars[host]['ipv6_address'] | regex_search('(\w{1,4}\:\w{1,4}:\w{1,4}:\w{1,4}:)') }}:/64 -p tcp -m multiport --dport {{ doveadm_port }} -j ACCEPT
+{% endif %}
+{% elif host | ipv6 %}
+{# Host may use a different IP to contact us, so we are allowing the entire IPv6 subnet. Might make sense to force a route on the host instead. #}
+-A INPUT -s {{ host | ipaddr('address') | regex_search('(\w{1,4}\:\w{1,4}:\w{1,4}:\w{1,4}:)') }}:/64 -p tcp -m multiport --dport {{ doveadm_port }} -j ACCEPT
 {% endif %}
 {% endfor %}
 {% endif %}
@@ -80,8 +85,8 @@ and we need to extract the values. This keeps the hostvar simple at least. Don't
 {% endfor %}
 {% endfor %}
 # Deny everyone else
-#-A INPUT -p tcp -m state --state NEW -m tcp --dport 389 -j DROP
-#-A INPUT -p tcp -m state --state NEW -m tcp --dport 636 -j DROP
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 389 -j DROP
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 636 -j DROP
 {% endif %}
 {% endif %}
 

@@ -32,8 +32,5 @@ plugin {
   mail_replica = tcps:{{ hostvars[h].mail_hostname }}
 {% endif %}
 {% endfor %}
-{% for h in doveadm_allow_list %}
-  mail_replica = tcps:{{ h }}
-{% endfor %}
 {% endif %}
 }

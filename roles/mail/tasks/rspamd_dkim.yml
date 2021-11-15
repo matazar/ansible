@@ -16,9 +16,11 @@
       - txt
     loop_control:
       loop_var: type
+    notify: restart rspamd
   rescue:
   - name: Create DKIM keys if they do not already exist
     shell: "rspamadm dkim_keygen -b 2048 -s {{ dkim_key }} -d {{ item }} -k /var/lib/rspamd/dkim/{{ item }}_{{ dkim_key }}.private > /var/lib/rspamd/dkim/{{ item }}_{{ dkim_key }}.txt"
+    notify: restart rspamd
 
 # Store a copy locally.
 - name: Store a copy of the DKIM key/txt file.

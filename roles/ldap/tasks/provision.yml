@@ -67,6 +67,12 @@
     - "/etc/ldap/slapd.d"
     - "/var/lib/ldap"
 
+# This is required during provisioning.
+- name: Ensure ldap hostname is in host file.
+  lineinfile:
+    path: /etc/hosts
+    line: "{{ ldap_localip }} {{ ldap_hostname }} {{ ldap_hostname.split('.')[0] }}"
+
 - name: Ensure LDAP is started
   service:
     name: slapd

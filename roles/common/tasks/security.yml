@@ -28,11 +28,6 @@
   command: "/sbin/ip6tables-restore /etc/iptables/rules.v6"
   when: new_rules.changed and ipv6_address
 
-- name: Update the hosts.allow file
-  template:
-    src: hosts.allow.j2
-    dest: /etc/hosts.allow
-
 - name: Ensure fail2ban is installed
   apt: 
     name: fail2ban

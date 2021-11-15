@@ -10,7 +10,7 @@ webmail_ipv6: "{{ ipv6_address | default(False) }}"
 
 mail_server: "mail.{{ primary_mail_domain }}"
 
-roundcube_version: 1.4.11
+roundcube_version: 1.5.0
 postgresql_version: 13
 php_version: php7.4
 php_fpm: '{{ php_version }}-fpm'

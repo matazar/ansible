@@ -7,13 +7,13 @@
   # Find out what IPv6 addresses are missing from the host
   - set_fact:
       missing_ipv6: "{% if item not in ansible_all_ipv6_addresses and item != false %}{{ missing_ipv6 | default([]) + [item] }}{% else %}{{ missing_ipv6 | default([]) }}{% endif %}"
-    with_items: "{{ ipv6_addresses }}"
+    with_items: "{{ ipv6_addresses | default([]) }}"
   - name: "Ensure IPv6 is configured on the host"
     command: "ip -6 addr add {{ item }}/64 dev {{ ansible_default_ipv6['interface'] | default(False) }}"
     loop: "{{ missing_ipv6 }}"
     when: 
       - 'missing_ipv6 | length > 0'
-  when: ipv6_address
+  when: ipv6_addresses
 
 - name: Update DNS resolvers when defined
   template:

@@ -13,6 +13,7 @@
 - include: users.yml
   with_dict: "{{ users }}"
   no_log: true  # Keep this so passwords don't show in plain text.
+  when: ansible_distribution == 'Debian'
 
 # Basic tasks for all hosts.
 - include: core.yml
@@ -21,9 +22,15 @@
 - include: network.yml
   when: ansible_distribution == 'Debian'
 
-# Deal with security
+# Set hosts.allow on all hosts just to be cautious
+- name: Update the hosts.allow file
+  template:
+    src: hosts.allow.j2
+    dest: /etc/hosts.allow
+
+# Deal with security on anything open to the public.
 - include: security.yml
-  when: "'cloud' in group_names"  
+  when: "'public' in group_names" 
 
 # Install AMD graphics drivers when required.
 - include: ati_driver.yml

@@ -5,7 +5,7 @@
     name: ['dbconfig-common', 'dictionaries-common', 'libmcrypt4', '{{ php_fpm }}', 'php-auth-sasl', 'php-pear',
            'php-pgsql', 'php-pspell', 'php7.4-cli', 'php7.4-cgi', 'php7.4-common', 'php7.4-json', 'php7.4-ldap',
            'php7.4-mbstring', 'php7.4-pgsql', 'postgresql', 'php7.4-xml', 'php7.4-zip', 'nginx-full', 'libgd-tools',
-            'python3-psycopg2']
+            'python3-psycopg2', php-gd, php-intl]
     state: present
 
 - set_fact: 
@@ -79,6 +79,11 @@
     src: fastcgi_params.j2
     dest: /etc/nginx/fastcgi_params
   notify: 'restart {{ php_fpm }}'
+
+- name: Ensure composer is installed.
+  composer:
+    command: install
+    working_dir: /var/www/roundcube
 
 - name: Ensure the service is enabled
   service:

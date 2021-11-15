@@ -7,24 +7,27 @@
 # If you're going to protect the portmapper use the name "rpcbind" for the
 # daemon name. See rpcbind(8) and rpc.mountd(8) for further information.
 #
-
 {% if sshd_allowlist %}
 {% for host in trusted_hosts %}
 {% if host | ipv4 %}
-sshd : {{ host }} : allow
+sshd : {{ host | ipaddr('address') }}/{{ host | ipaddr('prefix') }} : allow
 {% elif host | ipv6 %}
 sshd : {{ host | ipwrap }} : allow
 {% endif %}
 {% endfor %}
+{% if 'local' in group_names %}
+sshd : {{ local_subnet | ipaddr('subnet') }} : allow
+{% endif %}
 {% if sshd_public_port %}
 # Allow SSH on non-standard port for all
 {{ sshd_public_port }} : ALL : allow
 {% endif %}
 sshd : ALL : deny
+
 {% else %}
 sshd : ALL : allow
-{% endif %}
 
+{% endif %}
 {% if 'ldap' in group_names %}
 slapd : 127.0.0.1 : allow
 slapd : [::1] : allow
@@ -41,13 +44,13 @@ slapd : {{ hostvars[host]['ipv6_address'] | ipwrap }} : allow
 {% endif %}
 {% endfor %}
 slapd : ALL : deny
-{% endif %}
 
+{% endif %}
 {% if 'webmail' in group_names %}
 mysqld : 127.0.0.1 : allow
 mysqld : ALL : deny
-{% endif %}
 
+{% endif %}
 # Allow anything from localhost.
 ALL : 127.0.0.1 : allow
 ALL : [::1] : allow

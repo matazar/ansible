@@ -1,0 +1,41 @@
+- name: Ensure PHP-Curl is installed
+  apt:
+    name: php-curl
+    state: present
+
+- block:
+  - name: Check for composer
+    stat: 
+      path: /usr/local/bin/composer.phar
+      checksum_algorithm: sha256
+    register: composer_phar
+    failed_when: not composer_phar.stat.exists or composer_phar.stat.checksum != composer_checksum
+  rescue:
+    - name: Download composer
+      get_url: 
+        url: https://getcomposer.org/installer
+        dest: /tmp/composer
+        mode: 0660
+        checksum: 'sha384:{{ composer_setup_checksum }}'
+    - name: Install composer
+      command: /usr/bin/php /tmp/composer --install-dir=/usr/local/bin/
+      register: composer_install
+
+- name: Ensure the symlink for composer.phar to composer exists for ansible.
+  file:
+    state: link
+    src: /usr/local/bin/composer.phar
+    dest: /usr/local/bin/composer
+
+- name: Ensure composer cache folder exists.
+  file:
+    path: /var/www/.cache/
+    owner: www-data
+    group: www-data
+    state: directory
+
+- name: Ensure composer packages are up to date.
+  composer:
+    command: update
+    working_dir: /var/www/roundcube
+  become_user: www-data

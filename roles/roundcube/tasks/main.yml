@@ -80,10 +80,7 @@
     dest: /etc/nginx/fastcgi_params
   notify: 'restart {{ php_fpm }}'
 
-- name: Ensure composer is installed.
-  composer:
-    command: install
-    working_dir: /var/www/roundcube
+- include: composer.yml
 
 - name: Ensure the service is enabled
   service:
@@ -138,18 +135,18 @@
   register: new_db
 
 - block:
-    - name: Upload roundcube db
-      copy: 
-        src: '{{ backup_dir }}/roundcube/{{ webmail_hostname }}.sql'
-        dest: /tmp/roundcube.sql
-    - name: Import roundcube db
-      postgresql_db:
-        name: "{{ roundcube_db }}"
-        target: /tmp/roundcube.sql
-        state: restore
-        login_password: "{{ roundcube_db_password }}"
-        login_user: "{{ roundcube_db_username }}"
-        login_unix_socket: "127.0.0.1"
+  - name: Upload roundcube db
+    copy: 
+      src: '{{ backup_dir }}/roundcube/{{ webmail_hostname }}.sql'
+      dest: /tmp/roundcube.sql
+  - name: Import roundcube db
+    postgresql_db:
+      name: "{{ roundcube_db }}"
+      target: /tmp/roundcube.sql
+      state: restore
+      login_password: "{{ roundcube_db_password }}"
+      login_user: "{{ roundcube_db_username }}"
+      login_unix_socket: "127.0.0.1"
   rescue:
   - name: Populate roundcube db with empty roundcube database.
     postgresql_db:

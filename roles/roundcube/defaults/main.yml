@@ -22,3 +22,6 @@ sieve_port: 4190
 
 # Automatically generated during play
 roundcube_des_key: ''
+
+composer_checksum: ae3ec292dd04b4e468aea1e5db4d085f169d8a803aabeb99707f69e9454bf218
+composer_setup_checksum: 906a84df04cea2aa72f40b5f787e49f22d4c2f19492ac310e8cba5b96ac8b64115ac402c8cd292b8a03482574915d1a8

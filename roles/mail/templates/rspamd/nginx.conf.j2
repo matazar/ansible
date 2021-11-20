@@ -5,7 +5,7 @@ server {
 {% endif %}
     server_name {{ rspamd_hostname }};
 {% for host in trusted_hosts %}
-    allow  {{ host }};
+    allow  {{ host | ipaddr('address') }}/{{ host | ipaddr('prefix') }};
 {% endfor %}
     deny   all;
     add_header Strict-Transport-Security "max-age=31536000; includeSubdomains";

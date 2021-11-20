@@ -55,4 +55,8 @@
   service:
     name: fail2ban
     state: reloaded
-    
+
+- name: restart nginx
+  service:
+    name: nginx
+    state: restarted

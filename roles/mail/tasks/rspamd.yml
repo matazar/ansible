@@ -47,6 +47,7 @@
   template:
     src: rspamd/nginx.conf.j2
     dest: '/etc/nginx/sites-available/{{ rspamd_hostname }}.conf'
+  notify: restart nginx
 
 - name: Ensure the site is enabled
   file: 

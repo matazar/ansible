@@ -1,0 +1,35 @@
+- name: Set up virtualbox repo
+  template:
+    dest: /etc/apt/sources.list.d/virtualbox.list
+    src: virtualbox.list.j2
+
+- name: Add the virtualbox keys
+  apt_key:
+    url: '{{ item }}'
+    state: present
+  with_items:
+    - 'https://www.virtualbox.org/download/oracle_vbox_2016.asc'
+    - 'https://www.virtualbox.org/download/oracle_vbox.asc'
+
+- name: Install VirtualBox
+  apt:
+    name: virtualbox-6.1
+    state: latest
+    update_cache: yes
+
+- name: 'Ensure {{ vm_user }} is in the correct groups'
+  user:
+    append: yes
+    groups: 
+      - vboxusers
+    name: "{{ vm_user }}"
+  when: not vbox_service
+
+- name: Ensure cronjob exist for vms"
+  cron:
+    special_time: reboot
+    name: "Start {{ vm_name }}"
+    job: "VBoxManage startvm '{{ vm_names }}' --type headless"
+    user: "{{ vm_user }}"
+  with_items: vm_names
+  when: vbox_service

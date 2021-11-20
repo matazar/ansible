@@ -10,6 +10,7 @@ dns_zone_refresh: 7200
 dns_zone_retry: 3600
 dns_zone_expire: 1209600  # recommended value by mxtoolbox
 dns_zone_ttl: 7200
+ns_domain: '{{ primary_mail_domain }}'
 
 nameservers: {}
 
@@ -26,6 +27,9 @@ dnssec_algorithm_ids:
   ED25519: 15
   ED448: 16
 dnssec_bytes: 2048
+
+# certbot
+certbot_dns_enable: true
 
 # DKIM
 dkim_txt_dir: /var/lib/bind/dkim

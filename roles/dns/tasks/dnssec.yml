@@ -53,4 +53,22 @@
 - set_fact:
     domain_dnssec_keys: '{{ domain_dnssec_keys + dnssec_keys.stdout_lines }}'
 
+- block:
+  - name: Ensure the master ns has script to manage DNSSEC signing
+    copy:
+      src: 'dnssec_check.py'
+      dest: '/root/dnssec_check.py'
+  - name: Update DNSSEC script config file
+    template:
+        src: dnssec_domains.conf.j2
+        dest: /root/.dnssec_domains.conf
+  - name: Ensure DNSSEC check script cronjob entry exists.
+    cron:
+      minute: '00'
+      hour: '17'
+      name: DNSSEC check and sign script
+      job: /usr/bin/python3 /root/dnssec_check.py
+  when: 
+    - master_ns_host | default(false)
+
 

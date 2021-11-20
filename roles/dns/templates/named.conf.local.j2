@@ -11,6 +11,9 @@ zone "{{ domain }}" {{ '{' }}
 {% if nameservers[master_ns].ipv4 | default('') == ansible_host or nameservers[master_ns].ipv6 | default('') == ipv6_address %}
     type master;
     allow-transfer {{ '{' }} {{  '; '.join(ns_ipv4) }};{% if ipv6_address | default(false) and ns_ipv6 | length > 0 %} {{ '; '.join(ns_ipv6) }};{% endif %} {{ '}' }};
+    update-policy {
+        grant certbot. name _acme-challenge.{{ domain }}. txt;
+  };
 {% else %}
     type slave;
     masters {{ '{' }} {{ nameservers[master_ns].ipv4 }};{% if ipv6_address | default(false) and ns_ipv6 | length > 0 %} {{ nameservers[master_ns].ipv6 }}; {% endif %} {{ '}' }};

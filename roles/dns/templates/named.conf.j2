@@ -13,7 +13,12 @@ acl internals { 127.0.0.0/8; };
 include "/etc/bind/named.conf.options";
 
 // TSIG key
-include "/etc/bind/ns-{{ primary_mail_domain | regex_replace("\.", "-") }}_rndc-key";
+include "/etc/bind/ns-{{ ns_domain | regex_replace("\.", "-") }}_rndc-key";
+
+{% if certbot_dns_enable %}
+// Certbot
+include "/etc/bind/certbot.key";
+{% endif %}
 
 controls {
 	inet 127.0.0.1 port 953 allow { 127.0.0.1; };

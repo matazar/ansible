@@ -1,0 +1,5 @@
+{% for domain in dns_zones %}
+{% if dns_zones[domain].dnssec %}
+{{ domain }}
+{% endif %}
+{% endfor %}

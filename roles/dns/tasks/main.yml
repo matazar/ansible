@@ -52,19 +52,19 @@
 
 - block:
     - name: Check for rndc key
-      command: '/usr/bin/test -f /etc/bind/ns-{{ primary_mail_domain | regex_replace("\.", "-") }}_rndc-key'
+      command: '/usr/bin/test -f /etc/bind/ns-{{ ns_domain | regex_replace("\.", "-") }}_rndc-key'
       register: rndc_key
       failed_when: false
       changed_when: rndc_key.rc == 1
     - name: Attempt to restore the rndc key file
       copy:
-        src: '{{ backup_dir }}/dns/{{ inventory_hostname }}/ns-{{ primary_mail_domain | regex_replace("\.", "-") }}_rndc-key'
-        dest: '/etc/bind/ns-{{ primary_mail_domain | regex_replace("\.", "-") }}_rndc-key'
+        src: '{{ backup_dir }}/dns/{{ inventory_hostname }}/ns-{{ ns_domain | regex_replace("\.", "-") }}_rndc-key'
+        dest: '/etc/bind/ns-{{ ns_domain | regex_replace("\.", "-") }}_rndc-key'
         mode: '0744'
       when: rndc_key.changed
   rescue:
     - name: Generate a new rndc key file
-      command: 'rndc-confgen -a -b 512 -c /etc/bind/ns-{{ primary_mail_domain | regex_replace("\.", "-") }}_rndc-key -k rndc-key'
+      command: 'rndc-confgen -a -b 512 -c /etc/bind/ns-{{ ns_domain | regex_replace("\.", "-") }}_rndc-key -k rndc-key'
       register: new_rndc
     - name: Set permissions on the new rndc key file
       file:
@@ -72,12 +72,47 @@
         owner: bind
         group: bind
         mode: '0744'
-        path: '/etc/bind/ns-{{ primary_mail_domain | regex_replace("\.", "-") }}_rndc-key'
+        path: '/etc/bind/ns-{{ ns_domain | regex_replace("\.", "-") }}_rndc-key'
     - name: Save a copy of the new rndc key file
       fetch:
         flat: yes
-        src: '/etc/bind/ns-{{ primary_mail_domain | regex_replace("\.", "-") }}_rndc-key'
-        dest: '{{ backup_dir }}/dns/{{ inventory_hostname }}/ns-{{ primary_mail_domain | regex_replace("\.", "-") }}_rndc-key'
+        src: '/etc/bind/ns-{{ ns_domain | regex_replace("\.", "-") }}_rndc-key'
+        dest: '{{ backup_dir }}/dns/{{ inventory_hostname }}/ns-{{ ns_domain | regex_replace("\.", "-") }}_rndc-key'
+
+# Used for certbot_dns role
+- block:
+    - name: Ensure nameserver has a copy of the certbot rndc key
+      copy:
+        src: '{{ backup_dir }}/dns/certbot.key'
+        dest: '/etc/bind/certbot.key'
+        mode: '0744'
+        owner: bind
+        group: bind
+  rescue:
+    - set_fact: 
+        sign_zone: true
+
+    - name: Generate a new rndc key file
+      command: 'rndc-confgen -a -A hmac-sha512 -k "certbot." -c /etc/bind/certbot.key'
+      when: master_ns_host | default(false)
+
+    - name: Copy certbot key to host
+      copy:
+        src: '{{ backup_dir }}/dns/certbot.key'
+        dest: '/etc/bind/certbot.key'
+        mode: '0744'
+        owner: bind
+        group: bind
+      when: not master_ns_host | default(false)
+    
+    - name: Set permissions on the new rndc key file
+      file:
+        state: touch
+        owner: bind
+        group: bind
+        mode: '0744'
+        path: '/etc/bind/certbot.key'
+  when: certbot_dns_enable
 
 - name: Make sure our zone folders exist
   file:

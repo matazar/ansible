@@ -4,7 +4,7 @@
     create_home: no
     groups:
       - '{{ cert_group }}'
-    name: www-domain
+    name: www-data
 
 - name: Ensure cert directory exists
   file: 
@@ -27,4 +27,4 @@
   file:
     path: /var/www/letsencrypt 
     state: directory
-  when: not local_cert_gen
+

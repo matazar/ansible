@@ -4,12 +4,3 @@ cert_services: [nginx]
 cert_ipv6: '[::]'
 cert_email: 'certs@{{ cert_domain }}'
 cert_group: ssl-certs
-
-# Run certbot on playbook host, copy to remote host.
-local_cert_gen: false
-local_cert_host: ''
-local_cert_user: '{{ primary_user }}'
-local_sudo_password: '{{ users[primary_user]["password"] }}'
-certbot_port: 80
-
-

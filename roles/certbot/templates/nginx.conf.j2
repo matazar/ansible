@@ -1,12 +1,8 @@
 {% for domain in cert_domains %}
 server {
-{% if local_cert_gen %}
-  listen {{ hostvars[local_cert_host]['ansible_host'] }}:{{ certbot_port }};
-{% else %}
-  listen {{ ansible_host }}:{{ certbot_port }};
+  listen {{ ansible_host }}:80;
 {% if cert_ipv6 %}
-  listen {{ cert_ipv6 | ipwrap }}:{{ certbot_port }};
-{% endif %}
+  listen {{ cert_ipv6 | ipwrap }}:80;
 {% endif %}
   server_name {{ domain }};
 

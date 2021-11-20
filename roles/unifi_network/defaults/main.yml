@@ -1,0 +1,2 @@
+unifi_network_domain: '{{ primary_mail_domain }}'
+unifi_network_extra_domains: []

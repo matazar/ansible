@@ -1,0 +1,49 @@
+- name: Install apt https transport
+  apt:
+    name: [ca-certificates, apt-transport-https]
+    state: latest
+
+- name: Set up unifi repo
+  template:
+    dest: /etc/apt/sources.list.d/unifi-network.list
+    src: unifi-network.list.j2
+
+- name: Add missing GPG keys from Ubuntu.com
+  apt_key:
+    keyserver: keyserver.ubuntu.com
+    id: '{{ item }}'
+    state: present
+  with_items:
+    - 7638D0442B90D010   # JAVA
+    - 06E85760C0A52C50   # Unifi
+
+- name: Add mongodb gpg key
+  apt_key:
+    keyserver: https://www.mongodb.org/static/pgp/server-3.6.asc
+    id: 58712A2291FA4AD5
+    state: present
+
+- name: Install openjdk-8
+  apt:
+   name: openjdk-8-jre-headless
+   state: present
+   update_cache: yes
+
+- name: Ensure we are using openjdk-8 by default
+  alternatives:
+    name: java
+    path: /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
+    priority: 40
+
+- name: Install Unifi Network
+  apt:
+    name: [unifi]
+    state: latest
+    install_recommends: yes
+    update_cache: yes
+
+- include: certs.yml
+
+
+
+

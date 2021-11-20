@@ -1,0 +1,33 @@
+- set_fact:
+    extra_domains: ["*.{{ unifi_network_domain }}"]
+
+- set_fact:
+    extra_domains: '{{ extra_domains + ["*."+item] }}'
+  with_items: '{{ unifi_network_extra_domains }}'
+
+- include_role:
+    name: certbot_dns
+  vars:
+    cert_name: "{{ unifi_network_domain }}"
+    cert_domains: '{{ extra_domains }}'
+  tags:
+    - certbot
+
+# SSL for Unifi
+- block:
+  - name: Convert certs for Unifi
+    command: "openssl pkcs12 -export -inkey /etc/letsencrypt/live/{{ unifi_network_domain }}/privkey.pem -in /etc/letsencrypt/live/{{ unifi_network_domain }}/fullchain.pem -out /etc/letsencrypt/live/{{ unifi_network_domain }}/fullchain.p12 -name unifi -password pass:unifi"
+    
+  - name: Import cert into Unifi
+    command: "keytool -importkeystore -deststorepass aircontrolenterprise -destkeypass aircontrolenterprise -destkeystore /var/lib/unifi/keystore -srckeystore /etc/letsencrypt/live/{{ unifi_network_domain }}/fullchain.p12 -srcstoretype PKCS12 -srcstorepass unifi  -noprompt"
+
+  - name: Restart Unifi
+    service:
+      name: unifi
+      state: restarted
+  when: new_cert.changed | default(false)
+
+- name: Ensure script for installing unifi certs is updated.
+  copy:
+    src: unifi_cert.py
+    dest: /root/unifi_cert.py

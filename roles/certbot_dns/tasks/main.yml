@@ -1,0 +1,50 @@
+- name: Ensure certbot is installed
+  apt:
+    name:  python3-certbot-dns-rfc2136
+    state: present
+
+- name: Ensure we have a cert group
+  group:
+    name: '{{ cert_group }}'
+    state: present
+
+- set_fact: 
+      certbot_key_file: "{{ lookup('file', backup_dir + '/dns/certbot.key') }}"
+
+- name: Update certbot.ini file
+  template:
+    dest: /root/.certbot.ini
+    src: certbot.ini.j2
+    mode: '0700'
+
+- name: Check if key file exists.
+  command: '/usr/bin/test -f /etc/letsencrypt/live/{{ cert_name}}/privkey.pem'
+  register: cert_key
+  failed_when: false
+  changed_when: cert_key.rc == 1
+
+- set_fact:
+    deploy_hook: "{{ cert_services |  map('regex_replace', '(.+)', 'service \\1 restart') | join(';') }}"
+
+- name: "Seed domain {{ cert_name }}"
+  block:
+    - name: Run certbot
+      shell: "/usr/bin/certbot certonly --dns-rfc2136 --dns-rfc2136-credentials /root/.certbot.ini --agree-tos --email {{ cert_email }} --cert-name {{ cert_name }} -d {{ cert_domains | join(' -d ') }}"
+      register: new_cert
+  when: cert_key.changed
+
+- name: Update cron job for certbot renewal
+  cron:
+    name: Certbot automatic renewal.
+    job: '/usr/bin/certbot renew --quiet --deploy-hook "{{ deploy_hook }}"'
+    minute: "{{ (59 |random(seed=ansible_hostname)) }}"
+    hour: "08"
+
+- name: Ensure ssl-certs group can access the keys
+  file:
+    state: directory
+    group: ssl-certs
+    mode: 750
+    path: "/etc/letsencrypt/live/{{ cert_name }}"
+    recurse: yes
+  changed_when: false

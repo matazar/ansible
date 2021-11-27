@@ -8,6 +8,21 @@
     name: '{{ cert_group }}'
     state: present
 
+- name: Give group permissions to the Let's Encrypt root folder.
+  file:
+    path: /etc/letsencrypt/
+    group: ssl-certs
+    recurse: yes
+
+- name: Set mode on Let's Encrypt Live/Archive folder.
+  file:
+    path: '/etc/letsencrypt/{{ item }}'
+    mode: '0750'
+  register: perms_update
+  with_items:
+    - live
+    - archive
+
 - set_fact: 
       certbot_key_file: "{{ lookup('file', backup_dir + '/dns/certbot.key') }}"
 

@@ -22,6 +22,10 @@
 - include: network.yml
   when: ansible_distribution == 'Debian'
 
+- set_fact: 
+    firewall_enable: true
+  when: "'public' in group_names"
+
 # Set hosts.allow on all hosts just to be cautious
 - name: Update the hosts.allow file
   template:
@@ -30,7 +34,7 @@
 
 # Deal with security on anything open to the public.
 - include: security.yml
-  when: "'public' in group_names" 
+  when: firewall_enable
 
 # Install AMD graphics drivers when required.
 - include: ati_driver.yml

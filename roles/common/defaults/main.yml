@@ -28,6 +28,9 @@ bind_ipv6: '{{ ipv6_address }}'
 mail_ipv6: '{{ ipv6_address }}'
 ldap_ipv6: '{{ ipv6_address }}'
 
+firewall_enable: true
+
+
 website_ipv6: []            # Opens port 80/443 for these IPv6 addresses
 ipv6_addresses: []
 
@@ -38,3 +41,5 @@ doveadm_allow_list: []
 doveadm_password: false
 doveadm_port: 12345
 sieve_port: 4190
+
+emby_allow_list: []

@@ -11,7 +11,7 @@
 # Ping
 -A INPUT -p icmp -m icmp --icmp-type 8 -j ACCEPT
 # SSH
-{% if 'local' in group_names %}
+{% if local_subnet | network_in_usable(ansible_host) %}
 -A INPUT -d {{ local_subnet | ipaddr('subnet') }} -p tcp -m tcp --dport 22 -j ACCEPT
 {% endif %}
 {% for host in trusted_hosts | ipv4 %}
@@ -84,11 +84,24 @@ and we need to extract the values. This keeps the hostvar simple at least. #}
 -A INPUT -p tcp -m multiport --dport 389,636 -j DROP
 {% endif %}
 
+{% if 'emby' in group_names %}
+# Emby Server
+{% for host in emby_allow_list | ipv4 %}
+{% if host | ansible.netcommon.ipaddr('net') %}
+-A INPUT -s {{ host | ipaddr('net') }} -p tcp -m tcp --dport 8920 -j ACCEPT
+{% else %}
+-A INPUT -s {{ host | ipaddr('address') }}/{{ host | ipaddr('prefix') }} -p tcp -m tcp --dport 8920 -j ACCEPT
+{% endif %}
+{% endfor %}
+-A INPUT -p tcp -m tcp --dport 8920 -j DROP
+{% endif %}
+
 # Block MYSQL
 -A INPUT -p tcp -m tcp --dport 3306 -j DROP
 
 # HTTP/HTTPS
 -A INPUT -p tcp -m tcp --dport 80 -j ACCEPT
 -A INPUT -p tcp -m tcp --dport 443 -j ACCEPT
+
 
 COMMIT

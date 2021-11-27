@@ -7,7 +7,7 @@
 # If you're going to protect the portmapper use the name "rpcbind" for the
 # daemon name. See rpcbind(8) and rpc.mountd(8) for further information.
 #
-{% if sshd_allowlist %}
+{% if firewall_enable %}
 {% for host in trusted_hosts %}
 {% if host | ipv4 %}
 sshd : {{ host | ipaddr('address') }}/{{ host | ipaddr('prefix') }} : allow
@@ -15,14 +15,14 @@ sshd : {{ host | ipaddr('address') }}/{{ host | ipaddr('prefix') }} : allow
 sshd : {{ host | ipwrap }} : allow
 {% endif %}
 {% endfor %}
-{% if 'local' in group_names %}
+{% if local_subnet | network_in_usable(ansible_host) %}
 sshd : {{ local_subnet | ipaddr('subnet') }} : allow
 {% endif %}
 {% if sshd_public_port %}
 # Allow SSH on non-standard port for all
 {{ sshd_public_port }} : ALL : allow
 {% endif %}
-sshd : ALL : deny
+# sshd : ALL : deny
 
 {% else %}
 sshd : ALL : allow

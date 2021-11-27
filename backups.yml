@@ -35,3 +35,12 @@
   tags:
     - webmail
     - roundcube
+
+- hosts: emby
+  tasks:
+  - name: Backup emby
+    include_role:
+      name: emby
+      tasks_from: backups
+  tags:
+    - emby

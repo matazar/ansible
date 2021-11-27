@@ -38,7 +38,7 @@
 - name: "Seed domain {{ cert_domain }}"
   block:
     - name: Run certbot
-      shell: "/usr/bin/certbot certonly --webroot -n --agree-tos --email {{ cert_email }} -w /var/www/letsencrypt --cert-name {{ cert_domain }} -d {{ cert_domains | join(' -d ') }}"
+      shell: "/usr/bin/certbot certonly --webroot -n --agree-tos --non-interactive --email {{ cert_email }} -w /var/www/letsencrypt --cert-name {{ cert_domain }} -d {{ cert_domains | join(' -d ') }}"
     - name: Restart nginx
       service: 
         name: nginx

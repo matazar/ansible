@@ -1,0 +1,38 @@
+- set_fact:
+    extra_domains: ["*.{{ emby_domain }}"]
+
+- set_fact:
+    extra_domains: '{{ extra_domains + ["*."+item] }}'
+  with_items: '{{ emby_extra_domains }}'
+
+- include_role:
+    name: certbot_dns
+  vars:
+    cert_name: "{{ emby_domain }}"
+    cert_domains: '{{ extra_domains }}'
+  tags:
+    - certbot
+
+- name: Ensure emby user is in ssl-certs groups
+  user:
+    append: yes
+    create_home: no
+    groups: 
+      - ssl-certs
+    name: emby
+
+- name: Check if p12 certificate file exists.
+  command: '/usr/bin/test -f /etc/letsencrypt/live/{{ emby_domain }}/fullchain.p12'
+  register: emby_p12
+  failed_when: false
+  changed_when: emby_p12.rc == 1
+
+- name: Convert certificate for use with Emby
+  command: "openssl pkcs12 -export -inkey /etc/letsencrypt/live/{{ emby_domain }}/privkey.pem -in /etc/letsencrypt/live/{{ emby_domain }}/fullchain.pem -out /etc/letsencrypt/live/{{ emby_domain }}/fullchain.p12 -password pass:"
+  when: new_cert.changed | default(false) or emby_p12.changed
+  notify: restart emby
+
+- name: Ensure script for installing emby certs is updated.
+  copy:
+    src: emby_cert.py
+    dest: /root/emby_cert.py

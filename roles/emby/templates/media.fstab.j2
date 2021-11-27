@@ -1,0 +1,15 @@
+{% for host in emby_mounts  %}
+{% for share in emby_mounts[host] %}
+{% if host | ipv4 %}
+//{{ host }}/{{ share }} 		/media/{{ host.split('.')[2] }}_{{ host.split('.')[3] }}_{{ share }} 	cifs 	x-systemd.automount,credentials=/root/media.conf 	0 	0
+{% elif host | ipv6 %}
+//{{ host }}/{{ share }} 		/media/{{ host.split(':')[-1] }}_{{ share }} 	cifs 	x-systemd.automount,credentials=/root/media.conf 	0 	0
+{% else %}
+{% if force_ipv4_shares %}
+//{{ local_dns_zones[host.split('.', 1)[1]][host.split('.', 1)[0]] }}/{{ share }}		/media/{{ host.split('.')[0] }}_{{ share }} 		cifs 	x-systemd.automount,credentials=/root/media.conf 	0 	0
+{% else %}
+//{{ host }}/{{ share }} 		/media/{{ host.split('.')[0] }}_{{ share }} 		cifs 	x-systemd.automount,credentials=/root/media.conf 	0 	0
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endfor %}

@@ -1,0 +1,14 @@
+emby_deb_url: https://github.com/MediaBrowser/Emby.Releases/releases/download/4.6.7.0/emby-server-deb_4.6.7.0_amd64.deb
+emby_dir: /var/lib/emby
+
+emby_domain: '{{ primary_mail_domain }}'
+emby_hostname: 'emby.{{ emby_domain }}'
+emby_extra_domains: []
+
+emby_mounts: []
+
+opensub_username: ''
+opensub_hash: ''
+
+# Convert hostname to IP using local_dns_zones to avoid using IPv6 if set.
+force_ipv4_shares: true

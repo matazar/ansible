@@ -1,0 +1,23 @@
+- name: "Create a list of shares for {{ item }}"
+  set_fact:
+    shares: "{{ emby_mounts[item] | list }}"
+
+- set_fact:
+    share_prefix: "{{ item.split('.')[0] }}"
+  when: not item | ipaddr 
+
+- set_fact:
+    share_prefix: "{{ item.split('.')[2] }}_{{ item.split('.')[3] }}"
+  when: item | ipv4
+
+- set_fact:
+    share_prefix: "{{ item.split(':')[-1] }}"
+  when: item | ipv6
+    
+- name: "Ensure network share folders exist for {{ item }}"
+  file:
+    state: directory
+    path: "/media/{{ share_prefix }}_{{ share }}"
+  loop: "{{ shares }}"
+  loop_control:
+    loop_var: share

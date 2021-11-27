@@ -1,0 +1,32 @@
+
+- include: certs.yml
+
+- name: Check to ensure Emby data exists
+  stat:
+    path: /var/lib/emby
+  register: emby_seeded
+  changed_when: emby_seeded.stat.exists == false
+
+# Handle install/upgrade process with .deb file
+- block:
+  - name: Check if Emby server is installed
+    command: apt list --installed emby-server
+    register: emby_installed
+    changed_when: emby_installed.stdout_lines | length < 2
+  
+  - set_fact:
+      emby_deb_version: '{{ emby_deb_url | regex_search("(\d\.\d.\d.\d)") }}'
+
+  - set_fact:
+      emby_installed_version: '{{ emby_installed.stdout | regex_search("(\d\.\d.\d.\d)") }}'
+
+  - name: Install Emby server
+    apt:
+      deb: '{{ emby_deb_url }}'
+    when: emby_deb_version != emby_installed_version
+
+# Restore data when the folders didn't exist before the install.
+- include: restore.yml
+  when: emby_seeded.changed
+
+- include: media.yml

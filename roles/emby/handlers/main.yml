@@ -1,0 +1,4 @@
+- name: restart emby
+  service:
+    name: emby-server
+    state: restarted

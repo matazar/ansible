@@ -1,0 +1,48 @@
+- name: Stop Emby server
+  service: 
+    name: emby-server
+    state: stopped
+
+- name: Restore Emby conf, metadata and plugin folder.
+  synchronize:
+    src: '{{ backup_dir }}/emby/{{ inventory_hostname }}/{{ item }}'
+    dest: '/var/lib/emby/'
+    mode: push
+  with_items:
+    - config
+    - plugins
+    - metadata
+    - data
+  ignore_errors: yes
+
+# These only get created if you make any playlists or collections.
+- name: Restore Emby data
+  synchronize:
+    src: '{{ backup_dir }}/emby/{{ inventory_hostname }}/data'
+    dest: '/var/lib/emby/data'
+    mode: push
+  ignore_errors: yes
+
+- name: Update emby config files
+  template:
+    src: '{{ item }}.j2'
+    dest: '/var/lib/emby/config/{{ item }}'
+    owner: emby
+    group: emby
+  with_items: 
+    - system.xml
+    - opensubtitles.xml
+    - branding.xml
+  ignore_errors: yes
+
+- name: Fix permissions
+  file:
+    path: /var/lib/emby
+    owner: emby
+    group: emby
+    recurse: yes
+
+- name: Start Emby server
+  service: 
+    name: emby-server
+    state: started

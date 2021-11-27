@@ -1,0 +1,62 @@
+---
+- hosts: all
+  roles: 
+    - {role: common, tags: common}
+
+- hosts: dev
+  roles:
+    - {role: dev, tags: dev}
+    - {role: vboxguest, tags: vbosguest}
+
+- hosts: local_dns
+  roles:  
+    - {role: pihole, tags: [pihole, local_dns]}
+
+- hosts: unifi
+  roles:
+    - {role: unifi_network, tags: [unifi, unifi_network]}
+
+- hosts: unifi_video
+  roles:
+    - {role: unifi_video, tags: [unifi, unifi_video]}
+
+- hosts: samba
+  roles:
+    - {role: virtualbox, tags: virtualbox}
+    - {role: samba, tags: samba}
+
+- hosts: dns
+  roles:
+    - dns
+  tags:
+    - dns
+
+- hosts: kodi
+  roles:
+    - kodi
+  tags:
+    - kodi
+
+- hosts: emby
+  roles:
+    - emby
+  tags:
+    - emby
+
+- hosts: ldap
+  roles:
+    - {role: ldap, tags: ldap}
+
+- hosts: mail
+  roles:
+    - mail
+  tags:
+    - mail
+    
+- hosts: webmail
+  roles:
+    - roundcube
+  tags:
+    - webmail
+    - roundcube
+

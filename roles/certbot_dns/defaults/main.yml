@@ -1,6 +1,7 @@
 # cert_name: 
 cert_domains: [cert_name]
 cert_services: [nginx]
+cert_scripts: []
 cert_ipv6: '[::]'
 cert_email: 'certs@{{ cert_domains | first }}'
 cert_group: ssl-certs

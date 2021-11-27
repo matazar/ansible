@@ -31,7 +31,9 @@
   changed_when: cert_key.rc == 1
 
 - set_fact:
-    deploy_hook: "{{ cert_services |  map('regex_replace', '(.+)', 'service \\1 restart') | join(';') }}"
+    deploy_services: "{{ cert_services |  map('regex_replace', '(.+)', 'service \\1 restart') | join(';') }}"
+- set_fact:
+    deploy_hook: "{{ deploy_services + ';' + cert_scripts | join(';') }}"
 
 - name: "Seed domain {{ cert_domain }}"
   block:

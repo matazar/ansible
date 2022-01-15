@@ -15,7 +15,13 @@
 -A INPUT -d {{ local_subnet | ipaddr('subnet') }} -p tcp -m tcp --dport 22 -j ACCEPT
 {% endif %}
 {% for host in trusted_hosts | ipv4 %}
+{% if host | ipaddr('subnet') %}
+{% if host != local_subnet %}
+-A INPUT -s {{ host | ipaddr('subnet') }} -p tcp -m tcp --dport 22 -j ACCEPT
+{% endif %}
+{% else %}
 -A INPUT -s {{ host | ipaddr('address') }}/{{ host | ipaddr('prefix') }} -p tcp -m tcp --dport 22 -j ACCEPT
+{% endif %}
 {% endfor %}
 {% if sshd_public_port %}
 # Accept external SSH 
@@ -24,6 +30,17 @@
 -A INPUT -p tcp -m tcp --dport 22 -j DROP
 -A INPUT -p tcp -m tcp --dport 115 -j DROP
 
+{% if 'local_dns' in group_names %}
+# DNS Queries
+-A INPUT -d {{ ansible_host | ipaddr('address') }}/{{ ansible_host | ipaddr('prefix') }} -p tcp -m tcp --dport 53 -j ACCEPT
+-A INPUT -d {{ ansible_host | ipaddr('address') }}/{{ ansible_host | ipaddr('prefix') }} -p udp -m udp --dport 53 -j ACCEPT
+{% endif %}
+
+{% if 'samba' in group_names %}
+-A INPUT -d {{ local_subnet | ipaddr('subnet') }} -p tcp -m tcp --dport 139 -j ACCEPT
+-A INPUT -d {{ local_subnet | ipaddr('subnet') }} -p tcp -m tcp --dport 445 -j ACCEPT
+
+{% endif %}
 {% if 'dns' in group_names %}
 # DNS Queries
 -A INPUT -d {{ ansible_host | ipaddr('address') }}/{{ ansible_host | ipaddr('prefix') }} -p tcp -m tcp --dport 53 -j ACCEPT
@@ -94,6 +111,42 @@ and we need to extract the values. This keeps the hostvar simple at least. #}
 {% endif %}
 {% endfor %}
 -A INPUT -p tcp -m tcp --dport 8920 -j DROP
+{% endif %}
+{% if 'unifi_network' in group_names or 'unifi' in group_names %}
+-A INPUT -d {{ local_subnet | ipaddr('subnet') }} -p tcp -m tcp --dport 8443 -j ACCEPT
+
+{% endif %}
+{% if 'unifi_video' in group_names %}
+-A INPUT -d {{ local_subnet | ipaddr('subnet') }} -p tcp -m tcp --dport 7080 -j ACCEPT
+-A INPUT -d {{ local_subnet | ipaddr('subnet') }} -p tcp -m tcp --dport 7443 -j ACCEPT
+-A INPUT -d {{ local_subnet | ipaddr('subnet') }} -p tcp -m tcp --dport 7445 -j ACCEPT
+-A INPUT -d {{ local_subnet | ipaddr('subnet') }} -p tcp -m tcp --dport 7446 -j ACCEPT
+-A INPUT -d {{ local_subnet | ipaddr('subnet') }} -p tcp -m tcp --dport 7447 -j ACCEPT
+-A INPUT -d {{ local_subnet | ipaddr('subnet') }} -p udp -m udp --dport 10001 -j ACCEPT
+
+-A INPUT -d {{ local_subnet | ipaddr('subnet') }} -p tcp -m tcp --dport 6666 -j ACCEPT
+-A INPUT -d {{ local_subnet | ipaddr('subnet') }} -p udp -m udp --dport 7004 -j ACCEPT
+-A INPUT -d {{ local_subnet | ipaddr('subnet') }} -p tcp -m tcp --dport 7442 -j ACCEPT
+{% endif %}
+
+{% if 'transmission' in group_names %}
+{% if not transmission_https_only | default(false) %}
+{% for host in transmission_allow_list | default([]) %}
+{% if host | ipv4 and not host | ipaddr('127.0.0.1/8') %}
+-A INPUT -s {{ host | ipaddr('address') }}/{{ host | ipaddr('prefix') }} -p udp -m udp --dport 9091 -j ACCEPT
+-A INPUT -s {{ host | ipaddr('address') }}/{{ host | ipaddr('prefix') }} -p tcp -m tcp --dport 9091 -j ACCEPT
+{% endif %}
+{% endfor %}
+{% endif %}
+# Transmission transfer ports
+-A INPUT -p tcp --match multiport --dports {{ transmission_low_port }}:{{ transmission_high_port }} -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+-A INPUT -p udp --match multiport --dports {{ transmission_low_port }}:{{ transmission_high_port }} -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+-A OUTPUT -p tcp --match multiport --sports {{ transmission_low_port }}:{{ transmission_high_port }} -m conntrack --ctstate ESTABLISHED -j ACCEPT
+-A OUTPUT -p udp --match multiport --sports {{ transmission_low_port }}:{{ transmission_high_port }} -m conntrack --ctstate ESTABLISHED -j ACCEPT
+# Block tunnel traffic on some ports, just in case...
+-A INPUT -i tun0 -p tcp --destination-port 22 -j DROP
+-A INPUT -i tun0 -p tcp --destination-port 9091 -j DROP
+-A INPUT -i tun0 -p udp --destination-port 9091 -j DROP
 {% endif %}
 
 # Block MYSQL

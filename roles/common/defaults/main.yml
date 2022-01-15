@@ -1,45 +1,55 @@
-# General
 backup_dir: "{{ playbook_dir }}/env/{{ env }}/backups"
-bash_colour: 36
-primary_mail_domain: example.local
-primary_user: admin
-core_apps: [sudo, p7zip, unzip, nano, rsync, tmux, wget, curl, dnsutils]
-default_editor: nano
-timezone: America/Toronto
 
-sudo_users:
-  - '{{ primary_user }}'
-  - '{{ ansible_ssh_user }}'
+# Env
+timezone: America/Toronto
+default_editor: nano
+bash_colour: 36
+core_apps: [sudo, p7zip, unzip, nano, rsync, tmux, wget, curl, dnsutils]
+
+# User Info
+users: {}
+primary_user: admin
+sudo_users: '[{{ primary_user }}, {{ ansible_ssh_user }}]'
 sudo_nopasswd: []
 
-# SSHD
+# SSHD 
+sshd_service_name: sshd
 sshd_keytype: ed25519
-sshd_password: false
-sshd_allowlist: true
-sshd_service_name: sshd    # PIs are different.
-sshd_strict_ipv6: true     # Only accept ssh connections on ipv6_address
 sshd_public_port: 0
+sshd_strict_ipv6: true
 
-# Network
-dns_resolvers: []
-
+# IPv6
 ipv6_address: false
+ipv6_addresses: []
+
 bind_ipv6: '{{ ipv6_address }}'
 mail_ipv6: '{{ ipv6_address }}'
 ldap_ipv6: '{{ ipv6_address }}'
 
-firewall_enable: true
+website_ipv6: []
 
+# Networking
+dns_resolvers: []
+local_subnet: '127.0.0.0/24'
 
-website_ipv6: []            # Opens port 80/443 for these IPv6 addresses
-ipv6_addresses: []
-
+# Firewall
+firewall_enable: false
 trusted_hosts: []
+
 ldap_allow_list: []
 ldap_replication_hosts: []
-doveadm_allow_list: []
-doveadm_password: false
-doveadm_port: 12345
+
 sieve_port: 4190
 
 emby_allow_list: []
+
+doveadm_allow_list: []
+doveadm_port: 12345
+doveadm_password: false
+
+transmission_high_port: 65535
+transmission_low_port: 49152
+transmission_https_only: false
+transmission_allow_list: []
+
+samba_ipv6: false

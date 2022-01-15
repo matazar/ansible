@@ -15,7 +15,7 @@ sshd : {{ host | ipaddr('address') }}/{{ host | ipaddr('prefix') }} : allow
 sshd : {{ host | ipwrap }} : allow
 {% endif %}
 {% endfor %}
-{% if local_subnet | network_in_usable(ansible_host) %}
+{% if local_subnet | network_in_usable(ansible_host) or 'local' in group_names %}
 sshd : {{ local_subnet | ipaddr('subnet') }} : allow
 {% endif %}
 {% if sshd_public_port %}

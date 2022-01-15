@@ -20,6 +20,26 @@
 -A INPUT -p tcp -m state --state NEW -m tcp --dport 22 -j DROP
 -A INPUT -p tcp -m state --state NEW -m tcp --dport 115 -j DROP
 
+{% if 'local_dns' in group_names %}
+{% if bind_ipv6 %}
+# DNS
+{% if bind_ipv6 == 'any' %}
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 53 -j ACCEPT
+-A INPUT -p udp -m state --state NEW -m udp --dport 53 -j ACCEPT
+{% else %}
+-A INPUT -d {{ bind_ipv6 | ipaddr('address') }}/{{ bind_ipv6 | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 53 -j ACCEPT
+-A INPUT -d {{ bind_ipv6 | ipaddr('address') }}/{{ bind_ipv6 | ipaddr('prefix') }} -p udp -m state --state NEW -m udp --dport 53 -j ACCEPT
+{% endif %}
+{% endif %}
+{% endif %}
+{% if 'samba' in group_names %}
+{% if samba_ipv6 %}
+-A INPUT -d {{ local_ipv6 | ipaddr('subnet') }} -p tcp -m tcp --dport 139 -j ACCEPT
+-A INPUT -d {{ local_ipv6 | ipaddr('subnet') }} -p tcp -m tcp --dport 445 -j ACCEPT
+
+{% endif %}
+{% endif %}
+
 {% if 'dns' in group_names %}
 {% if bind_ipv6 %}
 # DNS

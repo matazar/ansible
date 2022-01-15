@@ -46,7 +46,7 @@
   template:
     dest: '/home/{{ primary_user }}/.bashrc'
     src: .bashrc.j2
-    owner: '{{ primary_user}}'
+    owner: '{{ primary_user }}'
   when: 
     - "primary_user in users"
 

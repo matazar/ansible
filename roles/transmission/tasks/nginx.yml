@@ -1,0 +1,40 @@
+- block:
+  # Create empty var to hold all our domains.
+  - set_fact: 
+      transmission_domains: []
+
+  # Create a list of domains that need to be included in our wildcard cert
+  - set_fact:
+      transmission_domains: '{{ transmission_domains + ["*."+item.split(".")[-2:] | join(".")] }}'
+    with_items: '{{ transmission_hostnames }}'
+
+  # Output the domains
+  - name: Output domains we need included in the wildcard cert.
+    debug:
+      var: transmission_domains | unique
+
+  # Actually run certbot
+  - include_role:
+      name: certbot_dns
+    vars:
+      cert_name: "{{ transmission_cert_name }}"
+      cert_domains: '{{ transmission_domains | unique }}'
+    tags:
+      - certbot
+
+- block:
+  - include_role:
+      name: nginx
+    
+  - name: Copy over nginx file
+    template:
+      src: nginx.conf.j2
+      dest: "/etc/nginx/sites-available/{{ transmission_hostnames | first }}"
+    notify: restart nginx
+    
+  - name: Ensure the site is enabled
+    file: 
+      src: "/etc/nginx/sites-available/{{ transmission_hostnames | first }}"
+      dest: "/etc/nginx/sites-enabled/{{ transmission_hostnames | first }}"
+      state: link
+    notify: restart nginx

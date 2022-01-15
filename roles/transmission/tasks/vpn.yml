@@ -1,0 +1,70 @@
+- name: Ensure curl is installed
+  apt:
+    name: curl
+    state: latest
+
+- name: Check for NordVPN
+  stat:
+    path: /usr/bin/nordvpn
+  register: vpn
+
+# Install NordVPN
+- name: Configure NordVPN
+  block:    
+  - name: Fetch installer
+    get_url: 
+      url: https://downloads.nordcdn.com/apps/linux/install.sh
+      dest: /tmp/nordvpn_install.sh
+  - name: Install NordVPN
+    shell: DEBIAN_FRONTEND=noninteractive sh /tmp/nordvpn_install.sh
+  - name: Login to NordVPN
+    command: "nordvpn login --legacy --username {{ nordvpn_user }} --password '{{ nordvpn_password }}'"
+    register: vpn_login
+  when: not vpn.stat.exists
+
+- name: Disable IPv6
+  sysctl:
+    name: net.ipv6.conf.all.disable_ipv6
+    value: '1'
+    state: present
+    reload: yes
+
+# Make sure NordVPN is configured.
+- block:
+    - name: Ensure local subnet is on the allow list.
+      shell: 'nordvpn settings | grep {{ local_subnet }}'
+      register: vpn_allow_list
+      changed_when: vpn_allow_list.rc == 1
+      failed_when: false
+    - name: Add local subnet to NordVPN allow list.
+      command: 'nordvpn whitelist add subnet {{ local_subnet }}'
+      when: vpn_allow_list.changed
+    - name: Check if autoconnect is enabled.
+      shell: nordvpn settings | grep Auto-connect
+      register: vpn_auto_connect
+      changed_when: "vpn_auto_connect.stdout == 'Auto-connect: disabled'"
+    - name: Enable auto-connect
+      command: nordvpn set autoconnect enable
+      when: vpn_auto_connect.changed
+    - name: Check if killswitch is enabled.
+      shell: nordvpn settings | grep 'Kill Switch'
+      register: vpn_killswitch
+      changed_when: "vpn_killswitch.stdout == 'Kill Switch: disabled'"
+    - name: Enable killswitch
+      command: nordvpn set killswitch enable
+      when: vpn_killswitch.changed
+
+- name: Check if we are currently connected to the VPN
+  command: nordvpn status
+  register: vpn_status
+  changed_when: "'Status: Disconnected' in vpn_status.stdout_lines"
+
+- block:
+  - name: Login to NordVPN
+    command: "nordvpn login --legacy --username {{ nordvpn_user }} --password '{{ nordvpn_password }}'"
+    register: vpn_login
+    failed_when: false
+    changed_when: "'You are already logged in.' not in vpn_login.stdout_lines"
+  - name: Connect to the VPN
+    command: 'nordvpn connect {{ nordvpn_country }}'
+  when: vpn_status.changed

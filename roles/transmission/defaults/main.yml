@@ -1,0 +1,37 @@
+transmission_vpn: true
+#nordvpn_user: ''
+#nordvpn_password: ''
+nordvpn_country: canada
+
+transmission_vboxguest: false
+transmission_mounts: []
+#smb_user: admin
+#smb_password: ''
+force_mount_ipv4: false
+
+transmission_https: true
+transmission_https_only: false
+
+transmission_cert_name: '{{ transmission_hostnames | first }}'
+transmission_hostnames:
+  - 'torrents.{{ default_domain }}'
+transmission_strict_hostnames: false
+
+transmission_max_download: 10000
+transmission_max_upload: 5000
+transmission_queue_size: 8
+transmission_alt_download: 200000
+transmission_alt_upload: 10000
+transmission_alt_start: 120
+transmission_alt_end: 480
+transmission_alt_day: 127
+
+transmission_high_port: 65535
+transmission_low_port: 49152
+transmission_download_dir: /usr/downloads
+transmission_torrent_dir: '{{ transmission_download_dir }}/.torrents'
+transmission_incomplete_dir: '{{ transmission_download_dir }}/.incomplete'
+
+transmission_allow_list: []
+
+local_dns_zones: []

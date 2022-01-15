@@ -1,0 +1,34 @@
+- name: Update network shares fstab file
+  template:
+    src: transmission.fstab.j2
+    dest: /etc/fstab.transmission
+  register: fstab_transmission
+
+- name: Update network share credentials
+  template:
+    src: smb.conf.j2
+    dest: "/root/.smb.conf"
+  register: transmission_cred
+
+- name: Ensure cifs-utils is installed
+  apt:
+    name: cifs-utils
+    state: present
+
+# Config share mount folders
+- include: mount.yml
+  with_items: '{{ transmission_mounts }}'
+
+- name: Add mount script
+  template:
+    src: fstab.if-up.j2
+    dest: '/etc/network/if-up.d/fstab'
+    mode: "0700"
+    owner: root
+
+- name: Remount drives
+  command: /bin/mount -a -T /etc/fstab.transmission
+  args:
+    warn: no
+  failed_when: False
+  when: transmission_cred.changed or fstab_transmission.changed

@@ -1,0 +1,18 @@
+- include_role:
+    name: vboxguest
+    
+- name: Ensure debian-transmission belongs to cert group
+  user:
+    append: yes
+    create_home: no
+    home: /var/lib/transmission-daemon/
+    groups:
+      - vboxsf
+    name: debian-transmission 
+
+- name: Add sleep to daemon so vboxsf is mounted first
+  lineinfile:
+    path: /lib/systemd/system/transmission-daemon.service
+    line: "ExecStartPre=/bin/sleep 30"
+    regexp: "ExecStartPre=.+"
+    insertafter: Type=notify

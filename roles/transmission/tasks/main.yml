@@ -1,0 +1,72 @@
+# Ensure NordVPN is set up.
+- include: vpn.yml
+  when: transmission_vpn
+
+- name: Install transmission
+  apt:
+    name: 
+      - transmission-cli
+      - transmission-daemon
+    state: latest
+
+- name: Set daemon settings
+  lineinfile:
+    path: /lib/systemd/system/transmission-daemon.service
+    line: ExecStart=/usr/bin/transmission-daemon -f --log-error --logfile /var/lib/transmission-daemon/transmission.log
+    regexp: ExecStart=.+
+
+- name: Ensure transmission log file exist.
+  file:
+    path: /var/lib/transmission-daemon/transmission.log
+    state: touch
+    owner: debian-transmission
+    group: debian-transmission
+    mode: '0740'
+  register: transmission_log
+  changed_when: transmission_log.diff.before.state == 'absent'
+
+- name: Check transmission config
+  template:
+    src: settings.json.j2
+    dest: /var/lib/transmission-daemon/.config/transmission-daemon/settings.json.test
+  register: transmission_settings
+
+- block:
+  - name: Stop transmission so we can update the config.
+    systemd:
+      name: transmission-daemon
+      state: stopped
+  - name: Check transmission config
+    template:
+      src: settings.json.j2
+      dest: /var/lib/transmission-daemon/.config/transmission-daemon/settings.json
+      owner: debian-transmission
+      group: debian-transmission
+  - name: Start transmission
+    systemd:
+      name: transmission-daemon
+      state: started
+  when: transmission_settings.changed
+
+# Ensure we have downloads folder via smb mount or vbox mount.
+- include: smb_mounts.yml
+  when: transmission_mounts != []
+
+- include: vbox.yml
+  when: transmission_vboxguest
+
+- name: Ensure transmission is enabled
+  systemd:
+    name: transmission-daemon
+    enabled: yes
+    state: started
+
+# Watch directory option doesn't appear to work
+- name: Set cronjob to import torrent
+  cron:
+    name: Auto import torrents to transmission
+    minute: "*/10"
+    job: '/usr/bin/transmission-remote -a {{ transmission_torrent_dir }}/*.torrent > /dev/null 2>&1'
+
+- include: nginx.yml
+  when: transmission_https

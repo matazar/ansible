@@ -1,4 +1,2 @@
-vbox_service: False
-vm_name: 
-  - testing.example.com
+vm_list: []
 vm_user: '{{ primary_user }}'

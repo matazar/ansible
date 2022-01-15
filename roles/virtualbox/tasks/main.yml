@@ -23,13 +23,14 @@
     groups: 
       - vboxusers
     name: "{{ vm_user }}"
-  when: not vbox_service
 
+# Added sleep so they don't all start at once
 - name: Ensure cronjob exist for vms"
   cron:
     special_time: reboot
-    name: "Start {{ vm_name }}"
-    job: "VBoxManage startvm '{{ vm_names }}' --type headless"
+    name: "Start {{ item }}"
+    job: "sleep {{ count*30 }} && VBoxManage startvm '{{ item }}' --type headless"
     user: "{{ vm_user }}"
-  with_items: vm_names
-  when: vbox_service
+  with_items: '{{ vm_list }}'
+  loop_control:
+    index_var: count

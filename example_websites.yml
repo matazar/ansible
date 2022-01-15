@@ -1,0 +1,42 @@
+- hosts: cloud1
+  roles:
+    - {role: site_placeholder,
+       site_domain: cloud1.example.com,
+       site_title: Cloud 1, 
+       site_icon: 'cloudicon.png',
+       site_msg: 'Welcome to the 1st cloud!',
+       site_img: 'cloud_logo.png',
+       site_css: cloud.css, 
+       site_directory: /var/www/cloud1.example.com,
+    }
+    - {role: site_placeholder,
+       site_domain: example.com,
+       site_title: Example Site, 
+       site_icon: 'example_icon.png',
+       site_msg: 'Welcome to my example site.',
+       site_img: 'example_logo.png',
+       site_css: example.css, 
+       site_directory: /var/www/example.com,
+       site_licenses: [example_icon.pdf, example_logo.pdf],
+    }
+  tags:
+    - site
+    - cloud1
+    - placeholder
+
+- hosts: cloud2
+  roles:
+    - {role: site_placeholder,
+       site_domain: cloud2.example.com,
+       site_title: Cloud 2, 
+       site_icon: 'cloudicon.png',
+       site_msg: "Welcome to the 2nd cloud!",
+       site_img: 'cloud.png',
+       site_css: cloud.css, 
+       site_directory: /var/www/cloud2.example.com,
+    }
+  tags:
+    - site
+    - cloud2
+    - placeholder
+

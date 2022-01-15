@@ -1,0 +1,16 @@
+- import_playbook: '{{ env }}_websites.yml'
+  ignore_errors: true
+
+- hosts: site_ip
+  roles:
+    - site_ip
+  tags:
+    - site_ip
+    - ip_site
+
+- hosts: files
+  roles:
+    - files
+  tags:
+    - files
+

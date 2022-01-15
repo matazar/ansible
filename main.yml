@@ -43,9 +43,17 @@
   tags:
     - emby
 
+- hosts: dashy
+  roles:
+    - dashy
+  tags:
+    - dashy
+
 - hosts: ldap
   roles:
-    - {role: ldap, tags: ldap}
+    - ldap
+  tags:
+    - ldap
 
 - hosts: mail
   roles:
@@ -60,3 +68,15 @@
     - webmail
     - roundcube
 
+- hosts: pbx
+  roles:
+    - pbx
+  tags:
+    - pbx
+
+- hosts: transmission
+  roles:
+    - transmission
+  tags:
+    - transmission
+    - torrents

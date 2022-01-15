@@ -1,0 +1,4 @@
+- hosts: local_dns
+  tasks:
+    - name: Update pihole to flush DNS.
+      command: "pihole -g"

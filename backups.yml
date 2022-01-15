@@ -44,3 +44,12 @@
       tasks_from: backups
   tags:
     - emby
+
+- hosts: kodi
+  tasks:
+  - name: Backup kodi
+    include_role:
+      name: kodi
+      tasks_from: backups
+  tags:
+    - kodi

@@ -1,9 +1,10 @@
-# cert_name: 
-cert_domains: [cert_name]
-cert_services: [nginx]
+backup_dir: "{{ playbook_dir }}/env/{{ env }}/backups"
+
+# cert_name: example.com
+cert_domains: '[{{ cert_name }}]'
+cert_services: []
 cert_scripts: []
-cert_ipv6: '[::]'
 cert_email: 'certs@{{ cert_domains | first }}'
+cert_dns_server: '{{ nameservers[nameservers | first].ipv4 }}'
 cert_group: ssl-certs
 
-backup_dir: "{{ playbook_dir }}/env/{{ env }}/backups"

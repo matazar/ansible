@@ -1,5 +1,5 @@
 # Target DNS server
-dns_rfc2136_server = "{{ nameservers[nameservers | first].ipv4 }}"
+dns_rfc2136_server = "{{ cert_dns_server }}"
 # Target DNS port
 dns_rfc2136_port = 53
 # TSIG key name

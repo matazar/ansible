@@ -1,7 +1,20 @@
-- name: Ensure certbot is installed
-  apt:
-    name:  python3-certbot-dns-rfc2136
-    state: present
+- block:
+  - name: Ensure certbot is installed
+    apt:
+      name:  python3-certbot-dns-rfc2136
+      state: present
+  - set_fact:
+      certbot_bin: /usr/bin/certbot
+  when: ansible_distribution == 'Debian'
+  
+- block:
+  - name: Ensure certbot is installed
+    yum:
+      name:  python2-certbot-dns-rfc2136
+      state: present
+  - set_fact:
+      certbot_bin: /usr/bin/certbot-2
+  when: ansible_distribution == 'Sangoma'
 
 - name: Ensure we have a cert group
   group:
@@ -25,20 +38,21 @@
 
 - set_fact:
     deploy_services: "{{ cert_services |  map('regex_replace', '(.+)', 'service \\1 restart') | join(';') }}"
+
 - set_fact:
     deploy_hook: "{{ deploy_services + ';' + cert_scripts | join(';') }}"
 
-- name: "Seed domain {{ cert_name }}"
-  block:
-    - name: Run certbot
-      shell: "/usr/bin/certbot certonly --dns-rfc2136 --dns-rfc2136-credentials /root/.certbot.ini --non-interactive --agree-tos --email {{ cert_email }} --cert-name {{ cert_name }} -d {{ cert_domains | join(' -d ') }}"
+
+- block:
+    - name: "Run certbot for {{ cert_name }}"
+      shell: "{{ certbot_bin }} certonly --dns-rfc2136 --dns-rfc2136-credentials /root/.certbot.ini --non-interactive --agree-tos --email {{ cert_email }} --cert-name {{ cert_name }} -d {{ cert_domains | join(' -d ') }}"
       register: new_cert
   when: cert_key.changed
 
 - name: Update cron job for certbot renewal
   cron:
     name: Certbot automatic renewal.
-    job: '/usr/bin/certbot renew --quiet --deploy-hook "{{ deploy_hook }}"'
+    job: '{{ certbot_bin }} renew --quiet --deploy-hook "{{ deploy_hook }}"'
     minute: "{{ (59 |random(seed=ansible_hostname)) }}"
     hour: "08"
 

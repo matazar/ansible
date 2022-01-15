@@ -4,3 +4,4 @@ guest_addition_pkgs:
   - 'linux-headers-{{ ansible_kernel }}'
 
 guest_additions_path: /media/cdrom/VBoxLinuxAdditions.run
+vboxsf_user: '{{ primary_user }}'

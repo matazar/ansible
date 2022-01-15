@@ -1,0 +1,8 @@
+- include_role:
+    name: certbot
+  vars:
+    cert_domain: "{{ files_cert_name }}"
+    cert_extra_domains: "{{ files_hostnames }}"
+    cert_ipv6: '{{ files_ipv6 }}'
+  tags:
+    - certbot

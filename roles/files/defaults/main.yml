@@ -1,0 +1,17 @@
+files_cert_name: 'files.{{ default_domain }}'
+files_hostnames:
+    - 'files.{{ default_domain}}'
+files_ipv6: false
+
+# Jirafeau settings
+files_style: 'dark-courgette'
+files_root: '/var/www/files'
+files_var: ''
+files_company: Jirafeau
+files_contact: 'Abuse <abuse@{{ default_domain }}'
+files_title: File Transfer
+files_crypt_enable: false
+files_uppload_passwords: []
+files_upload_allow_ips: []
+files_upload_passwordless_ips: []
+#files_admin_password: 

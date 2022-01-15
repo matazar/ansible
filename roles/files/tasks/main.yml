@@ -1,0 +1,113 @@
+- name: Ensure git is installed
+  apt:
+    name: git
+    state: present
+
+- name: Ensure php and nginx are installed
+  apt:
+    name: [php, php-fpm, nginx-full]
+    state: present
+
+# start and enable php-fpm
+- name: Ensure php-fpm is running
+  service: 
+    name: php7.4-fpm
+    state: started
+
+- name: Ensure php-fpm is enabled
+  service: 
+    name: php7.4-fpm
+    enabled: yes
+
+- name: Clone Git Repo
+  git:
+    repo: 'https://gitlab.com/mojo42/Jirafeau/'
+    dest: '{{ files_root }}'
+    clone: yes
+    update: no
+
+# Generate files_var string if one isn't set.
+- block:
+  - name: Generate var string for file storage. 
+    set_fact:
+      new_files_var: "var-{{ lookup('password', '/dev/null length=16 chars=ascii_uppercase,ascii_lowercase,digits') }}"
+  - name: Add variable to host file.
+    local_action:
+      module: lineinfile
+      path: '{{ playbook_dir }}/env/{{ env }}/host_vars/{{ inventory_hostname }}.yml'
+      line: "files_var: '{{ new_files_var }}'"
+      regexp: "files_var: '.?'"
+    become: false
+  - name: Set fact for current play
+    set_fact:
+      files_var: '{{ new_files_var }}'
+  when: files_var == ''
+
+- name: Ensure var folders exists.
+  file:
+    state: directory
+    path: '{{ files_root }}/{{ files_var }}/{{ item }}'
+    owner: www-data
+    group: www-data
+    mode: '0770'
+  with_items:
+    - files
+    - links
+    - async
+
+- name: Update jirafeau config
+  template:
+    src: config.local.php.j2
+    dest: '{{ files_root }}/lib/config.local.php'
+
+- block:
+    - name: Check for custom style
+      stat:
+        path: '{{ files_root }}/media/{{ files_style }}'
+      register: custom_style
+      changed_when: not custom_style.stat.exists
+    - name: Ensure custom style exists.
+      copy:
+        src: '{{ files_style }}'
+        dest: '{{ files_root }}/media/'
+        owner: www-data
+        group: www-data
+      when: custom_style.changed
+
+- include: certs.yml
+
+- name: Set permissions on the folder
+  file:
+    path: '{{ files_root }}'
+    owner: www-data
+    group: www-data
+    recurse: yes
+  
+- name: Ensure php-fpm is running
+  service:
+    name: php7.4-fpm
+    state: started
+
+- name: Ensure php-fpm is running
+  service:
+    name: php7.4-fpm
+    enabled: yes
+
+- name: Update files nginx file
+  template:
+    src: nginx.conf.j2
+    dest: '/etc/nginx/sites-available/{{ files_cert_name }}.conf'
+
+- name: Ensure the site is enabled
+  file: 
+    src: '/etc/nginx/sites-available/{{ files_cert_name }}.conf'
+    dest: '/etc/nginx/sites-enabled/{{ files_cert_name }}.conf'
+    state: link
+  notify: restart nginx
+
+- name: Ensure cronjob for removing stale files exists
+  cron:
+    name: Clean stale Jirafeau files
+    job: php {{ files_root }}/admin.php clean_expired
+    minute: "*/10"
+    user: www-data

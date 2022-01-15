@@ -36,7 +36,7 @@
   user: 
     name: vmail
     group: vmail
-    groups: 'ssl-certs'
+    groups: ssl-certs
     state: present
     create_home: no
     home: /var/vmail 
@@ -77,16 +77,11 @@
     src: ldap.conf.j2
     dest: /etc/ldap/ldap.conf
 
-  
 - include: postfix.yml
 
 - include: dovecot.yml
 
 - include: rspamd.yml
-  when: "spam_milter == 'rspamd'"
-
-- include: amavis.yml
-  when: "spam_milter == 'amavisd'"
 
 - name: Add dovecot and postfix to fail2ban
   template:

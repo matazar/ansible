@@ -49,16 +49,12 @@ smtpd_recipient_restrictions =
     reject_rbl_client           {{ dqs_key }}.zen.dq.spamhaus.net=127.0.0.[2..255]
 {% endif %}
     check_recipient_access      hash:/etc/postfix/rejected_addresses
-{% if spam_milter == 'amavisd' %}
-    check_policy_service unix:private/policyd-spf
-{% endif %}
 virtual_uid_maps = static:1002
 virtual_gid_maps = static:1002
 virtual_alias_maps =
     proxy:ldap:/etc/postfix/mail.cf, proxy:ldap:/etc/postfix/forwards.cf, hash:/etc/postfix/virtual
 virtual_mailbox_domains = proxy:ldap:/etc/postfix/domains.cf
 virtual_transport = lmtp:unix:private/dovecot-lmtp
-{% if spam_milter == 'rspamd' %}
 # rspamd
 #smtpd_milters = unix:/var/lib/rspamd/milter.sock
 smtpd_milters = inet:localhost:11332
@@ -66,11 +62,6 @@ smtpd_milters = inet:localhost:11332
 milter_default_action = accept
 {% if dqs_key %}
 rbl_reply_maps = hash:/etc/postfix/dnsbl-reply-map
-{% endif %}
-{% else %}
-content_filter = smtp-amavis:[127.0.0.1]:10024
-policyd-spf_time_limit = 3600
-smtpd_milters = local:/opendkim/opendkim.sock
 {% endif %}
 header_checks = pcre:/etc/postfix/header_checks
 

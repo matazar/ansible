@@ -1,3 +1,0 @@
-{% for domain in mail_domains %}
-{{ domain.split('.')[0] }}  {{ domain }}:{{ ansible_hostname[:2] }}{{ dkim_key }}:/etc/opendkim/keys/{{ ansible_hostname[:2] }}{{ dkim_key }}.private
-{% endfor %}

@@ -1,8 +1,0 @@
-127.0.0.1
-::1
-localhost
-{{ ansible_fqdn }}
-mail.{{ primary_mail_domain }}
-{% for domain in mail_domains %}
-{{ domain }}
-{% endfor %}

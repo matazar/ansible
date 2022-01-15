@@ -1,6 +1,7 @@
 - name: Ensure dovecot is installed
   apt: 
-    name: [dovecot-core, dovecot-imapd, dovecot-lmtpd, dovecot-managesieved, dovecot-sieve, dovecot-ldap]
+    name: [dovecot-core, dovecot-imapd, dovecot-lmtpd, 
+           dovecot-managesieved, dovecot-sieve, dovecot-ldap]
     state: present
     install_recommends: yes
 
@@ -8,7 +9,7 @@
   user:
     append: yes
     create_home: no
-    groups: ['vmail, ssl-certs']
+    groups: [vmail, ssl-certs]
     name: dovecot
 
 - name: Update main dovecot config file

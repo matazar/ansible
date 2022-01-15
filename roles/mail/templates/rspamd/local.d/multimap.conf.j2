@@ -5,7 +5,7 @@ email_denylist_header {
   filter = email;
   prefilter = true;
   action = "reject";
-  description = "Blacklist map for email addresses using headers";
+  description = "Deny list map for email addresses using headers";
 }
 email_denylist_envelope {
   type = "from";
@@ -13,7 +13,7 @@ email_denylist_envelope {
   filter = email;
   prefilter = true;
   action = "reject";
-  description = "Blacklist map for email addresses";
+  description = "Deny list map for email addresses";
 }
 domain_denylist_header {
   type = "header";
@@ -22,7 +22,7 @@ domain_denylist_header {
   filter = email:domain:tld;
   prefilter = true;
   action = "reject";
-  description = "Blacklist map for domains";
+  description = "Deny list map for domains";
 }
 domain_denylist_envelope {
   type = "from";
@@ -30,7 +30,7 @@ domain_denylist_envelope {
   filter = email:domain:tld;
   prefilter = true;
   action = "reject";
-  description = "Blacklist map for domains";
+  description = "Deny list map for domains";
 }
 regex_denylist {
   type = "from";
@@ -39,21 +39,21 @@ regex_denylist {
   prefilter = true;
   regexp = true;
   action = "reject";
-  description = "Regex blacklist";
+  description = "Regex deny list";
 }
 domain_allowlist {
   type = "from";
   map = "$DBDIR/domain_allowlist.inc";
   filter = email:domain:tld;
   score = -10.0;
-  description = "Whitelist map for domains";
+  description = "Allow list map for domains";
 }
 email_allowlist {
   type = "from";
   map = "$DBDIR/email_allowlist.inc";
   filter = email:addr;
   score = -10.0;
-  description = "Whitelist map for emails";
+  description = "Allow list map for emails";
 }
 custom_tld_score {
   type = "from";

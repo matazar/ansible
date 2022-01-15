@@ -1,0 +1,21 @@
+- include: certs.yml
+
+# Make it easier to upload recordings
+- block:
+  - name: Fix PHP upload limit
+    lineinfile:
+      path: /etc/php.ini
+      line: upload_max_filesize = 50M
+      regexp: "^upload_max_filesize = \\d+M"
+    notify: fwconsole restart
+  - name: Fix PHP post limit
+    lineinfile:
+      path: /etc/php.ini
+      line: post_max_size = 100M
+      regexp: "^post_max_size = \\d+M"
+    notify: fwconsole restart
+  - name: Ensure sox is installed
+    yum:
+      name: sox
+      state: present
+

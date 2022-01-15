@@ -1,0 +1,4 @@
+
+pbx_hostnames: 
+  - 'pbx.{{ default_domain }}'
+pbx_cert_name: ['{{ pbx_cert_name | first }}']

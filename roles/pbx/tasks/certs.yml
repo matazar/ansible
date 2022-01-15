@@ -1,0 +1,73 @@
+# Create empty var to hold all our domains.
+- set_fact: 
+    pbx_domains: []
+
+# Create a list of domains that need to be included in our wildcard cert
+- set_fact:
+    pbx_domains: '{{ pbx_domains + ["*."+item.split(".")[-2:] | join(".")] }}'
+  with_items: '{{ pbx_hostnames }}'
+
+# Output the domains
+- name: Output domains we need included in the wildcard cert.
+  debug:
+    var: pbx_domains | unique
+
+# Actually run certbot
+- include_role:
+    name: certbot_dns
+  vars:
+    cert_name: "{{ pbx_cert_name }}"
+    cert_domains: '{{ pbx_domains | unique }}'
+  tags:
+    - certbot
+
+- name: Check for Self Signed Certificate in Asterisk
+  command: fwconsole certificate --list
+  changed_when: cert_list.stdout | regex_search('(Default Self-Signed)')
+  register: cert_list
+
+- name: Delete self signed certificate from Asterisk
+  command: fwconsole certificate --delete=default
+  when: cert_list.changed
+
+# We need a way to detect changes to the cert so we don't always run the below.
+- name: Copy cert to asterisk keys folder.
+  copy:
+    src: "/etc/letsencrypt/live/{{ pbx_cert_name }}/cert.pem"
+    dest: "/etc/asterisk//{{ pbx_cert_name }}.test"
+    remote_src: yes
+  register: asterisk_cert
+
+# Update Certificate in Asterisk
+- block: 
+  - name: Copy cert to asterisk keys folder.
+    copy:
+      src: "/etc/letsencrypt/live/{{ pbx_cert_name }}/cert.pem"
+      dest: "/etc/asterisk/keys/{{ pbx_cert_name }}.crt"
+      mode: 0600
+      owner: asterisk
+      group: asterisk
+      remote_src: yes
+  - name: Copy cert key to asterisk keys folder.
+    copy:
+      src: "/etc/letsencrypt/live/{{ pbx_cert_name }}/privkey.pem"
+      dest: "/etc/asterisk/keys/{{ pbx_cert_name }}.key"
+      mode: 0600
+      owner: asterisk
+      group: asterisk
+      remote_src: yes
+  - name: Import them into Asterisk
+    command: 'fwconsole certificate {{ item }}'
+    with_items:
+      - --import
+      - --default=0
+  - name: Install the cert in the sysadmin module
+    command: fwconsole sysadmin installHttpsCert default
+  - name: Update sysadmin so it uses the new cert.
+    command: fwconsole sysadmin updatecert
+  when: asterisk_cert.changed
+
+- name: Ensure script for installing emby certs is updated.
+  copy:
+    src: pbx_cert.py
+    dest: /root/pbx_cert.py

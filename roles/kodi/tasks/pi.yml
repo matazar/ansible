@@ -1,0 +1,4 @@
+- name: Update the boot config settings
+  template:
+    src: boot_config.txt.j2
+    dest: /boot/config.txt

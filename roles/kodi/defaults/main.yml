@@ -1,0 +1,14 @@
+force_ipv4_shares: true
+os_gui: lightdm
+media_shares: {}
+backup_dir: "{{ playbook_dir }}/env/{{ env }}/backups"
+kodi_resolution_id: 14
+kodi_screenmode: 0192001080060.00000pstd
+kodi_audio_device: ALSA:default
+kodi_audio_passthrough: true
+kodi_hostname: '{{ inventory_hostname }}'
+kodi_web_port: 8088
+kodi_web_user: admin
+kodi_web_password: '{{ inventory_hostname_short }}'
+kodi_user: pi
+smb_workgroup: WORKGROUP

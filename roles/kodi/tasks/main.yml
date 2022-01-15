@@ -1,0 +1,75 @@
+- name: Install Kodi
+  apt:
+    name: kodi
+    install_recommends: yes
+    state: latest
+  register: kodi_installed
+
+- name: Ensure autorun folder exists
+  file:
+    state: directory
+    owner: '{{ kodi_user }}'
+    group: '{{ kodi_user }}'
+    path: '/home/{{ kodi_user }}/.config/autostart'
+
+- name: Ensure Kodi is set to autorun
+  template:
+    src: kodi.desktop.j2
+    dest: '/home/{{ kodi_user }}/.config/autostart/kodi.desktop'
+    owner: '{{ kodi_user }}'
+    group: '{{ kodi_user }}'
+    mode: '0700'
+  register: kodi_autostart
+  notify: restart kodi
+
+- name: 'Launch Kodi in test mode to create our folders'
+  command: 'timeout 10 /usr/bin/kodi --test'
+  register: kodi
+  become_user: '{{ kodi_user }}'
+  failed_when: false   # It always fails, but does what we need.
+  when: kodi_autostart.changed
+
+# Deal with media shares.
+- block:
+  - name: Copy over file with network shares fstab file
+    template:
+      src: media.fstab.j2
+      dest: /etc/fstab.media
+    register: fstab_media
+  - name: Copy over network share credentials
+    template:
+      src: media.conf.j2
+      dest: "/home/{{ kodi_user }}/media.conf"
+    register: media_cred
+  - name: Ensure cifs-utils is installed
+    apt:
+      name: cifs-utils
+      state: present
+  - include: mounts.yml
+    with_items: "{{ media_shares }}"
+  - name: Add mount script
+    template:
+      src: fstab.if-up.j2
+      dest: '/etc/network/if-up.d/fstab'
+      mode: "0700"
+      owner: root
+  - name: Remount drives
+    command: /bin/mount -a -T /etc/fstab.media
+    args:
+      warn: no
+    failed_when: False
+    when: media_cred.changed or fstab_media.changed
+  when: media_shares != [] and media_shares != {}
+
+# Kodi Config
+- include: config.yml
+
+- name: Set source.xml file
+  template:
+    src: sources.xml.j2
+    dest: "/home/{{ kodi_user }}/.kodi/userdata/sources.xml"
+
+# Deal with Raspberry Pi specific settings
+- include: pi.yml
+  when: ansible_facts.lsb.id == 'Raspbian'
+

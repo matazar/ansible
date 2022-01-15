@@ -1,0 +1,75 @@
+- block:
+  - name: Get Kodi PID
+    shell: 'ps -u {{ kodi_user }} -o pid= -o cmd= | grep kodi.bin'
+    register: kodi_pid
+    changed_when: false
+  - set_fact:
+      kodi_pid: '{{ kodi_pid.stdout | regex_search("(\d+)") }}'
+  rescue:
+  - set_fact:
+      kodi_pid: false
+
+- name: Grab Device UID
+  shell: '/bin/cat /home/{{ kodi_user }}/.kodi/userdata/guisettings.xml | grep "services.deviceuuid"'
+  failed_when: False
+  changed_when: device_uid_string.rc == 1
+  register: device_uid_string
+
+# Settings order likes to change, this avoids unnecessary updates.
+- name: Check Kodi GUI settings.
+  template:
+    src: guisettings.xml.j2
+    dest: /home/{{ kodi_user }}/.kodi/userdata/guisettings.test
+  register: guisettings_test
+
+# We also need to shutdown Kodi for the config file updates to save.
+- block:
+  - name: Stop Kodi
+    command: 'kill -15 {{ kodi_pid }}'
+    failed_when: false
+    when: kodi_pid
+  - name: Wait 15 seconds for Kodi to shutdown.
+    wait_for:
+      timeout: 15
+    when: kodi_pid
+  - set_fact:
+      kodi_pid: false
+  - name: Update guisettings.xml
+    template:
+      src: guisettings.xml.j2
+      dest: /home/{{ kodi_user }}/.kodi/userdata/guisettings.xml
+    when: guisettings_test.changed
+    notify: restart kodi
+  when: guisettings_test.changed
+ 
+- name: Ensure skin config folder exists
+  file:
+    state: directory
+    owner: '{{ kodi_user }}'
+    group: '{{ kodi_user }}'
+    path: '/home/{{ kodi_user }}/.kodi/userdata/addon_data/skin.estuary/'
+  register: skin_dir
+
+- name: Check Kodi skin settings.
+  template:
+    src: skin_settings.xml.j2
+    dest: /home/{{ kodi_user }}/.kodi/userdata/addon_data/skin.estuary/settings.check.txt
+  register: skin_settings
+
+- block:
+  - name: Stop Kodi
+    command: 'kill -15 {{ kodi_pid }}'
+    when: kodi_pid
+  - name: Wait 15 seconds for Kodi to shutdown.
+    wait_for:
+      timeout: 15
+    when: kodi_pid
+  - name: Update skin settings
+    template:
+      dest: '/home/{{ kodi_user }}/.kodi/userdata/addon_data/skin.estuary/settings.xml'
+      src: skin_settings.xml.j2
+    notify: restart kodi
+  when: skin_settings.changed
+
+- include: restore.yml
+  when: kodi_autostart.changed or kodi_restore_backups | default(false)

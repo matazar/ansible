@@ -1,0 +1,12 @@
+- name: "Create a list of shares for {{ item }}"
+  set_fact:
+    shares: "{{ media_shares[item] | list }}"
+    
+- name: "Ensure network share folders exist for {{ item }}"
+  file:
+    state: directory
+    path: "/media/{{ item.split('.')[0] }}_{{ share }}"
+  loop: "{{ shares }}"
+  loop_control:
+    loop_var: share
+    

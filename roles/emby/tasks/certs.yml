@@ -1,15 +1,23 @@
-- set_fact:
-    extra_domains: ["*.{{ emby_domain }}"]
+# Create empty var to hold all our domains.
+- set_fact: 
+    emby_domains: []
 
+# Create a list of domains that need to be included in our wildcard cert
 - set_fact:
-    extra_domains: '{{ extra_domains + ["*."+item] }}'
-  with_items: '{{ emby_extra_domains }}'
+    emby_domains: '{{ emby_domains + ["*."+item.split(".")[-2:] | join(".")] }}'
+  with_items: '{{ emby_hostnames }}'
 
+# Output the domains
+- name: Output domains we need included in the wildcard cert.
+  debug:
+    var: emby_domains | unique
+
+# Actually run certbot
 - include_role:
     name: certbot_dns
   vars:
-    cert_name: "{{ emby_domain }}"
-    cert_domains: '{{ extra_domains }}'
+    cert_name: "{{ emby_cert_name }}"
+    cert_domains: '{{ emby_domains | unique }}'
   tags:
     - certbot
 
@@ -22,13 +30,13 @@
     name: emby
 
 - name: Check if p12 certificate file exists.
-  command: '/usr/bin/test -f /etc/letsencrypt/live/{{ emby_domain }}/fullchain.p12'
+  command: '/usr/bin/test -f /etc/letsencrypt/live/{{ emby_cert_name }}/fullchain.p12'
   register: emby_p12
   failed_when: false
   changed_when: emby_p12.rc == 1
 
 - name: Convert certificate for use with Emby
-  command: "openssl pkcs12 -export -inkey /etc/letsencrypt/live/{{ emby_domain }}/privkey.pem -in /etc/letsencrypt/live/{{ emby_domain }}/fullchain.pem -out /etc/letsencrypt/live/{{ emby_domain }}/fullchain.p12 -password pass:"
+  command: "openssl pkcs12 -export -inkey /etc/letsencrypt/live/{{ emby_cert_name }}/privkey.pem -in /etc/letsencrypt/live/{{ emby_cert_name }}/fullchain.pem -out /etc/letsencrypt/live/{{ emby_cert_name }}/fullchain.p12 -password pass:"
   when: new_cert.changed | default(false) or emby_p12.changed
   notify: restart emby
 

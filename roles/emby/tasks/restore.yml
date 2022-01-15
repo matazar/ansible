@@ -31,7 +31,6 @@
     group: emby
   with_items: 
     - system.xml
-    - opensubtitles.xml
     - branding.xml
   ignore_errors: yes
 

@@ -12,7 +12,7 @@
   <HttpServerPortNumber>8096</HttpServerPortNumber>
   <HttpsPortNumber>8920</HttpsPortNumber>
   <EnableHttps>true</EnableHttps>
-  <CertificatePath>/etc/letsencrypt/live/{{ emby_domain }}/fullchain.p12</CertificatePath>
+  <CertificatePath>/etc/letsencrypt/live/{{ emby_cert_name }}/fullchain.p12</CertificatePath>
   <IsPortAuthorized>true</IsPortAuthorized>
   <AutoRunWebApp>true</AutoRunWebApp>
   <EnableRemoteAccess>true</EnableRemoteAccess>
@@ -37,14 +37,15 @@
   <CollectionsMigratedToTags>true</CollectionsMigratedToTags>
   <CollectionFolderIdsMigrated>true</CollectionFolderIdsMigrated>
   <SaveMetadataHiddenMigrated>true</SaveMetadataHiddenMigrated>
-  <WanDdns>{{ emby_hostname }}</WanDdns>
+  <WanDdns>{{ emby_hostnames | first }}</WanDdns>
   <UICulture>en-GB</UICulture>
   <SaveMetadataHidden>false</SaveMetadataHidden>
   <RemoteClientBitrateLimit>20000000</RemoteClientBitrateLimit>
   <DisplaySpecialsWithinSeasons>true</DisplaySpecialsWithinSeasons>
   <LocalNetworkSubnets>
-    <string>192.168.23.0/24</string>
-    <string>2607:f2c0:eaa5:f9ac::/64</string>
+{% for subnet in local_subnets%}
+    <string>{{ subnet }}</string>
+{% endfor %}
   </LocalNetworkSubnets>
   <LocalNetworkAddresses />
   <EnableExternalContentInSuggestions>true</EnableExternalContentInSuggestions>

@@ -1,14 +1,16 @@
+backup_dir: "{{ playbook_dir }}/env/{{ env }}/backups"
+
+emby_cert_name: '{{ emby_hostnames | first }}'
+emby_hostnames: 
+    - 'emby.{{ default_domain }}'
+
 emby_deb_url: https://github.com/MediaBrowser/Emby.Releases/releases/download/4.6.7.0/emby-server-deb_4.6.7.0_amd64.deb
-emby_dir: /var/lib/emby
 
-emby_domain: '{{ primary_mail_domain }}'
-emby_hostname: 'emby.{{ emby_domain }}'
-emby_extra_domains: []
+# Mounts
+media_shares: {}
+media_user: ''
+media_password: ''
+force_ipv4_shares: false
 
-emby_mounts: []
-
-opensub_username: ''
-opensub_hash: ''
-
-# Convert hostname to IP using local_dns_zones to avoid using IPv6 if set.
-force_ipv4_shares: true
+local_dns_zones: {}   # Used for force_ipv4_shares
+local_subnets: ['{{ local_subnet }}']

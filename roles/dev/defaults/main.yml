@@ -1,17 +1,6 @@
-primary_user:  admin
-cert_group: ssl-certs
-dev_pkgs:
-  - chromium
-  - thunderbird
-  - jxplorer
-  - code
-  - ansible
-  - git
-  - whois
-  - python3-passlib
-  - python3-venv
-  - cifs-utils
-  - sshfs
-
-ansible_default_inventory: '/home/{{ primary_user }}/ansible/env/production/inventory.yml'
+primary_user: admin
 ansible_vault_password_file: '/home/{{ primary_user }}/.ssh/ansible'
+
+dev_pkgs: [chromium, thunderbird, jxplorer, code, ansible,
+           git, whois, python3-passlib, python3-venv, cifs-utils,
+           sshfs]

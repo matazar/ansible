@@ -22,15 +22,10 @@
     src: "ansible.cfg.j2"
     dest: "/home/{{ primary_user}}/.ansible.cfg"
 
-# For local_cert_gen in certbot role.
-- name: Ensure we have a cert group
-  group:
-    name: ssl-certs
-    state: present
-
-- name: 'Ensure {{ primary_user}} is in the {{ cert_group }} group'
-  user:
-    append: yes
-    groups: 
-      - '{{ cert_group }}'
-    name: '{{ primary_user}}'
+- name: Ensure ansible vault password file dkim_exists
+  template:
+    src: '{{ ansible_vault_password_file }}'
+    dest: '{{ ansible_vault_password_file }}'
+    owner: '{{ primary_user }}'
+    group: '{{ primary_user }}'
+    mode: 0644

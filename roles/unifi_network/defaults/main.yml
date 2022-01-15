@@ -1,2 +1,3 @@
-unifi_network_domain: '{{ primary_mail_domain }}'
-unifi_network_extra_domains: []
+unifi_network_cert_name: '{{ default_domain }}'
+unifi_network_domains:
+  - '{{ default_domain }}'

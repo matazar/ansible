@@ -73,11 +73,11 @@ class unifi(object):
         """
         # Convert certificate to .der
         self.cmds.append(['/usr/bin/openssl', 'x509', '-outform', 'der',
-                          '-in', '/etc/ssl/unifi_video/%s/cert.pem' % (self.cert_name),
+                          '-in', '/etc/letsencrypt/live/%s/cert.pem' % (self.cert_name),
                            '-out', '/usr/lib/unifi-video/data/certificates/ufv-server.cert.der'])
         # Convert private key to .der
         self.cmds.append(['/usr/bin/openssl', 'pkcs8', '-topk8', '-inform', 'PEM', '-outform', 'DER',
-                          '-in', '/etc/ssl/unifi_video/%s/privkey.pem' % (self.cert_name),
+                          '-in', '/etc/letsencrypt/live/%s/privkey.pem' % (self.cert_name),
                           '-out', '/usr/lib/unifi-video/data/certificates/ufv-server.key.der',
                           '-nocrypt'])
         # Ensure we have the correct ownership on the new certificate files

@@ -1,45 +1,29 @@
 backup_dir: "{{ playbook_dir }}/env/{{ env }}/backups"
 
-# Bind Config
-bind_ipv6: false
-bind_trusted_hosts:
-  - 127.0.0.0/8
+nameservers: {}
+dns_zones: {}
+ns_domain: '{{ default_domain }}' 
+mail_domains: []
+bind_ipv6: '{{ ipv6_address }}'
 
-# Zone Defaults
+certbot_dns_enable: true
+
+# Text Records
+dkim_txt_dir: /var/lib/bind/dkim
+dkim_key: 'dkim'
+dkim_keys: ['{{ dkim_key }}']
+
+spf_txt: 'v=spf1 a mx -all'
+dmarc_txt: "v=DMARC1;p=reject;sp=reject;adkim=s;aspf=s;fo=1;rf=afrf;rua=mailto:dmarc@{{ domain }}"
+
+# Zone 
 dns_zone_refresh: 7200
 dns_zone_retry: 3600
 dns_zone_expire: 1209600  # recommended value by mxtoolbox
 dns_zone_ttl: 7200
-ns_domain: '{{ primary_mail_domain }}'
-
-nameservers: {}
-
-# DNSSEC
-dnssec_algorithms:
-  - NSEC3RSASHA1
-  - ECDSAP256SHA256
-  - ECDSAP384SHA384
-dnssec_algorithm_ids:
-  NSEC3RSASHA1: 7
-  RSASHA256: 8
-  ECDSAP256SHA256: 13
-  ECDSAP384SHA384: 14
-  ED25519: 15
-  ED448: 16
 dnssec_bytes: 2048
 
-# certbot
-certbot_dns_enable: true
-
-# DKIM
-dkim_txt_dir: /var/lib/bind/dkim
-dkim_key: 'dkim'
-dkim_keys: 
-  - '{{ dkim_key }}'
-
-# Text Records
-spf_txt: 'v=spf1 a mx -all'
-dmarc_txt: "v=DMARC1;p=reject;sp=reject;adkim=s;aspf=s;fo=1;rf=afrf;rua=mailto:dmarc@{{ domain }}"
-
-# Leave empty, auto-populated variables
-domain_dnssec_keys: []
+# DNSSEC
+dnssec_algorithms: [NSEC3RSASHA1, ECDSAP256SHA256, ECDSAP384SHA384]
+dnssec_algorithm_ids: {NSEC3RSASHA1: 7, RSASHA256: 8, ECDSAP256SHA256: 13,
+                        ECDSAP384SHA384: 14, ED25519: 15, ED448: 16}

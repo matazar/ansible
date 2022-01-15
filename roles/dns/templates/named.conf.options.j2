@@ -25,14 +25,12 @@ options {
 	
 	// Listen on IPv4 and IPv6
 	listen-on { any; };
-{% if bind_ipv6 %}
-	
-{% endif %}
-
 {% if bind_ipv6 == 'any' %}
+
 	listen-on-v6 { any; };
 	notify-source-v6 *;
 {% elif bind_ipv6 %}
+
 	listen-on-v6 { {{ bind_ipv6 }}; };
 	notify-source-v6 {{ bind_ipv6 }};
 {% endif %}

@@ -1,7 +1,7 @@
-# cert_domain: 
+#cert_domain: example.com
 cert_extra_domains: []
 cert_services: [nginx]
 cert_scripts: []
-cert_ipv6: '[::]'
 cert_email: 'certs@{{ cert_domain }}'
 cert_group: ssl-certs
+cert_ipv6: '[::]'

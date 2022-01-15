@@ -1,6 +1,6 @@
 - name: Add all domains to a variable
   set_fact:
-    cert_domains: "{{ [cert_domain] + cert_extra_domains }}"
+    cert_domains: "{{ [cert_domain] + cert_extra_domains | unique }}"
 
 - name: Ensure we have a cert group
   group:

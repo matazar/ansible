@@ -1,0 +1,3 @@
+{% for host in local_dns_zones[item] %}
+{{ local_dns_zones[item][host] }}  {{ host }}.{{ item }}
+{% endfor %}

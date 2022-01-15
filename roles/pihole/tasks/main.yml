@@ -1,0 +1,111 @@
+- name: Check if pihole is installed.
+  stat:
+    path: /usr/local/bin/pihole
+  register: pihole
+
+- name: Make sure pihole folder exists
+  file:
+    path: /etc/pihole
+    state: directory
+
+- name: Download pihole installer
+  get_url:
+    url: https://install.pi-hole.net
+    dest: '/home/{{ ansible_ssh_user }}/pihole_install.sh'
+    mode: '0770'
+    owner: '{{ ansible_ssh_user }}'
+  when: pihole.stat.exists == False
+
+- name: Handle web controller password 
+  block:
+  - name: Check current pihole web panel password
+    template:
+      src: webpassword.j2
+      dest: /etc/pihole/webpassword.txt
+    register: pihole_pwd
+  - name: Check current pihole web panel password hash
+    command: grep 'WEBPASSWORD=' /etc/pihole/setupVars.conf
+    register: pihole_webpwd
+    changed_when: pihole_webpwd.rc != 0
+    failed_when: false
+  - set_fact: 
+      pihole_pwdhash: "{{ pihole_webpwd.stdout.split('=')[1] }}"
+    when: not pihole_webpwd.changed
+
+# Order in real file frequently changes the order, this step prevents it from changing each run.
+- name: Test pihole configuration.
+  template:
+    src: setupVars.conf.j2
+    dest: /etc/pihole/setupVars.test
+  register: pihole_config
+
+- name: Update pihole configuration.
+  template: 
+    src: setupVars.conf.j2
+    dest: /etc/pihole/setupVars.conf
+  when: pihole_config.changed
+  notify: restart pihole
+
+- name: Install pihole
+  shell: '/bin/bash /home/{{ ansible_ssh_user }}/pihole_install.sh --unattended'
+  when: pihole.stat.exists == False
+
+- name: Set the web panel password
+  command: "pihole -a -p {{ pihole_password }}"
+  when: pihole_pwd.changed or pihole_webpwd.changed
+  no_log: true
+  notify: restart pihole
+
+- name: Add option for local dns records0
+  template:
+    dest: /etc/dnsmasq.d/02-lan.conf
+    src: 02-lan.conf.j2
+  when: local_dns_zones
+
+- name: Update local dns records
+  template:
+    dest: /etc/pihole/{{ item }}.list
+    src: local_dns.list.j2
+  with_items: '{{ local_dns_zones | list }}'
+  when: local_dns_zones
+  notify:
+    - restart pihole
+
+- name: Update pihole
+  command: /usr/local/bin/pihole -up
+  notify:
+    - restart pihole
+  register: update_pihole
+  changed_when: update_pihole.rc != 0
+
+- name: Add cronjob for updating lists
+  cron:
+    hour: "04"
+    minute: "00"
+    name: update pihole
+    job: /usr/local/bin/pihole -up
+  
+- name: Add cronjob for updating gravity
+  cron:
+    hour: "04"
+    minute: "15"
+    name: update gravity
+    job: /usr/local/bin/pihole -g
+
+# Enable SSL
+- block:
+    - include: certs.yml
+    - name: Ensure mod_openssl is installed.
+      apt:
+        name: lighttpd-mod-openssl
+        state: present
+      notify: restart lighttpd
+    - name: Update lighttpd configurations
+      template:
+        src: '{{ item }}.j2'
+        dest: '/etc/lighttpd/{{ item }}'
+      notify: restart lighttpd
+      with_items:
+        - external.conf
+        - lighttpd.conf
+  when: pihole_https_enable

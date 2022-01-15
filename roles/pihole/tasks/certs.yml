@@ -1,0 +1,11 @@
+- set_fact:
+    pihole_domain: '{{ "*."+pihole_hostname.split(".")[-2:] | join(".") }}'
+
+- include_role:
+    name: certbot_dns
+  vars:
+    cert_name: "{{ pihole_hostname }}"
+    cert_domains: ['{{ pihole_domain }}']
+    cert_ipv6: '{{ pihole_ipv6 }}'
+  tags:
+    - certbot

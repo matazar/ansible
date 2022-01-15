@@ -2,4 +2,6 @@
 - include_role:
     name: certbot
   vars:
-    cert_domain: '{{ webmail_hostname }}'
+    cert_domain: '{{ roundcube_hostname }}'
+    cert_extra_domains: '{{ roundcube_extra_hostnames }}'
+    cert_ipv6: '{{ roundcube_ipv6 }}'

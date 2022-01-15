@@ -1,6 +1,6 @@
 - name: Export roundcube database
   postgresql_db:
-    name: '{{ roundcube_db }}'
+    name: '{{ roundcube_db_name }}'
     state: dump
     target: /tmp/roundcube.sql
     login_password: "{{ roundcube_db_password }}"
@@ -11,7 +11,7 @@
 - name: Download roundcube database
   fetch:
     src: /tmp/roundcube.sql
-    dest: '{{ backup_dir }}/roundcube/{{ webmail_hostname }}.sql'
+    dest: '{{ backup_dir }}/roundcube/{{ roundcube_hostname }}.sql'
     flat: yes
 
 - name: Delete tmp file

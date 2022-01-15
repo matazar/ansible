@@ -1,0 +1,61 @@
+- name: Ensure postgresql is running
+  service: 
+    name: postgresql
+    state: started
+
+- name: Set up postgresql root password
+  postgresql_user:
+    name: postgresql
+    state: present
+    password: "{{ postgresql_root_password }}"
+  become_user: postgres
+
+- name: Ensure mailman user exists.
+  postgresql_user:
+    name: "{{ roundcube_db_username }}"
+    password: "{{ roundcube_db_password }}"
+    state: present
+    login_password: "{{ postgresql_root_password }}"
+    login_user: postgres
+  become_user: postgres
+
+- name: Update postgresql config
+  template:
+    src: pg_hba.conf.j2
+    dest: "/etc/postgresql/{{ postgresql_version }}/main/pg_hba.conf"
+  notify:
+    - restart postgresql
+
+- name: Ensure the roundcube database exists
+  postgresql_db:
+    name: "{{ roundcube_db_name }}"
+    encoding: UTF-8
+    owner: "{{ roundcube_db_username }}"
+    login_password: "{{ postgresql_root_password }}"
+    login_user: postgres
+  become_user: postgres
+  register: new_db
+
+- block:
+  - name: Upload roundcube db
+    copy: 
+      src: '{{ backup_dir }}/roundcube/{{ roundcube_hostname }}.sql'
+      dest: /tmp/roundcube.sql
+  - name: Import roundcube db
+    postgresql_db:
+      name: "{{ roundcube_db_name }}"
+      target: /tmp/roundcube.sql
+      state: restore
+      login_password: "{{ roundcube_db_password }}"
+      login_user: "{{ roundcube_db_username }}"
+      login_unix_socket: "127.0.0.1"
+  rescue:
+  - name: Populate roundcube db with empty roundcube database.
+    postgresql_db:
+      name: "{{ roundcube_db_name }}"
+      target: /var/www/roundcube/SQL/postgres.initial.sql
+      state: restore
+      login_password: "{{ roundcube_db_password }}"
+      login_user: "{{ roundcube_db_username }}"
+      login_unix_socket: "127.0.0.1"
+  when: new_db.changed

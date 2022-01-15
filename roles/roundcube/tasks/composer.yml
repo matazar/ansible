@@ -26,6 +26,8 @@
     state: link
     src: /usr/local/bin/composer.phar
     dest: /usr/local/bin/composer
+  when: not ansible_check_mode and composer_phar.failed  
+  # Skip in check mode when composer not installed or needs to be upgrade.
 
 - name: Ensure composer cache folder exists.
   file:
@@ -39,3 +41,4 @@
     command: update
     working_dir: /var/www/roundcube
   become_user: www-data
+  when: not ansible_check_mode and composer_phar.failed  

@@ -25,7 +25,7 @@ $config = [];
 // For examples see http://pear.php.net/manual/en/package.database.mdb2.intro-dsn.php
 // NOTE: for SQLite use absolute path (Linux): 'sqlite:////full/path/to/sqlite.db?mode=0646'
 //       or (Windows): 'sqlite:///C:/full/path/to/sqlite.db'
-$config['db_dsnw'] = 'pgsql://{{ roundcube_db_username }}:{{ roundcube_db_password }}@127.0.0.1/{{ roundcube_db }}';
+$config['db_dsnw'] = 'pgsql://{{ roundcube_db_username }}:{{ roundcube_db_password }}@127.0.0.1/{{ roundcube_db_name }}';
 
 // The IMAP host chosen to perform the log-in.
 // Leave blank to show a textbox at login, give a list of hosts
@@ -69,10 +69,10 @@ $config['smtp_pass'] = '%p';
 // PLEASE DO NOT LINK TO THE ROUNDCUBE.NET WEBSITE HERE!
 $config['support_url'] = '';
 
-$config['smtp_helo_host'] = '{{ webmail_hostname }}';
+$config['smtp_helo_host'] = '{{ roundcube_hostname }}';
 
 // Name your service. This is displayed on the login screen and in the window title
-$config['product_name'] = '{{ mail_server.split('.')[1] | capitalize }} Webmail';
+$config['product_name'] = '{{ roundcube_title }}';
 
 // This key is used to encrypt the users imap password which is stored
 // in the session record. For the default cipher method it must be

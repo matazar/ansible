@@ -1,27 +1,32 @@
 backup_dir: "{{ playbook_dir }}/env/{{ env }}/backups"
 
-ldap_schema: ldapi
-ldap_server: '%2Fvar%2Frun%2Fldapi'
-ldap_tls: true
-ldap_admin: "cn=admin,{{ ldap_suffix }}"
-
-webmail_hostname: "webmail.{{ primary_mail_domain }}"
-webmail_ipv6: "{{ ipv6_address | default(False) }}"
-
-mail_server: "mail.{{ primary_mail_domain }}"
-
-roundcube_version: 1.5.0
+roundcube_hostname: "webmail.{{ default_domain }}"
+roundcube_extra_hostnames: []
+roundcube_ipv6: "{{ ipv6_address | default(false) }}"
+roundcube_title: "{{ mail_server.split('.')[1] | capitalize }} Webmail"
+roundcube_cert_name: '{{ roundcube_hostname }}'
+roundcube_des_key: ''
+roundcube_version: 1.5.2
+roundcube_download_url: 'https://github.com/roundcube/roundcubemail/releases/download/{{ roundcube_version }}/roundcubemail-{{ roundcube_version }}-complete.tar.gz'
+roundcube_db_username: roundcube
+#roundcube_db_password : ''
+roundcube_db_name: roundcube
+#postgresql_root_password: ''
 postgresql_version: 13
+
 php_version: php7.4
 php_fpm: '{{ php_version }}-fpm'
 
-roundcube_db_username: roundcube
-roundcube_db: roundcube
+composer_checksum: 721cc27f81c6485fff70e6f56b9f2aadae770a1f8974a384c34e35987a230d8c
+composer_setup_checksum: 906a84df04cea2aa72f40b5f787e49f22d4c2f19492ac310e8cba5b96ac8b64115ac402c8cd292b8a03482574915d1a8
 
+mail_server: 'mail.{{ default_domain }}'
 sieve_port: 4190
 
-# Automatically generated during play
-roundcube_des_key: ''
-
-composer_checksum: ae3ec292dd04b4e468aea1e5db4d085f169d8a803aabeb99707f69e9454bf218
-composer_setup_checksum: 906a84df04cea2aa72f40b5f787e49f22d4c2f19492ac310e8cba5b96ac8b64115ac402c8cd292b8a03482574915d1a8
+ldap_schema: ldapi
+ldap_server: '%2Fvar%2Frun%2Fldapi'
+ldap_port: 636
+ldap_tls: true
+ldap_suffix: "{{ 'dc={0},dc={1}'.format(*default_domain.split('.')) }}"
+ldap_admin: "cn=admin,{{ ldap_suffix }}"
+#ldap_pw: ''

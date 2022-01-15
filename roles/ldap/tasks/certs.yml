@@ -1,4 +1,3 @@
-  # LDAP
 - include_role:
     name: certbot
   vars:

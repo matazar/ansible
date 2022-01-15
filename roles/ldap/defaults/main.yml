@@ -1,39 +1,35 @@
 backup_dir: "{{ playbook_dir }}/env/{{ env }}/backups"
+reset_data: false
 
 ldap_hostname: "{{ inventory_hostname }}"
-ldap_domain: "{{ primary_mail_domain }}"
+ldap_ipv6: '{{ ipv6_address | default(false) }}'
+ldap_localip: 127.0.0.2
+
+ldap_domain: "{{ default_domain }}"
 ldap_suffix: "{{ 'dc={0},dc={1}'.format(*ldap_domain.split('.')) }}"
-ldap_rootdn: "cn=root,{{ ldap_suffix }}"
-# ldap_rootpw: 
-ldap_admin: "cn=admin,{{ ldap_suffix }}"
 ldap_schema: ldapi
 ldap_server: '%2Fvar%2Frun%2Fldapi'
-ldap_tls: false
-ldap_ipv6: '{{ ipv6_address | default(False) }}'
-ldap_localip: 127.0.0.2
+ldap_log_level: 0x64 0x8
+
 ldap_replication_enable: false
 ldap_replication_user: "cn=replicator,{{ ldap_suffix }}"
-# ldap_replication_pw: 
+#ldap_repliation_pw: ''
 ldap_replication_hosts: []
 ldap_replication_schema: ldaps
-ldap_log_level: 0x64 0x8        # https://www.openldap.org/doc/admin24/slapdconfig.html
+
+ldap_rootdn: "cn=root,{{ ldap_suffix }}"
+#ldap_rootpw: ''
+ldap_admin: "cn=admin,{{ ldap_suffix }}"
+#ldap_pw: ''
 
 mail_domains:
-  - "{{ primary_mail_domain }}"
+  - "{{ default_domain }}"
 mail_users: []
 
-# PPolicy
-ldap_ppolicy_enable: true
+# PPolicy Settings
+ldap_ppolicy_enable: Enable LDAP's password policy module.
 ppolicy_use_lockout: false
 ppolicy_hash_cleartext: true
-pp_use_cracklib: 1
-pp_min_points: 3
-pp_min_upper: 1
-pp_min_lower: 1
-pp_min_digit: 1
-pp_min_punct: 1
-
-# Default Policy https://ldapwiki.com/wiki/PwdPolicy
 pwdExpireWarning: 0
 pwdMaxFailure: 5
 pwdSafeModify: 'FALSE'
@@ -47,3 +43,9 @@ pwdGraceAuthNLimit: 5
 pwdInHistory: 5
 pwdLockout: 'TRUE'
 pwdFailureCountInterval: 0
+pp_use_cracklib: 1
+pp_min_points: 3
+pp_min_upper: 1
+pp_min_lower: 1
+pp_min_digit: 1
+pp_min_punct: 1

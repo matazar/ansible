@@ -29,21 +29,17 @@
       git: 
         repo: https://github.com/onyxpoint/ppolicy-check-password.git
         dest: /tmp/policy-check-password/
-
     - name: Clone Debian OpenLDAP source for building
       git:
         repo: https://salsa.debian.org/openldap-team/openldap.git
         dest: /tmp/openldap/
-
     - name: Configure LDAP source
       command: 
           chdir: /tmp/openldap 
           cmd: ./configure
-
     - name: Build LDAP source
       make:
         chdir: /tmp/openldap
-
     - name: Build ppolicy
       make: 
         chdir: /tmp/policy-check-password/
@@ -51,19 +47,16 @@
             CONFIG="/etc/ldap/check_password.conf" 
             LDAP_INC="-I/tmp/openldap/include/ -I/tmp/openldap/servers/slapd"
             CRACKLIB="/var/cache/cracklib/"
-
     - name: Copy check_password.so to ldap directory
       copy:
         dest: /usr/lib/ldap/
         src: /tmp/policy-check-password/check_password.so
         remote_src: True
-
     - name: Save a copy of check_password.so
       fetch: 
         src: /usr/lib/ldap/check_password.so
         dest: '{{ playbook_dir }}/roles/ldap/files/check_password.so'
         flat: true
-
     - name: Clean up temp folders
       file:
         state: absent

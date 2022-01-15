@@ -1,0 +1,55 @@
+- set_fact: 
+    unifi_domains: []
+
+- set_fact:
+    unifi_domains: '{{ unifi_domains + ["*."+item.split(".")[-2:] | join(".")] }}'
+  with_items: '{{ unifi_video_domains }}'
+
+- name: Output domains we need included in the wildcard cert.
+  debug:
+    var: unifi_domains | unique
+
+- include_role:
+    name: certbot_dns
+  vars:
+    cert_name: "{{ unifi_video_cert_name }}"
+    cert_domains: '{{ unifi_domains | unique }}'
+  tags:
+    - certbot
+
+# SSL for Unifi Video
+- name: Ensure Unifi Video is configured to use custom certs
+  lineinfile:
+    path: /usr/lib/unifi-video/data/system.properties
+    line: "ufv.custom.certs.enable=true"
+    insertafter: EOF
+
+- name: Ensure the unifi-video certs folder exists
+  file:
+    path: /usr/lib/unifi-video/data/certificates/
+    state: directory
+    owner: unifi-video
+    group: unifi-video
+
+- block: 
+  - name: Convert cert to der format
+    command: "openssl x509 -outform der -in /etc/letsencrypt/live/{{ unifi_video_cert_name }}/cert.pem -out /usr/lib/unifi-video/data/certificates/ufv-server.cert.der"
+  - name: Convert cert key to pkcs8 der format
+    command: "openssl pkcs8 -topk8 -inform PEM -outform DER -in /etc/letsencrypt/live/{{ unifi_video_cert_name }}/privkey.pem -out /usr/lib/unifi-video/data/certificates/ufv-server.key.der -nocrypt"
+  - name: Set ownership on the certs
+    file:
+      path: /usr/lib/unifi-video/data/certificates/
+      state: directory
+      recurse: yes
+      owner: unifi-video
+      group: unifi-video
+  - name: Restart Unifi-Video to import the new certs
+    service:
+      name: unifi-video
+      state: restarted
+  when: new_cert.changed | default(false)
+
+- name: Ensure script for installing unifi certs is updated.
+  copy:
+    src: unifi_cert.py
+    dest: /root/unifi_cert.py

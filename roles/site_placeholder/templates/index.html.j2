@@ -1,0 +1,21 @@
+<html>
+    <head>
+        <title>{{ site_title }}</title>
+        <link rel="icon" type="image/png" href="{{ site_icon }}">
+        <link rel="stylesheet" href="main.css">
+    </head>
+    <body>
+        <div class='frame'>
+{% if site_img_position == 'above' %}
+            <div class='normal'>{{ site_msg }}</div>
+            <br><br><br><img src="{{ site_img }}">
+{% else %}
+            <br><br><img src="{{ site_img }}">
+            <br><br><br><div class='normal'>{{ site_msg }}</div>
+{% endif %}
+{% if site_footer | default(False) %}
+            <div class="footer">{{ site_footer }}</div>
+{% endif %}
+        </div>
+    </body>
+</html>

@@ -1,0 +1,94 @@
+- debug:
+    var: site_domain
+
+# This method allows you to pull the IPv6 from DNS. I'm sure there is a better way...
+- set_fact:
+    domain: '{{ site_domain | regex_search("([A-Za-z0-9]+\.[A-Za-z0-9]+)$") }}'
+    host: '{{ site_domain | regex_replace("(\.[A-Za-z0-9]+\.[A-Za-z0-9]+)$", "") }}'
+  when: 'site_domain.split(".") | length > 2'
+
+- set_fact:
+    domain: '{{ site_domain }}'
+    host: '@'
+  when: 'site_domain.split(".") | length == 2'
+
+- set_fact:
+    site_ipv6: "{{ dns_zones[domain]['hostnames'][host]['ipv6'] }}"
+  when: "'ipv6' in dns_zones[domain]['hostnames'][host]"
+
+- name: 'Set up cert for {{ site_domain }}'
+  include_role:
+    name: certbot
+  vars:
+    cert_domain: "{{ site_domain }}"
+    cert_extra_domains: '{{ site_extra_domains }}'
+    cert_ipv6: '{{ site_ipv6 }}'
+
+- name: 'Ensure dependencies are installed'
+  apt:
+    name: [nginx-full]
+    state: present
+
+- name: Make the site folder
+  file:
+    state: directory
+    owner: www-data
+    group: www-data
+    path: "{{ site_directory }}"
+
+- name: Update index page.
+  template:
+      src: 'index.html.j2'
+      dest: "{{ site_directory }}/index.html"
+
+- include: style.yml
+      
+- name: Set permissions
+  file:
+    path: "{{ site_directory }}"
+    recurse: yes
+    owner: www-data
+    group: www-data
+
+- name: Copy over nginx file
+  template:
+    src: nginx.conf.j2
+    dest: "/etc/nginx/sites-available/{{ site_domain }}"
+  notify:
+    - restart nginx
+
+- name: Check for dhparam file
+  command: "/usr/bin/test -f /etc/nginx/ssl/dhparam.pem"
+  register: dhparam
+  failed_when: false
+  changed_when: dhparam.rc == 1
+
+- name: Ensure nginx ssl folder exists
+  file:
+    path: /etc/nginx/ssl
+    state: directory
+  when: dhparam.changed
+
+- name: Generate the dhparam file
+  command: openssl dhparam -out /etc/nginx/ssl/dhparam.pem 4096
+  when: dhparam.changed
+  notify: restart nginx
+  
+- name: Ensure the site is enabled
+  file: 
+    src: "/etc/nginx/sites-available/{{ site_domain }}"
+    dest: "/etc/nginx/sites-enabled/{{ site_domain }}"
+    state: link
+  notify: restart nginx
+
+- name: Ensure nginx/fpm are enabled.
+  service:
+    name: nginx
+    enabled: yes
+
+- name: Ensure nginx/fpm are running.
+  service:
+    name: nginx
+    state: started
+
+

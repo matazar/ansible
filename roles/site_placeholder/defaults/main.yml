@@ -1,0 +1,13 @@
+site_domain: "{{ default_domain }}"
+site_extra_domains: []
+site_css: default.css
+site_title: "Under Construction"
+site_msg: This page is currently under construction.
+site_icon: favicon.png
+site_img: logo.png
+site_img_position: below
+site_footer: false
+site_directory: /var/www/construction
+site_licenses: []
+
+dns_zones: []

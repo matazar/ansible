@@ -1,0 +1,47 @@
+- block: 
+  - name: 'Update CSS file'
+    copy:
+      src: 'css/{{ site_css }}'
+      dest: "{{ site_directory }}/main.css"
+  rescue:
+  - name: Copy over default css file
+    copy:
+      src: 'css/default.css'
+      dest: "{{ site_directory }}/main.css"
+
+- block:
+  - name: Ensure the icon exists.
+    copy:
+      src: 'images/{{ site_icon }}'
+      dest: "{{ site_directory }}/{{ site_icon }}"
+  rescue:
+  - name: Use default icon
+    copy:
+      src: 'images/favicon.png'
+      dest: "{{ site_directory }}/{{ site_icon }}"
+
+- block:
+  - name: Ensure the logo exists.
+    copy:
+      src: 'images/{{ site_img }}'
+      dest: "{{ site_directory }}/{{ site_img }}"
+  rescue:
+  - name: Use default icon
+    copy:
+      src: 'images/default.png'
+      dest: "{{ site_directory }}/{{ site_img }}"
+
+- block:
+  - name: Ensure we have a folder for licenses.
+    file:
+      state: directory
+      owner: www-data
+      group: www-data
+      path: "{{ site_directory }}/license"
+  - name: Upload a copy of the license if it exists.
+    copy:
+      src: 'licenses/{{ item }}'
+      dest: '{{ site_directory }}/license/{{ item }}'
+    with_items: "{{ site_licenses }}"
+    ignore_errors: true
+  when: site_licenses != []

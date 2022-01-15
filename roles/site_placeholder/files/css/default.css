@@ -1,0 +1,47 @@
+
+body {
+    background-color: grey;
+    color: white;
+    }
+
+.footer {
+    color: #000000;
+    font-family: "Lucida Console", Monaco, monospace;
+    font-size: 10px;
+    text-align: center;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 30px;
+    }
+
+.normal {
+    font-family: "Lucida Console", Monaco, monospace;
+    font-size: 30px;
+    text-align: center;
+    padding: 20px;  
+    color: #000000;
+    padding-bottom: 30px;
+    }
+
+.frame {
+    min-height: 100%;
+    position: relative;
+    text-align: center;
+    margin: 10px;
+    height: 90%; 
+}
+
+
+a:link {
+    color: rgb(105, 198, 221);
+}
+a:visited {
+    color: rgb(31, 187, 101);
+}
+a:hover {
+    color: rgb(194, 71, 71);
+}
+a:active {
+    color: rgb(240, 202, 99);
+}

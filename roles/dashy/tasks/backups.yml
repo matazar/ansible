@@ -1,0 +1,6 @@
+# Download a copy of the config file whenever we can.
+- name: Download backup of dashy config
+  fetch:
+    src: /var/www/dashy/public/conf.yml
+    dest: '{{ backup_dir }}/dashy/conf.yml'
+    flat: yes

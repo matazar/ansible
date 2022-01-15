@@ -1,0 +1,12 @@
+- name: restart nginx
+  service:
+    name: nginx
+    state: restarted
+
+- name: restart dashy
+  command: pm2 restart dashy
+
+- name: build dashy
+  command: yarn build
+  args:
+    chdir: /var/www/dashy

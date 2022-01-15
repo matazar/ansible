@@ -1,0 +1,117 @@
+appConfig:
+  theme: {{ dashy_style }}
+  fontAwesomeKey: 0821c65656
+  layout: auto
+  iconSize: medium
+  language: en
+  startingView: default
+  defaultOpeningMethod: newtab
+  statusCheck: false
+  statusCheckInterval: 0
+  faviconApi: allesedv
+  routingMode: history
+  enableMultiTasking: false
+  webSearch:
+    disableWebSearch: false
+    searchEngine: duckduckgo
+    openingMethod: newtab
+    searchBangs: {}
+  enableFontAwesome: true
+  cssThemes: []
+  customColors: {}
+  externalStyleSheet: []
+  hideComponents:
+    hideHeading: false
+    hideNav: true
+    hideSearch: false
+    hideSettings: false
+    hideFooter: false
+    hideSplashScreen: false
+{% if dashy_users != {} %}
+  auth:
+    enableGuestAccess: true
+    users:
+{% for user in dashy_users %}
+      - user: {{ user }}
+        hash: {{ dashy_users[user].password | hash('sha256') | upper }}
+{% if user == primary_user | default('admin') %}
+        type: admin
+{% else %}
+        type: normal
+{% endif %}
+{% endfor %}
+{% else %}
+  auth:
+    enableGuestAccess: false
+{% endif %}
+    enableKeycloak: false
+  allowConfigEdit: true
+  enableServiceWorker: false
+  disableContextMenu: false
+  disableUpdateChecks: false
+  disableSmartSort: false
+  enableErrorReporting: false
+pageInfo:
+  title: {{ dashy_name }}
+  description: ''
+  navLinks:
+    - title: Home
+      path: /
+    - title: Source Code
+      path: https://github.com/Lissy93/dashy
+  footerText: ''
+sections:
+  - name: Entertainment
+    icon: fas fa-tv
+    displayData:
+      sortBy: default
+      rows: 1
+      cols: 1
+      collapsed: false
+      hideForGuests: false
+    items:
+      - title: Netflix
+        description: Netflix
+        icon: si-netflix
+        url: https://www.netflix.com/browse
+        target: newtab
+        id: 0_1374_netflix
+      - title: Crave
+        description: Crave
+        icon: https://www.crave.ca/static/logos/favicon-32x32.png
+        url: https://www.crave.ca/en
+        target: newtab
+        id: 1_1374_crave
+      - title: Disney+
+        description: Disney+
+        icon: https://static-assets.bamgrid.com/product/disneyplus/favicons/favicon-32x32.3699f19f7fdff1a556c0953c12fb883f.png
+        url: https://www.disneyplus.com/
+        target: newtab
+        id: 2_1374_disney
+      - title: Prime Video
+        description: Amazon Prime Video
+        icon: https://m.media-amazon.com/images/G/01/digital/video/DVUI/favicons/apple-touch-icon-152x152.png
+        url: https://www.primevideo.com/
+        target: newtab
+        id: 3_1374_primevideo
+  - name: Google
+    icon: si-google
+    displayData:
+      sortBy: default
+      rows: 1
+      cols: 1
+      collapsed: false
+      hideForGuests: false
+    items:
+      - title: Gmail
+        description: Gmail email.
+        icon: si-gmail
+        url: https://gmail.com
+        target: newtab
+        id: 2_488_gmail
+      - title: Google Calendar
+        description: Google Calendar
+        icon: si-googlecalendar
+        url: https://calendar.google.com/
+        target: newtab
+        id: 3_488_gcalendar

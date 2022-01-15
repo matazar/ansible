@@ -1,0 +1,23 @@
+# Create empty var to hold all our domains.
+- set_fact: 
+    dashy_domains: []
+
+# Create a list of domains that need to be included in our wildcard cert
+- set_fact:
+    dashy_domains: '{{ dashy_domains + ["*."+item.split(".")[-2:] | join(".")] }}'
+  with_items: '{{ dashy_hostnames }}'
+
+# Output the domains
+- name: Output domains we need included in the wildcard cert.
+  debug:
+    var: dashy_domains | unique
+
+# Actually run certbot
+- include_role:
+    name: certbot_dns
+  vars:
+    cert_name: "{{ dashy_cert_name }}"
+    cert_domains: '{{ dashy_domains | unique }}'
+  tags:
+    - certbot
+

@@ -1,0 +1,11 @@
+backup_dir: "{{ playbook_dir }}/env/{{ env }}/backups"
+
+dashy_hostnames:
+  - 'dashy.{{ primary_domain }}'
+dashy_ipv6: False
+dashy_cert_name: '{{ dashy_hostnames | first }}'
+
+# Dashy app settings
+dashy_name: 'Dashy'
+dashy_style: one-dark
+dashy_users: {}

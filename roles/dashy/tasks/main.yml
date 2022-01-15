@@ -1,0 +1,110 @@
+- name: Ensure git, nose.js and npm are installed
+  apt:
+    state: present
+    name: [git, nodejs, npm]
+
+- name: Ensure yarn is installed
+  npm:
+      name: yarn
+      global: yes
+      production: yes
+      state: present
+
+- name: Clone Git Repo
+  git:
+    repo: 'https://github.com/Lissy93/dashy.git'
+    dest: /var/www/dashy
+    clone: yes
+    update: no
+  register: new_dashy_instance
+
+# Initial install steps
+- block:
+  - name: Run yarn install for dashy
+    command: yarn install
+    args:
+      chdir: /var/www/dashy
+  - name: build dashy
+    command: yarn build
+    args:
+      chdir: /var/www/dashy
+  # seemed to work with this enabled, try again witout
+  # - name: Launch dashy through yarn first, as otherwise it will fail on first run.
+  #   command: timeout 1m yarn start /var/www/dashy/server.js
+  #   ignore_errors: true
+  - name: Remove conf.yml file on new instance so backup or default is used in place.
+    file:
+      path: /var/www/dashy/public/conf.yml
+  when: new_dashy_instance.changed
+
+- name: Check for dashy config
+  stat: 
+    path: /var/www/dashy/public/conf.yml
+  register: dashy_config
+
+# Handle dashy config.
+- block:
+    - name: Restore dashy configuration file
+      copy: 
+        src: '{{ backup_dir }}/dashy/conf.yml'
+        dest: '/var/www/dashy/public/conf.yml'
+      notify: build dashy
+  rescue: 
+    - name: Use default dashy configuration file
+      template:
+        src: 'conf.yml.j2'
+        dest: '/var/www/dashy/public/conf.yml'
+      notify: build dashy
+  when: not dashy_config.stat.exists
+
+- include: backups.yml
+  
+# PM2 is used to run dashy as a service.
+- name: Ensure PM2 is installed
+  npm:
+    name: pm2
+    global: yes
+    production: yes
+    state: present
+
+- name: Ensure PM2 is enabled on boot
+  block:
+    - name: Check for PM2 service file
+      stat: 
+        path: /etc/systemd/system/pm2-root.service
+      register: pm2_service
+      changed_when: not pm2_service.stat.exists
+    - name: Ensure PM2 is enabled
+      command: pm2 startup
+      when: pm2_service.changed
+
+- name: Ensure dashy is enabled in PM2
+  block:
+  - name: Check if dashy is already configured in PM2
+    command: pm2 info dashy
+    register: pm2_list
+    changed_when: pm2_list.rc != 0 
+    failed_when: false
+  - name: Enable dashy in PM2
+    command: pm2 start /var/www/dashy/server.js --name dashy --watch /var/www/dashy/public/ --log /var/www/dashy/log.log
+    when: pm2_list.changed
+
+- include: certs.yml
+
+- name: Update nginx config
+  template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/sites-available/dashy.conf
+  notify: restart nginx
+
+- name: Ensure the site is enabled
+  file: 
+    src: "/etc/nginx/sites-available/dashy.conf"
+    dest: "/etc/nginx/sites-enabled/dashy.conf"
+    state: link
+  notify: restart nginx
+
+- name: Ensure nginx is running
+  service: 
+    name: nginx
+    state: started

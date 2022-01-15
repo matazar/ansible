@@ -1,0 +1,20 @@
+# Create empty var to hold all our domains.
+- set_fact: 
+    samba_domains: ['*.{{ samba_domain }}']
+
+# Create a list of domains that need to be included in our wildcard cert
+- set_fact:
+    samba_domains: '{{ samba_domains + ["*."+item] }}'
+  with_items: '{{ samba_extra_domains }}'
+
+- debug:
+    var: samba_domains
+
+# Actually run certbot
+- include_role:
+    name: certbot_dns
+  vars:
+    cert_name: "{{ samba_cert_name }}"
+    cert_domains: '{{ samba_domains | unique }}'
+  tags:
+    - certbot

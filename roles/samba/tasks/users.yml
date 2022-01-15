@@ -1,0 +1,28 @@
+- name: "Ensure user {{ item.key }} user account exists"
+  user: 
+    name: "{{ item.key }}"
+    update_password: on_create
+    state: present
+    password: "{{ item.value.password | password_hash('sha512') }}"
+    shell: /bin/bash
+
+- name: Ensure users are in Samba Share group
+  user:
+    append: yes
+    create_home: no
+    groups:
+      - sambashare
+    name: "{{ item.key }}"
+
+- block:
+  - name: Ensure users exist in samba db
+    command: 'pdbedit -L {{ item.key }}'
+    changed_when: false
+    register: pdb_user
+  rescue:
+  - name: 'Add {{ item.key }} user to samba'
+    expect:
+      command: 'smbpasswd -a {{ item.key }}'
+      responses:
+        New SMB password: '{{ item.value.password }}'
+        Retype new SMB password: '{{ item.value.password }}'

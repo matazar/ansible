@@ -1,0 +1,35 @@
+- name: Install Samba
+  apt:
+    name: samba
+    state: latest
+
+- name: Install pexpect for creating samba users
+  apt:
+    name: python3-pexpect
+    state: latest
+
+- name: Update Samba config file
+  template:
+    src: smb.conf.j2
+    dest: /etc/samba/smb.conf
+  notify: restart samba
+
+# Deal with Samba Users
+- include: users.yml
+  with_dict: "{{ samba_users }}"
+  no_log: true  # Keep this so passwords don't show in plain text.
+
+- include: shares.yml
+  with_dict: "{{ samba_shares }}"
+
+# Handle certs
+- include: certs.yml
+  tags:
+    - certs
+
+- name: Ensure Samba is running
+  systemd:
+    state: started
+    name: smbd
+    enabled: yes
+

@@ -1,0 +1,15 @@
+# Set ownership/default permissions on shares.
+- name: 'Ensure {{ item.key }} path exists'
+  file:
+    state: directory
+    path: '{{ item.value.path }}'
+    group: 'sambashare'
+    mode: '{{ item.value.directory_mask | default("0770") }}'
+
+- name: 'Set ownership on {{ item.value.path }}'
+  file:
+    state: directory
+    path: '{{ item.value.path }}'
+    owner: '{{ item.value.force_user }}'
+    group: 'sambashare'
+  when: item.value.force_user | default(false)

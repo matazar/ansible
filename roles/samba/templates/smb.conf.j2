@@ -1,0 +1,49 @@
+[global]
+   workgroup = {{ samba_domain.split('.')[0] | upper }}
+   interfaces = lo {{ ansible_facts.default_ipv4.alias }}
+   bind interfaces only = yes
+   log file = /var/log/samba/log.%m
+   max log size = 1000
+   logging = file
+   panic action = /usr/share/samba/panic-action %d
+
+   server role = standalone server
+   obey pam restrictions = yes
+   unix password sync = yes
+   passwd program = /usr/bin/passwd %u
+   passwd chat = *Enter\snew\s*\spassword:* %n\n *Retype\snew\s*\spassword:* %n\n *password\supdated\ssuccessfully* .
+   pam password change = yes
+   map to guest = bad user
+
+   tls enabled  = yes
+   tls keyfile  = /etc/letsencrypt/live/{{ samba_cert_name }}//key.pem
+   tls certfile = /etc/letsencrypt/live/{{ samba_cert_name }}/cert.pem
+   tls cafile   = /etc/letsencrypt/live/{{ samba_cert_name }}//fullchain.pem
+
+   client min protocol = SMB2
+   client max protocol = SMB3
+
+[homes]
+   comment = Home Directories
+   path = /home/%U
+   browseable = yes
+   read only = no
+   create mask = 0700
+   directory mask = 0700
+   valid users = %S
+
+{% for share in samba_shares %}
+[{{ share }}]
+   comment = {{ samba_shares[share].description | default(share) }}
+   path = {{ samba_shares[share].path }}
+   browseable = yes
+{% if samba_shares[share].guest | default(false) %}   guest ok = yes
+{% endif %}
+   read only = no
+   writeable = {{ samba_shares[share].writeable | default('yes') }}
+   create mask = 0770
+   directory mask = {{ samba_shares[share].directory_mask | default('0770') }}
+{% if samba_shares[share].force_user | default(false) %}   force user = {{ samba_shares[share].force_user }}
+{% endif %}
+
+{% endfor %}   

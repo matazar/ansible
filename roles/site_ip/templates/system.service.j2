@@ -1,0 +1,14 @@
+[Unit]
+Description=uWSGI instance to serve ip_site
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+
+WorkingDirectory={{ ip_site_root }}
+Environment="PATH={{ ip_site_root }}/venv/bin"
+ExecStart={{ ip_site_root }}/venv/bin/uwsgi --ini {{ ip_site_root }}/ip_site.ini --logto {{ ip_site_root }}/log.log
+
+[Install]
+WantedBy=multi-user.target

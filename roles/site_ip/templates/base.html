@@ -1,0 +1,41 @@
+<html>
+    <head>
+        <title>{{ ip_site_title }}</title>
+        <link rel="icon" href="{{ '{{' }} url_for('static', filename='img/{{ ip_site_favicon }}') {{ '}}' }}">
+        <link rel="stylesheet" href="{{ '{{' }} url_for('static', filename='main.css') {{ '}}' }}">
+    </head>
+    <body>
+        <script type=text/javascript src="{{ '{{' }} url_for('static', filename='jquery.js') {{ '}}' }}"></script>
+        <script>
+            $.ajax({
+                type: "GET",
+                url: 'https://{{ ip_site_v4_hostname }}',
+                timeout: 10000,
+                data: {
+                    format: 'json'
+                },
+                success: function (ipv4) {
+                    $('#results').prepend('IPv4: ' + ipv4);
+                },
+                error: function() {
+                    $('#results').prepend('Unable to detect IPv4.\n')
+                },
+            });
+            $.ajax({
+                type: "GET",
+                url: 'https://{{ ip_site_v6_hostname }}/',
+                timeout: 10000,
+                data: {
+                    format: 'json'
+                },
+                success: function (ipv6) {
+                    $('#results').append('IPv6: ' + ipv6);
+                },
+                error: function() {
+                    $('#results').append('Unable to detect IPv6.\n')
+                },
+            });
+        </script>
+    <pre id="results"></pre>
+    </body>
+</html>

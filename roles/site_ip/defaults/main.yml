@@ -1,0 +1,10 @@
+  ip_site_root: /var/www/ip_site
+  ip_site_title: "What's my IP?"
+  ip_site_hostname: 'ip.{{ default_domain }}'
+  ip_site_v4_hostname: 'ipv4.{{ default_domain }}'
+  ip_site_v6_hostname: 'ipv6.{{ default_domain }}'
+  ip_site_ipv6: '{{ ipv6_address | default(false) }}'
+  ip_site_theme: default
+  ip_site_key: ''
+  ip_site_favicon: favicon.svg
+  

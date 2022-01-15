@@ -1,0 +1,144 @@
+- include: certs.yml
+
+- name: Ensure system has venv
+  apt:
+    name: [python3-venv, python3-pip, python3-setuptools]
+    state: present
+
+- name: Ensure libpcre3 is installed
+  apt:
+    name: [libpcre3, libpcre3-dev]
+    state: present
+
+- name: Check to see if the site folder exists
+  file:
+    path: '{{ ip_site_root }}'
+    state: directory
+    owner: www-data
+    group: www-data
+  register: dir_created
+
+- name: Manually create the initial virtualenv
+  command:
+    cmd: "python3 -m venv {{ ip_site_root }}/venv"
+  when: dir_created.changed
+
+- name: Install required apps.
+  command:
+    cmd: '{{ ip_site_root }}/venv/bin/pip install flask flask-cors uwsgi requests'
+  register: pip_install
+  changed_when: pip_install.stdout.startswith('Collecting')
+
+- name: Update nginx config
+  template:
+    src: nginx.conf.j2
+    dest: '/etc/nginx/sites-available/{{ ip_site_hostname }}.conf'
+  notify: restart nginx
+
+- name: Ensure the site is enabled
+  file: 
+    src: "/etc/nginx/sites-available/{{ ip_site_hostname }}.conf"
+    dest: "/etc/nginx/sites-enabled/{{ ip_site_hostname }}.conf"
+    state: link
+  notify: restart nginx
+
+- name: Update uwsgi config
+  template:
+    owner: www-data
+    group: www-data
+    src: uwsgi.ini
+    dest: '{{ ip_site_root }}/ip_site.ini'
+  notify:
+    - restart ip_site
+
+- name: Ensure uwsgi is set up as a service
+  template:
+    src: system.service.j2
+    dest: '/etc/systemd/system/{{ ip_site_hostname }}.uwsgi.service'
+
+- name: Copy over static site files
+  synchronize:
+    owner: no
+    group: no
+    recursive: yes
+    checksum: yes
+    archive: no
+    src: 'files/{{ ip_site_theme }}/'
+    dest: '{{ ip_site_root }}/static/'
+  register: static_files
+  notify:
+    - restart ip_site
+
+# Generate flask key if need be
+- set_fact:
+    ip_site_key: "{{ lookup('password', '/dev/null length=32') }}"
+  when:  ip_site_key == ''  
+
+- name: Add ip site flask key to host var
+  local_action:
+    module:  blockinfile
+    marker_begin: flask key start
+    marker_end: flask key end
+    path: "{{ playbook_dir }}/env/{{ env }}/host_vars/{{ inventory_hostname }}.yml"
+    block: "ip_site_key: {{ ip_site_key }}"
+    state: present
+  become: false
+
+- name: Update site API.
+  template:
+    src: api.py.j2
+    dest: '{{ ip_site_root }}/api.py'
+    owner: www-data
+    group: www-data
+  notify:
+    - restart ip_site
+
+- name: Ensure template folder exists
+  file:
+    state: directory
+    path: '{{ ip_site_root }}/templates/'
+    owner: www-data
+    group: www-data
+  notify:
+    - restart ip_site
+
+- name: Update template files
+  template:
+    src: base.html
+    dest: '{{ ip_site_root }}/templates/base.html'
+    owner: www-data
+    group: www-data
+  notify:
+    - restart ip_site
+
+- name: Ensure we have a folder for licenses.
+  file:
+    state: directory
+    owner: www-data
+    group: www-data
+    path: "{{ ip_site_root }}/license"
+
+- name: Ensure license files exist.
+  copy:
+    src: '{{ item }}'
+    dest: "{{ ip_site_root }}/license/{{ item | basename }}"
+  with_fileglob:
+    - '{{ role_path }}/files/{{ ip_site_theme }}/licenses/*.pdf'
+
+- name: Ensure permissions are correct
+  file:
+    state: directory
+    path: '{{ ip_site_root }}'
+    owner: www-data
+    group: www-data
+    recurse: yes
+
+- name: Ensure site is enabled
+  service:
+    name: '{{ ip_site_hostname }}.uwsgi.service'
+    enabled: yes
+
+- name: Ensure site is running
+  service:
+    name: '{{ ip_site_hostname }}.uwsgi.service'
+    state: started

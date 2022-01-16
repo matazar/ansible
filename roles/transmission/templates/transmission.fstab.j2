@@ -5,7 +5,7 @@
 {% elif host | ipv6 %}
 //{{ host }}/{{ share }} 		/mnt/{{ host.split(':')[-1] }}_{{ share }} 	cifs 	x-systemd.automount,credentials=/root/.samba.conf,uid=debian-transmission 	0 	0
 {% else %}
-{% if force_mount_ipv4 %}
+{% if force_ipv4_mounts %}
 //{{ local_dns_zones[host.split('.', 1)[1]][host.split('.', 1)[0]] }}/{{ share }}		/mnt/{{ host.split('.')[0] }}_{{ share }} 		cifs 	x-systemd.automount,credentials=/root/.samba.conf,uid=debian-transmission  	0 	0
 {% else %}
 //{{ host }}/{{ share }} 		/mnt/{{ host.split('.')[0] }}_{{ share }} 		cifs 	x-systemd.automount,credentials=/root/.samba.conf,uid=debian-transmission  	0 	0

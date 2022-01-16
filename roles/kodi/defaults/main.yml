@@ -1,4 +1,4 @@
-force_ipv4_shares: true
+force_ipv4_mounts: true
 os_gui: lightdm
 media_shares: {}
 backup_dir: "{{ playbook_dir }}/env/{{ env }}/backups"

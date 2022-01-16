@@ -7,7 +7,7 @@ transmission_vboxguest: false
 transmission_mounts: []
 #smb_user: admin
 #smb_password: ''
-force_mount_ipv4: false
+force_ipv4_mounts: false
 
 transmission_https: true
 transmission_https_only: false

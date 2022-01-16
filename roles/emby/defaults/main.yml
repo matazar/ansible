@@ -10,7 +10,7 @@ emby_deb_url: https://github.com/MediaBrowser/Emby.Releases/releases/download/4.
 media_shares: {}
 media_user: ''
 media_password: ''
-force_ipv4_shares: false
+force_ipv4_mounts: false
 
-local_dns_zones: {}   # Used for force_ipv4_shares
+local_dns_zones: {}   # Used for force_ipv4_mounts
 local_subnets: ['{{ local_subnet }}']

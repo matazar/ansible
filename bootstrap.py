@@ -33,11 +33,17 @@ class bootstrap(object):
             password = getpass.getpass('Password for %s@%s: ' % (user, host))
             if user == 'root':
                 c = Connection(self.hosts[host], user=user, connect_kwargs={"password": password})
-                c.run('apt install -y python3 python3-apt')           
+                try:
+                    c.run('apt install -y python3 python3-apt')
+                except:
+                    print('Unable to install python with apt.')
             else:
                 config = Config(overrides={'sudo': {'password': password}})
                 c = Connection(self.hosts[host], user=user, connect_kwargs={"password": password}, config=config)
-                c.sudo('apt install -y python3 python3-apt')
+                try:
+                    c.sudo('apt install -y python3 python3-apt')
+                except:
+                    print('Unable to install python with apt.')
             # Ensure the host has a copy of our ssh key.
             c.run('mkdir -p .ssh')
             c.put(self.ssh_key)
@@ -105,6 +111,9 @@ class bootstrap(object):
         """
         # List our environment options
         env_dir = os.listdir('env/')
+        # Ignore global env
+        if 'global' in env_dir:
+            env_dir.remove('global')
         i = 1
         env_opt = {}
         for e in env_dir:

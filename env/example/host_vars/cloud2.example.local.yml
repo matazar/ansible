@@ -1,33 +1,52 @@
-bash_colour: 32
+bash_colour: 35
 
 # Network
-ipv6_address: 2001:db8:50::e6b4
-bind_ipv6: 2001:db8:50::2222
-mail_ipv6: 2001:db8:50::2
-rspamd_ipv6: 2001:db8:50::4e
-ldap_ipv6: 2001:db8:50::b
+ipv6_address: 2001:db8:4321::1
+bind_ipv6: 2001:db8:4321::2
+mail_ipv6: 2001:db8:4321::3
+rspamd_ipv6: 2001:db8:4321::4
+ldap_ipv6: 2001:db8:4321::5
+files_ipv6: 2001:db8:4321::6
 
 website_ipv6:
- - 2001:db8:50::ac  # example2.local
- - '{{ rspamd_ipv6 }}'   # rspamd
+   - '{{ rspamd_ipv6 }}'  # rspamd
 
+# Automatically configured when joined below
 additional_ipv6:
   - "{{ ipv6_address }}"
   - "{{ bind_ipv6 }}"
   - '{{ mail_ipv6 }}'
   - '{{ ldap_ipv6 }}'
+  - '{{ files_ipv6 }}'
 
 ipv6_addresses: '{{ website_ipv6 | union(additional_ipv6) }}'
 
+primary_mail_domain: example2.local
 rspamd_hostname: rspamd.example2.local
 ldap_hostname: ldap.example2.local
 mail_hostname: mail.example2.local
 
 cert_services: ['nginx', 'slapd', 'dovecot', 'postfix']
 
-roundcube_db_username: frank
-roundcube_db: roundcube
-
 ldap_allow_list:
-  - "{{ home_ip }}"
-  - '{{ home_ipv6 }}'
+  - "{{ local_ip }}"
+  - '{{ local_ipv6 }}'
+  - cloud1.example.local
+
+files_hostnames: 
+  - files.example.local
+files_root: '/var/www/files'
+files_var: 'var-HL6NveQ3ZHpstGn'
+files_style: 'example'
+files_company: 'Example Inc.'
+files_contact: 'Abuse <abuse@example.local>'
+files_title: '{{ files_company }} File Transfers'
+
+files_crypt_enable: false
+files_upload_passwords: 
+  - files
+  - example
+files_upload_passwordless_ips:
+  - 192.168.0.10
+files_admin_password: 'files_admin'
+

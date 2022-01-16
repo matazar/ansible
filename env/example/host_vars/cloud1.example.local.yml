@@ -1,34 +1,44 @@
-bash_colour: 35
+bash_colour: 32
 
 # Network
-ipv6_address: 2001:db8:40::e6d8
-bind_ipv6: 2001:db8:40::1111
-mail_ipv6: 2001:db8:40::10
-rspamd_ipv6: 2001:db8:40::11
-ldap_ipv6: 2001:db8:40::12
+ipv6_address: 2001:db8:1234::1
+bind_ipv6: 2001:db8:1234::2
+mail_ipv6: 2001:db8:1234::3
+rspamd_ipv6: 2001:db8:1234::4
+ldap_ipv6: 2001:db8:1234::5
+roundcube_ipv6: 2001:db8:1234::6
 
 website_ipv6:
-   - '2001:db8:40::aaaa'  # example.local 
-   - '{{ rspamd_ipv6 }}'  # rspamd
-   - '2001:db8:40::c'  # webmail
-   - '2001:db8:40::222'  # ip site
+ - '{{ roundcube_ipv6 }}' 
+ - 2001:db8:1234::7  # example.local
+ - '{{ rspamd_ipv6 }}' 
+ - '{{ ip_site_ipv6 }}'
 
-# Automatically configured when joined below
 additional_ipv6:
   - "{{ ipv6_address }}"
   - "{{ bind_ipv6 }}"
   - '{{ mail_ipv6 }}'
   - '{{ ldap_ipv6 }}'
+  - '{{ ip_site_ipv6 }}'
 
 ipv6_addresses: '{{ website_ipv6 | union(additional_ipv6) }}'
 
-primary_mail_domain: example.local
 rspamd_hostname: rspamd.example.local
 ldap_hostname: ldap.example.local
 mail_hostname: mail.example.local
 
 cert_services: ['nginx', 'slapd', 'dovecot', 'postfix']
 
+roundcube_db_username: roundcube_example
+roundcube_db_name: rouundcube_user
+
 ldap_allow_list:
-  - "{{ home_ip }}"
-  - '{{ home_ipv6 }}'
+  - "{{ local_ip }}"
+  - '{{ local_ipv6 }}'
+
+ip_site_title: "What's My IP?"
+ip_site_root: /var/www/ip.example.local
+ip_site_hostname: ip.example.local
+ip_site_v4_hostname: ipv4.example.local
+ip_site_v6_hostname: ipv6.example.local
+ip_site_ipv6: 2001:db8:1234::1122

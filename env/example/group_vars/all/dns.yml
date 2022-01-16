@@ -1,12 +1,11 @@
 nameservers:
   ns1:
-    ipv4: 172.16.1.1
-    ipv6: 2001:db8:40::1111
+    ipv4: 192.168.0.2
+    ipv6: 2001:db8:1234::2
     domain: example.local
   ns2:
-    name: ns2
-    ipv4: 172.16.2.2
-    ipv6: 2001:db8:50::2222
+    ipv4: 192.168.0.3
+    ipv6: 2001:db8:4321::2
     domain: example.local
 
 dns_zones:
@@ -15,36 +14,43 @@ dns_zones:
     mail: mail.example.local
     backup_mail:
       - mail.example2.local
-    dnssec: true
+    dnssec: false
     hostnames:
       '@':
-        ipv4: 172.16.1.2
-        ipv6: 2001:db8:40::aaaa
+        ipv4: 192.168.0.2
+        ipv6: 2001:db8:4321::1
       ip:
-        ipv4: 172.16.1.2
-        ipv6: 2001:db8:40::222
+        ipv4: 192.168.0.2
+        ipv6: 2001:db8:1234::1122
       ipv4:
-        ipv4: 172.16.1.2
+        ipv4: 192.168.0.2
       ipv6: 
-        ipv6: 2001:db8:40::222
+        ipv6: 2001:db8:1234::1122
       mail:
-        ipv4: 172.16.1.3
-        ipv6: 2001:db8:40::10
+        ipv4: 192.168.0.2
+        ipv6: 2001:db8:1234::3
       rspamd:
-        ipv4: 172.16.1.3
-        ipv6: 2001:db8:40::11
+        ipv4: 192.168.0.2
+        ipv6: 2001:db8:1234::4
       ldap:
-        ipv4: 172.16.1.3
-        ipv6: 2001:db8:40::12
+        ipv4: 192.168.0.2
+        ipv6: 2001:db8:1234::5
       cloud1:
-        ipv4: 172.16.1.3
-        ipv6: 2001:db8:40::e6d8
+        ipv4: 192.168.0.2
+        ipv6: 2001:db8:1234::1
       cloud2:
-        ipv4: 172.16.2.3
-        ipv6: 2001:db8:50::e6b4
+        ipv4: 192.168.0.3
+        ipv6: 2001:db8:4321::1
+      vm1:
+        ipv4: 192.168.0.4
+      vm2:
+        ipv4: 192.168.0.5
       webmail:
-        ipv4: 172.16.1.3
-        ipv6: 2001:db8:40::c
+        ipv4: 192.168.0.2
+        ipv6: 2001:db8:1234::6
+      files:
+        ipv4: 192.168.0.3
+        ipv6: 2001:db8:4321::6
     cnames:
       autoconfig: 'mail.example.local'
       autodiscover: 'mail.example.local'
@@ -56,24 +62,20 @@ dns_zones:
     dnssec: true
     hostnames: 
       '@':
-        ipv4: 172.16.2.2
-        ipv6: 2001:db8:50::ac
-      ip:
-        ipv4: 172.16.2.2
-        ipv6: 2001:db8:50::196
-      ipv4:
-        ipv4: 172.16.2.2
-      ipv6: 
-        ipv6: 2001:db8:50::196
+        ipv4: 192.168.0.3
+        ipv6: 2001:db8:4321::1
       mail:
-        ipv4: 172.16.2.3
-        ipv6: 2001:db8:50::2
+        ipv4: 192.168.0.3
+        ipv6: 2001:db8:4321::3
       ldap:
-        ipv4: 172.16.2.3
-        ipv6: 2001:db8:50::b
+        ipv4: 192.168.0.3
+        ipv6: 2001:db8:4321::5
       rspamd:
-        ipv4: 172.16.2.3
-        ipv6: 2001:db8:50::4e
+        ipv4: 192.168.0.3
+        ipv6: 2001:db8:4321::4
+      emby:
+        ipv6: 2001:db8:abcd::eb
+        ipv4: 192.168.0.4
       autoconfig: 'mail.example.local'
       autodiscover: 'mail.example.local'
  

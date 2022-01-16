@@ -1,40 +1,38 @@
 ansible_connection: ssh
-ansible_ssh_user: ansible
+ansible_ssh_user: admin
 ansible_become_password: "{{ users.ansible.password }}"
 ansible_python_interpreter: /usr/bin/python3
 env: "example"
 
 timezone: America/Toronto
-
-sshd_public_port: 8022
 sshd_keytype: ed25519
 
 primary_user: admin
 sudo_users:
   - admin
-  - ansible
 
 backup_dir: "{{ playbook_dir }}/env/{{ env }}/backups"
 
-# Network
-home_ip: 127.0.0.1
-home_ipv6: '2001:db8:127::1/64'
-home_subnet: 192.168.1.0/24
-
 trusted_hosts:
-  - "{{ home_ip }}"
-  - '{{ home_ipv6 }}'
-  - 2001:db8:40::/64  # cloud1
-  - 2001:db8:50::/64  # cloud2
+  - "{{ local_ip }}"
+  - 2001:db8::/32
 
 # LDAP
 ldap_domain: "{{ ansible_fqdn.split('.', 1)[1] }}"
 ldap_suffix: "{{ 'dc={0},dc={1}'.format(*ldap_domain.split('.')) }}"
+ldap_admin: 'cn=admin,{{ ldap_suffix }}'
 
 # Mail
-primary_mail_domain: example.local
-mail_hostname: "mail.{{ primary_mail_domain }}"
-webmail_hostname: "webmail.{{ primary_mail_domain }}"
+default_domain: example.local
+mail_hostname: "mail.{{ default_domain }}"
+webmail_hostname: "webmail.{{ default_domain }}"
 cert_email: certs@example.local
 php_fpm: php7.4-fpm
-doveadm_port: 80123
+doveadm_port: 12345
+
+# Network
+local_ip: 10.0.1.2
+local_ipv6: '2001:db8:abcd:222::/64'
+local_subnet: 192.168.0.0/24
+
+local_subnets: ['{{ local_subnet }}', '{{ local_ipv6 }}']

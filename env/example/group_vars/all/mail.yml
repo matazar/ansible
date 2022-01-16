@@ -1,5 +1,6 @@
-dkim_key: '202110'
+dkim_key: 'example'
 dkim_keys: 
+  - '202201'
   - '{{ dkim_key }}'
 
 mail_domains:
@@ -9,57 +10,17 @@ mail_domains:
 spam_milter: 'rspamd'
 
 spammed_accounts:
-  - spammed@example.local
-  - info@example2.local
+  - spotify@example.local
+  - invoices@example.local
 
-allow_servers_list:
-  - local_pizza.local
+rejected_addresses:
+  - email: no-reply@example.local
+    code: '550'
+    msg: "No replies, it's in the address..."
 
 spam_domain_scoring:
    us: 4.0
-   net: 0.25
-   gdn: 2.5
-   asia: 3.0
-   co: 2.0
-   review: 3.5
-   info: 2.5
-   website: 3.0
-   ninja: 3.0
-   faith: 4.0
-   eu: 2.0
-   win: 5.0
-   racing: 4.0
-   club: 4.0
-   help: 3.0
-   download: 4.0
-   bid: 6.0
-   accountant: 4.0
-   party: 4.0
-   click: 4.0
-   rocks: 4.0
-   top: 4.0
-   space: 4.0
-   science: 4.0
-   trade: 6.0
-   xyz: 4.0
-   date: 6.0
-   at: 2.0
    pro: 5.0
-   online: 4.0
-   tech: 3.0
-   press: 4.0
-   stream: 6.0
-   lol: 4.0
-   men: 4.0
-   loan: 5.0
-   services: 4.0
-   host: 4.0
-   life: 3.0
-   world: 3.0
-   me: 4.0
-   fun: 4.0
-   icu: 6.0
-   cricket: 5.0
-   red: 4.0
-   blue: 4.0
-   cy: 4.0
+   cam: 8.0
+   us: 1.0
+   webcam: 8.5

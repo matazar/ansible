@@ -1,0 +1,15 @@
+media_shares:
+    nas.example.local:
+        tv:
+          name: tv
+          type: tv
+        movies:
+          name: movies
+          type: movies
+        music:
+          name: music
+          type: music
+        downloads:
+          name: downloads
+          type: False
+

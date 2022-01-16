@@ -1,0 +1,19 @@
+emby_allow_list:
+  - '{{ local_subnet }}'
+  - '{{ local_ipv6 }}'
+  - 10.10.10.50  # Example
+
+emby_hostnames:
+  - emby.example.local
+  - emby.example2.local
+  - media.example.local
+
+emby_cert_name: 'dashy.example.local'
+  
+media_shares:
+  '192.168.0.15':
+    - music
+  'nas.example.local':
+    - tv 
+    - movies
+    - downloads

@@ -3,30 +3,79 @@
 vultr
 
 [vultr]
-cloud1.example.local ansible_host=172.16.1.2
-cloud2.example.local ansible_host=172.16.1.2
+cloud1.example.local ansible_host=192.168.0.2
+cloud2.example.local ansible_host=192.168.0.3
+
+[vm]
+vm1.example.local ansible_host=192.168.0.4
+vm2.example.local ansible_host=192.168.0.5
+pbx.example.local ansible_host=192.168.0.6 ansible_ssh_user=root ansible_python_interpreter=/usr/bin/python2.7
+
+[pi:children]
+pi3
+
+[pi3]
+rpi1.example.local ansible_host=192.168.0.20
 
 [primary]
 cloud1.example.local
 cloud2.example.local
 
+[local_dns]
+vm1.example.local
+vm2.example.local
+rpi1.example.local
+
 [dns]
-cloud2.example.local
 cloud1.example.local
+cloud2.example.local
 
 [webmail]
 cloud1.example.local
 
 [mail]
-cloud2.example.local
 cloud1.example.local
+cloud2.example.local
 
 [ldap]
+cloud1.example.local
 cloud2.example.local
+
+[local]
+vm1.example.local
+vm2.example.local
+
+[public]
+cloud1.example.local
+cloud2.example.local
+
+[emby]
+vm1.example.local
+
+[dashy]
+vm1.example.local
+
+[files]
 cloud1.example.local
 
-[public_ssh]
-cloud2.example.local
+[kodi]
+vm1.example.local
+rpi1.example.local
+
+[pbx]
+pbx.example.local
+
+[samba]
+vm1.example.local
 
 [site_ip]
-cloud2.example.local
+cloud1.example.local
+
+[transmission]
+vm1.example.local
+
+[unifi]
+vm1.example.local
+
+[unifi_video]
+vm1.example.local

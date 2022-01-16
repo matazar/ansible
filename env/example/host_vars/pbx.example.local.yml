@@ -1,0 +1,5 @@
+pbx_cert_name: pbx.example.local
+pbx_hostnames: 
+  - pbx.example.local
+
+cert_scripts: [python3.6 /root/pbx_cert.py pbx.example.local]

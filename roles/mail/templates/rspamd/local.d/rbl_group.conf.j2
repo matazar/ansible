@@ -1,4 +1,25 @@
 symbols = {
+{% if dqs_key %}
+   "DBLABUSED_SPAM_FULLURLS" {
+      weight = 5.5;
+      description = "DBL uribl abused legit spam";
+      groups = ["spamhaus"];
+   }
+   "DBLABUSED_PHISH_FULLURLS" {
+      weight = 5.5;
+      description = "DBL uribl abused legit phish";
+      groups = ["spamhaus"];
+   }
+   "DBLABUSED_MALWARE_FULLURLS" {
+      weight = 5.5;
+      description = "DBL uribl abused legit malware";
+      groups = ["spamhaus"];
+   }
+   "DBLABUSED_BOTNET_FULLURLS" {
+      weight = 5.5;
+      description = "DBL uribl abused legit botnet";
+      groups = ["spamhaus"];
+   }
    "RECEIVED_SPAMHAUS_SBL" {
         weight = 6.0;
         }
@@ -148,7 +169,7 @@ symbols = {
         weight = 6.5;
         description = "A domain in the message body resolves to an IP listed in Spamhaus SBL";
         one_shot = true;
-        groups = ["v"];
+        groups = ["spamhaus"];
     }
     "URIBL_SBL_CSS" {
        weight = 6.5;
@@ -159,6 +180,7 @@ symbols = {
     "URIBL_PBL" {
         weight = 0.01;
         description = "A domain in the message body resolves to an IP listed in Spamhaus PBL";
+        one_shot = true;
         groups = ["spamhaus"];
     }
     "URIBL_DROP" {
@@ -174,8 +196,5 @@ symbols = {
         groups = ["spamhaus"];
     }
     .include(try=true,priority=1,duplicate=merge) "$LOCAL_CONFDIR/local.d/sh_rbl_group_hbl.conf"
-
-
-
-} 
-
+{% endif %}
+}

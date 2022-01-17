@@ -1,8 +1,22 @@
 rbls {
+{% if dqs_key %}
     spamhaus {
         rbl = "{{ dqs_key }}.zen.dq.spamhaus.net";
         from = false;
     }
+    spamhaus_dbl_fullurls {
+    	ignore_defaults = true;
+    	no_ip = true;
+    	rbl = "{{ dqs_key }}.dbl.dq.spamhaus.net";
+    	selector = 'urls:get_host'
+    	disable_monitoring = true;
+    	returncodes {
+	        DBLABUSED_SPAM_FULLURLS = "127.0.1.102";
+	        DBLABUSED_PHISH_FULLURLS = "127.0.1.104";
+	        DBLABUSED_MALWARE_FULLURLS = "127.0.1.105";
+	        DBLABUSED_BOTNET_FULLURLS = "127.0.1.106";
+    	}
+    }    
     spamhaus_from {
         from = true;
         received = false;
@@ -98,6 +112,7 @@ rbls {
        ignore_defaults = true;
        replyto = true;
        emails_domainonly = true;
+       disable_monitoring = true;
        rbl = "{{ dqs_key }}.zrd.dq.spamhaus.net"
        returncodes = {
          SH_EMAIL_ZRD_VERY_FRESH_DOMAIN = [
@@ -129,6 +144,5 @@ rbls {
       }
    }
 .include(try=true,priority=5) "$LOCAL_CONFDIR/local.d/sh_rbl_hbl.conf"
+{% endif %}
 }
-
-

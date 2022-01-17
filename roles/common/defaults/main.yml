@@ -5,6 +5,7 @@ timezone: America/Toronto
 default_editor: nano
 bash_colour: 36
 core_apps: [sudo, p7zip, unzip, nano, rsync, tmux, wget, curl, dnsutils]
+cron_email: false
 
 # User Info
 users: {}

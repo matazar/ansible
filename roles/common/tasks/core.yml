@@ -73,3 +73,10 @@
     state: stopped
   failed_when: false
   when: apache_removal.changed
+
+- name: Set cron email address.
+  cron:
+    env: yes
+    job: '{{ cron_email }}'
+    name: MAILTO
+  when: cron_email

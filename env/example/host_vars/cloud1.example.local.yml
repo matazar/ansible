@@ -32,6 +32,9 @@ cert_services: ['nginx', 'slapd', 'dovecot', 'postfix']
 roundcube_db_username: roundcube_example
 roundcube_db_name: rouundcube_user
 
+doveadm_allow_list: 
+  - cloud2.example.local
+
 ldap_allow_list:
   - "{{ local_ip }}"
   - '{{ local_ipv6 }}'
@@ -42,3 +45,11 @@ ip_site_hostname: ip.example.local
 ip_site_v4_hostname: ipv4.example.local
 ip_site_v6_hostname: ipv6.example.local
 ip_site_ipv6: 2001:db8:1234::1122
+
+backblaze_app_key_list: email
+
+backblaze_backups:
+  - name: email
+    keep_days: 60
+    path: /var/vmail
+    bucket: email

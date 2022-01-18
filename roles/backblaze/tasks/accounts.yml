@@ -1,0 +1,11 @@
+- debug: 
+    var: item
+
+- block:
+  - name: Check if account is registered in b2
+    shell: /usr/backblaze/bin/b2 get-account-info | grep '{{ backblaze_app_keys[item].app_id }}'
+    register: b2_account
+    changed_when: false
+  rescue:
+  - name: Register account in b2.
+    command: '/usr/backblaze/bin/b2 authorize-account {{ backblaze_app_keys[item].app_id }} {{ backblaze_app_keys[item].app_key }}'

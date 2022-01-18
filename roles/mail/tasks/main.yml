@@ -97,4 +97,7 @@
     state: reloaded
   with_items: [dovecot,postfix]
   
-
+# Call backblaze role if we have any backups defined:
+- include_role:
+    name: backblaze
+  when: 'backblaze_backups | default([]) != []'

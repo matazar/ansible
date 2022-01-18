@@ -1,0 +1,11 @@
+- name: 'Check {{ item.bucket }} encryption key/id.'
+  template:
+    src: b2.conf.j2
+    dest: '{{ backblaze_config_dir }}/.b2.{{ item.name }}'
+    mode: '0700'
+- name: Ensure backup job is set up.
+  cron: 
+    special_time: daily
+    name: 'BackBlaze Backup for {{ item.path }} to {{ item.bucket }}'
+    # ". backblaze_config_file;" adds the encryption key to the current environment 
+    job: ". {{ backblaze_config_dir }}/.b2.{{ item.name }}; /usr/backblaze/bin/b2 sync --destinationServerSideEncryption=SSE-C --keepDays {{ item.keep_days }} --replaceNewer {{ item.path }} b2://{{ item.bucket }}"

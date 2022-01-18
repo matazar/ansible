@@ -28,6 +28,9 @@ mail_hostname: mail.example2.local
 
 cert_services: ['nginx', 'slapd', 'dovecot', 'postfix']
 
+doveadm_allow_list: 
+  - cloud1.example.local
+
 ldap_allow_list:
   - "{{ local_ip }}"
   - '{{ local_ipv6 }}'

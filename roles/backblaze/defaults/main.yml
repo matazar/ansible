@@ -2,3 +2,14 @@ backblaze_backups: []
 blackblaze_ssec_keys: []
 backblaze_config_dir: /root
 default_keepdays: 30
+
+
+backblaze_app_keys:
+  cloud1:
+    app_id: '0000000000000000000000000'
+    app_key: 0123456789abcdefghijklmnopqrstu
+
+blackblaze_ssec_keys:
+  email:
+    key_b64: QW4gZXhhbXBsZSBiYXNlNjQga2V5LiBQbGVhc2UgY2hhbmdlIGl0IQo=
+    key_id: ABCDEFGHabcdefgh0123456789

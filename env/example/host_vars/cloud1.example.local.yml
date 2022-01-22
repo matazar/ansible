@@ -46,8 +46,7 @@ ip_site_v4_hostname: ipv4.example.local
 ip_site_v6_hostname: ipv6.example.local
 ip_site_ipv6: 2001:db8:1234::1122
 
-backblaze_app_key_list: 
-  - cloud1
+backblaze_app_id: cloud1
 
 backblaze_backups:
   - name: email

@@ -80,3 +80,9 @@
   tags:
     - transmission
     - torrents
+
+- hosts: backblaze
+  roles:
+    - backblaze
+  tags:
+    - backblaze

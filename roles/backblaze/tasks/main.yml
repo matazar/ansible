@@ -1,4 +1,3 @@
-# Bugged
 - name: Ensure python3-venv is installed
   apt:
     name: python3-venv
@@ -8,21 +7,20 @@
 - block:
   - name: Ensure backblaze's b2 script exists
     stat: 
-      path: /usr/backblaze
+      path: '{{ backblaze_venv }}'
     register: backblaze_dir
     changed_when: not backblaze_dir.stat.exists | default(true)
   - name: Set up Python Virtual Environment
-    command: python3 -m venv /usr/backblaze
+    command: 'python3 -m venv /{{ backblaze_venv }}'
     when: backblaze_dir.changed
   - name: Ensure b2 is installed
     pip:
       name: b2
-      virtualenv: /usr/backblaze
+      virtualenv: '{{ backblaze_venv }}'
       state: latest
 
-# Deal with account(s) registration for b2.
+# Deal with account registration for b2.
 - include: accounts.yml
-  loop: '{{ backblaze_app_key_list }}'
 
 - include: backups.yml
   loop: '{{ backblaze_backups }}'

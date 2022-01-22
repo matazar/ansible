@@ -1,4 +1,7 @@
 backblaze_backups: []
-blackblaze_ssec_keys: []
-backblaze_config_dir: /usr/backblaze
-default_keepdays: 30
+blackblaze_ssec_keys: {}
+backblaze_venv: /usr/backblaze
+backblaze_config_dir: /root
+backblaze_default_keepdays: 30
+
+backblaze_default_hour: '04'

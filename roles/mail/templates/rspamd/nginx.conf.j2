@@ -1,5 +1,5 @@
 server {
-    listen 443 ssl http2;
+    listen {{ ansible_host }}:443 ssl http2;
 {% if rspamd_ipv6 %}
     listen [{{ rspamd_ipv6 }}]:443 ssl http2;
 {% endif %}

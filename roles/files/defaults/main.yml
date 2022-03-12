@@ -1,4 +1,4 @@
-files_cert_name: 'files.{{ default_domain }}'
+files_cert_name: '{{ files_hostnames | first }}'
 files_hostnames:
     - 'files.{{ default_domain}}'
 files_ipv6: false
@@ -8,7 +8,7 @@ files_style: 'dark-courgette'
 files_root: '/var/www/files'
 files_var: ''
 files_company: Jirafeau
-files_contact: 'Abuse <abuse@{{ default_domain }}'
+files_contact: 'Abuse <abuse@{{ default_domain }}>'
 files_title: File Transfer
 files_crypt_enable: false
 files_uppload_passwords: []

@@ -86,3 +86,9 @@
     - backblaze
   tags:
     - backblaze
+
+- hosts: sendmail
+  roles:
+    - sendmail
+  tags:
+    - sendmail

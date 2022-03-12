@@ -1,6 +1,3 @@
-force_ipv4_mounts: true
-os_gui: lightdm
-media_shares: {}
 backup_dir: "{{ playbook_dir }}/env/{{ env }}/backups"
 kodi_resolution_id: 14
 kodi_screenmode: 0192001080060.00000pstd
@@ -11,4 +8,14 @@ kodi_web_port: 8088
 kodi_web_user: admin
 kodi_web_password: '{{ inventory_hostname_short }}'
 kodi_user: pi
+os_gui: lightdm
+
 smb_workgroup: WORKGROUP
+media_shares: {}
+media_user: ''
+media_password: ''
+force_ipv4_mounts: false
+
+local_dns_zones: {}   # Used for force_ipv4_mounts
+local_subnets: ['{{ local_subnet }}']
+

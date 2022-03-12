@@ -1,4 +1,4 @@
-transmission_vpn: true
+transmission_vpn: false
 #nordvpn_user: ''
 #nordvpn_password: ''
 nordvpn_country: canada

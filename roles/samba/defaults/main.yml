@@ -3,3 +3,5 @@ samba_cert_name: '{{ samba_hostname }}'
 samba_domain: '{{ default_domain }}'
 samba_extra_domains: []
 
+samba_shares: {}
+samba_users: {}

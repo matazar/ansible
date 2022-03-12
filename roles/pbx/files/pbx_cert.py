@@ -52,7 +52,7 @@ class pbx(object):
                           'cp /etc/letsencrypt/live/%s/privkey.pem /etc/asterisk/keys/%s.key' % 
                             (self.cert_name, self.cert_name)])
         # Deal with ownership and permissions
-        self.cmds.extend(['chmod -R 0600 /etc/asterisk/keys/',
+        self.cmds.extend(['chmod -R 0700 /etc/asterisk/keys/',
                           'chown -R asterisk:asterisk /etc/asterisk/keys/'])
         # Handle Asterisk commands
         self.cmds.extend(['fwconsole certificate --import',

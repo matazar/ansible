@@ -1,7 +1,7 @@
 - include_role:
     name: vboxguest
     
-- name: Ensure debian-transmission belongs to cert group
+- name: Ensure debian-transmission belongs to vboxsf group
   user:
     append: yes
     create_home: no

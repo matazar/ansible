@@ -30,7 +30,7 @@ backblaze_app_id: cloud1
 
 Default:
 ```
-# backblaze_app_id: default
+backblaze_app_id: '{{ inventory_hostname_short }}'
 ```
 ---
 
@@ -128,7 +128,7 @@ backblaze_default_keepdays: 30
 ```
 ---
 
-## blackblaze_ssec_keys
+## backblaze_ssec_keys
 Roles: backblaze
 
 A dictionary of all SSE-C encryption keys and IDs for encrypting backups to Backblaze. Each set of keys is listed under their backblaze_app_id allowing us to store all ssec_keys in a single variable in the group secrets file.
@@ -137,7 +137,7 @@ You can use ```openssl rand -base64 32``` to generate the base64 encryption key.
 
 Example:
 ```
-blackblaze_ssec_keys:
+backblaze_ssec_keys:
   email:
     key_b64: QW4gZXhhbXBsZSBiYXNlNjQga2V5LiBQbGVhc2UgY2hhbmdlIGl0IQo=
     key_id: ABCDEFGHabcdefgh0123456789

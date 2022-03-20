@@ -12,7 +12,7 @@ doveadm_password: false
 doveadm_port: 12345
 sieve_port: 4190
 
-ldap_schema: ldapi
+ldap_scheme: ldapi
 ldap_server: '%2Fvar%2Frun%2Fldapi'
 ldap_tls: false
 ldap_suffix: "{{ 'dc={0},dc={1}'.format(*primary_mail_domain.split('.')) }}"

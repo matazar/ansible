@@ -5,7 +5,7 @@ add: olcSyncRepl
 {% if host != ldap_hostname %}
 olcSyncRepl:
     rid={{ "%03d" | format(ldap_replication_hosts[host]['id']) }}
-    provider={{ ldap_replication_schema }}://{{ host }}
+    provider={{ ldap_replication_scheme }}://{{ host }}
     bindmethod=simple
     binddn={{ ldap_replication_user }}
     credentials={{ ldap_replication_pw }}

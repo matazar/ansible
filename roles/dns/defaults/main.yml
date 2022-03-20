@@ -21,9 +21,9 @@ dns_zone_refresh: 7200
 dns_zone_retry: 3600
 dns_zone_expire: 1209600  # recommended value by mxtoolbox
 dns_zone_ttl: 7200
-dnssec_bytes: 2048
 
 # DNSSEC
+dnssec_bytes: 2048
 dnssec_algorithms: [NSEC3RSASHA1, ECDSAP256SHA256, ECDSAP384SHA384]
 dnssec_algorithm_ids: {NSEC3RSASHA1: 7, RSASHA256: 8, ECDSAP256SHA256: 13,
                         ECDSAP384SHA384: 14, ED25519: 15, ED448: 16}

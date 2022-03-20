@@ -58,7 +58,7 @@
   ldap_attrs:
     dn: cn=config
     attributes:
-      olcServerID: '{{ ldap_replication_hosts[item]["id"] }} {{ ldap_replication_schema }}://{{ item }}'
+      olcServerID: '{{ ldap_replication_hosts[item]["id"] }} {{ ldap_replication_scheme }}://{{ item }}'
   with_items: '{{ ldap_replication_hosts }}'
   when: ldap_hostname in ldap_replication_hosts
 

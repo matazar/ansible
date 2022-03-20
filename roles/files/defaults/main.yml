@@ -11,7 +11,7 @@ files_company: Jirafeau
 files_contact: 'Abuse <abuse@{{ default_domain }}>'
 files_title: File Transfer
 files_crypt_enable: false
-files_uppload_passwords: []
+files_upload_passwords: []
 files_upload_allow_ips: []
 files_upload_passwordless_ips: []
 #files_admin_password: 

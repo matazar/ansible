@@ -17,6 +17,6 @@
     day: '{{ item.day | default("*") }}'
     month: '{{ item.month | default("*") }}'
     weekday: '{{ item.weekday | default("*") }}'
-    name: 'BackBlaze Backup for {{ item.path }} to {{ item.bucket }}'
+    name: 'Backblaze Backup for {{ item.path }} to {{ item.bucket }}'
     # ". backblaze_config_file;" adds the encryption key to the current environment 
     job: ". {{ backblaze_config_dir }}/.b2.{{ item.name }}; {{ backblaze_venv }}/bin/b2 sync --destinationServerSideEncryption=SSE-C --threads {{ item.threads | default('10') }} --keepDays {{ item.keep_days | default(backblaze_default_keepdays) }} --replaceNewer {{ item.path }}{{ excludeDirs }} b2://{{ item.bucket }} | tail -1"

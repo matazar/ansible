@@ -31,7 +31,8 @@ website_ipv6: []
 
 # Networking
 dns_resolvers: []
-local_subnet: '127.0.0.0/24'
+local_subnet: 
+  - '127.0.0.0/24'
 
 # Firewall
 firewall_enable: false

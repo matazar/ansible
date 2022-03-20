@@ -2,4 +2,4 @@ unifi_video_cert_name: '{{ default_domain }}'
 unifi_video_domains: 
   - '{{ default_domain }}'
 
-videos_path: /media/recordings
+unifi_video_path: /media/recordings

@@ -1,4 +1,4 @@
-server_host     = {{ ldap_schema }}://{{ ldap_server }}
+server_host     = {{ ldap_scheme }}://{{ ldap_server }}
 tls             = {% if ldap_tls %}yes{% else %}no{% endif %} 
 version         = 3
 bind            = yes

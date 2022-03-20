@@ -105,7 +105,7 @@ $config['ldap_public'] = array (
   array (
     'name' => 'People',
     'hosts' => array(
-      0 => '{{ ldap_schema }}://{{ ldap_server }}'
+      0 => '{{ ldap_scheme }}://{{ ldap_server }}'
     ),
     'port' => {{ ldap_port | default(636) }},
     'use_tls' => {% if ldap_tls %}'yes'{% else %}'no'{% endif %},

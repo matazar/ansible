@@ -17,13 +17,12 @@ postgresql_version: 13
 php_version: php7.4
 php_fpm: '{{ php_version }}-fpm'
 
-composer_checksum: 721cc27f81c6485fff70e6f56b9f2aadae770a1f8974a384c34e35987a230d8c
-composer_setup_checksum: 906a84df04cea2aa72f40b5f787e49f22d4c2f19492ac310e8cba5b96ac8b64115ac402c8cd292b8a03482574915d1a8
+composer_checksum: 48f9fdc9ad93904fee96550b45ae03a51f69718502ee855da894b4ad71d2dfe0
 
 mail_server: 'mail.{{ default_domain }}'
 sieve_port: 4190
 
-ldap_schema: ldapi
+ldap_scheme: ldapi
 ldap_server: '%2Fvar%2Frun%2Fldapi'
 ldap_port: 636
 ldap_tls: true

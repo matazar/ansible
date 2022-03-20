@@ -1,4 +1,4 @@
-uris            = {{ ldap_schema }}://{{ ldap_server }}
+uris            = {{ ldap_scheme }}://{{ ldap_server }}
 tls             = {% if ldap_tls %}yes{% else %}no{% endif %} 
 ldap_version    = 3
 auth_bind       = yes

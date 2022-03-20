@@ -42,6 +42,6 @@
     state: directory
     owner: unifi-video
     group: unifi-video
-    path: '{{ videos_path }}'
+    path: '{{ unifi_video_path }}'
 
 - include: certs.yml

@@ -18,4 +18,3 @@ force_ipv4_mounts: false
 
 local_dns_zones: {}   # Used for force_ipv4_mounts
 local_subnets: ['{{ local_subnet }}']
-

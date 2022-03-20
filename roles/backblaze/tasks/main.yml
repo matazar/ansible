@@ -24,4 +24,3 @@
 
 - include: backups.yml
   loop: '{{ backblaze_backups }}'
-

@@ -1,6 +1,6 @@
 
 ldap_replication_enable: true
-ldap_replication_schema: ldaps
+ldap_replication_scheme: ldaps
 ldap_replication_hosts:
   ldap.example.local:
     id: 1

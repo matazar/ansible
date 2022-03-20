@@ -7,7 +7,7 @@ ldap_localip: 127.0.0.2
 
 ldap_domain: "{{ default_domain }}"
 ldap_suffix: "{{ 'dc={0},dc={1}'.format(*ldap_domain.split('.')) }}"
-ldap_schema: ldapi
+ldap_scheme: ldapi
 ldap_server: '%2Fvar%2Frun%2Fldapi'
 ldap_log_level: 0x64 0x8
 
@@ -15,7 +15,7 @@ ldap_replication_enable: false
 ldap_replication_user: "cn=replicator,{{ ldap_suffix }}"
 #ldap_repliation_pw: ''
 ldap_replication_hosts: []
-ldap_replication_schema: ldaps
+ldap_replication_scheme: ldaps
 
 ldap_rootdn: "cn=root,{{ ldap_suffix }}"
 #ldap_rootpw: ''
@@ -24,10 +24,10 @@ ldap_admin: "cn=admin,{{ ldap_suffix }}"
 
 mail_domains:
   - "{{ default_domain }}"
-mail_users: []
+mail_users: {}
 
 # PPolicy Settings
-ldap_ppolicy_enable: Enable LDAP's password policy module.
+ldap_ppolicy_enable: true
 ppolicy_use_lockout: false
 ppolicy_hash_cleartext: true
 pwdExpireWarning: 0

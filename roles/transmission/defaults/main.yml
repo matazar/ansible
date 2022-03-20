@@ -29,7 +29,7 @@ transmission_alt_day: 127
 transmission_high_port: 65535
 transmission_low_port: 49152
 transmission_download_dir: /usr/downloads
-transmission_torrent_dir: '{{ transmission_download_dir }}/.torrents'
+transmission_torrent_dir: '{{ transmission_download_dir }}'
 transmission_incomplete_dir: '{{ transmission_download_dir }}/.incomplete'
 
 transmission_allow_list: []

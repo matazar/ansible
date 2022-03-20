@@ -16,7 +16,7 @@
         url: https://getcomposer.org/installer
         dest: /tmp/composer
         mode: 0660
-        checksum: 'sha384:{{ composer_setup_checksum }}'
+        force: yes
     - name: Install composer
       command: /usr/bin/php /tmp/composer --install-dir=/usr/local/bin/
       register: composer_install

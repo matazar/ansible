@@ -1,0 +1,20 @@
+- name: Ensure sendmail is installed.
+  apt:
+    name: sendmail
+    state: present
+
+- name: Update sendmail authentication info
+  template:
+    src: authinfo.j2
+    dest: /etc/mail/authinfo
+  notify: 
+    - hash auth
+
+- name: Update sendmail.mc
+  template:
+    src: sendmail.mc.j2
+    dest: /etc/mail/sendmail.mc
+  notify:
+    - make sendmail
+    - restart sendmail
+    

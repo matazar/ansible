@@ -1,0 +1,12 @@
+- name: hash auth
+  shell: makemap hash /etc/mail/authinfo < /etc/mail/authinfo
+
+- name: make sendmail
+  command: make
+  args:
+    chdir: /etc/mail
+
+- name: restart sendmail
+  service: 
+    name: sendmail
+    state: restarted

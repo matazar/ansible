@@ -1,0 +1,3 @@
+mail_server: 'mail.{{ default_domain }}'
+smtp_notice_email: 'notice@{{ default_domain }}'
+#smtp_notice_password: ''

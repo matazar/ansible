@@ -2001,7 +2001,7 @@ mail_localip: 127.0.0.3
 ---
 
 ## mail_server
-Roles: roundcube
+Roles: roundcube, sendmail
 
 The hostname of the mail server to send our mail from.
 
@@ -3228,6 +3228,38 @@ smb_workgroup: OFFICE
 Default:
 ```
 smb_workgroup: WORKGROUP
+```
+---
+
+## smtp_notice_email: 'notice@{{ default_domain }}'
+Roles: sendmail
+
+Email address/username used for notification email authentication.
+
+Example:
+```
+smtp_notice_email: "notice@example.local"
+```
+
+Default:
+```
+smtp_notice_email: 'notice@{{ default_domain }}'
+```
+---
+
+## smtp_notice_password
+Roles: sendmail
+
+Password used for notification email authentication.
+
+Example:
+```
+smtp_notice_password: '$ecretPassw0rd.'
+```
+
+Default:
+```
+#smtp_notice_password: ''
 ```
 ---
 

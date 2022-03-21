@@ -1,8 +1,11 @@
-- name: Ensure git, nose.js and npm are installed
+- include_role:
+    name: nodejs
+
+- name: Ensure git is installed
   apt:
     state: present
-    name: [git, nodejs, npm]
-
+    name: [git]
+    
 - name: Ensure yarn is installed
   npm:
       name: yarn
@@ -28,13 +31,10 @@
     command: yarn build
     args:
       chdir: /var/www/dashy
-  # seemed to work with this enabled, try again witout
-  # - name: Launch dashy through yarn first, as otherwise it will fail on first run.
-  #   command: timeout 1m yarn start /var/www/dashy/server.js
-  #   ignore_errors: true
   - name: Remove conf.yml file on new instance so backup or default is used in place.
     file:
       path: /var/www/dashy/public/conf.yml
+      state: absent
   when: new_dashy_instance.changed
 
 - name: Check for dashy config

@@ -2131,6 +2131,39 @@ Default:
 ```
 nameservers: {}
 ```
+---
+
+## node_version
+Roles: nodejs
+
+The version of nodejs to install on the host.
+
+Example:
+```
+node_version: 14
+```
+
+Default:
+```
+node_version: 16
+```
+---
+
+## node_gpg_id
+Roles: nodejs
+
+The ID of the gpg signing key to download from NodeSource for the repository. See https://github.com/nodesource/distributions/blob/master/README.md
+
+Example:
+```
+node_gpg_id: 9FD3B784BC1C6FC31A8A0A1C1655A0AB68576280
+```
+
+Default:
+```
+node_gpg_id: 9FD3B784BC1C6FC31A8A0A1C1655A0AB68576280
+```
+---
 
 ## ns_domain
 Roles: dns

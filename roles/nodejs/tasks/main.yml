@@ -1,0 +1,17 @@
+- name: Ensure we have the NodeSource GPG key
+  apt_key:
+    keyserver:  https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+    id: '{{ node_gpg_id }}'
+    state: present
+    keyring: /usr/share/keyrings/nodesource.gpg
+
+- name: Ensure NodeSource is in our repository.
+  template:
+    src: nodesource.list.j2
+    dest: /etc/apt/sources.list.d/nodesource.list
+
+- name: Ensure nodejs are installed
+  apt:
+    state: latest
+    update_cache: yes
+    name: [nodejs]

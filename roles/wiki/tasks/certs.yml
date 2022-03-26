@@ -1,0 +1,23 @@
+# Create empty var to hold all our domains.
+- set_fact: 
+    wiki_domains: []
+
+# Create a list of domains that need to be included in our wildcard cert
+- set_fact:
+    wiki_domains: '{{ wiki_domains + ["*."+item.split(".")[-2:] | join(".")] }}'
+  with_items: '{{ wiki_hostnames }}'
+
+# Output the domains
+- name: Output domains we need included in the wildcard cert.
+  debug:
+    var: wiki_domains | unique
+
+# Actually run certbot
+- include_role:
+    name: certbot_dns
+  vars:
+    cert_name: "{{ wiki_cert_name }}"
+    cert_domains: '{{ wiki_domains | unique }}'
+  tags:
+    - certbot
+

@@ -152,3 +152,9 @@ _Required variables_: **primary_user**
 The virtualbox role installs Oracle VM VirtualBox and adds cronjob starting VMs listed under the vm_names variable in headless mode.
 
 _Required variables_: None
+
+## wiki
+
+The wiki role configures an instance of a (Raneto)[http://raneto.com/], a flat file CMS/wiki. The role uses certbot_dns and nginx to create an HTTPS proxy to the site.
+
+_Required variables_: **wiki_hostnames**, **wiki_cert_name**, **wiki_title**, **wiki_support_email**

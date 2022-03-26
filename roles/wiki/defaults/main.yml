@@ -1,0 +1,11 @@
+backup_dir: "{{ playbook_dir }}/env/{{ env }}/backups"
+
+wiki_hostnames: 
+  - 'wiki.{{ default_domain }}'
+wiki_cert_name: '{{ default_domain }}'
+wiki_ipv6: False
+
+
+# Raneto app settings
+wiki_title: Example Docs
+wiki_support_email: wiki@example.local

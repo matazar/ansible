@@ -169,7 +169,7 @@ backblaze_venv: /usr/backblaze
 ---
 
 ## backup_dir
-Roles: certbot_dns, common, dashy, dns, emby, kodi, ldap, mail, roundcube
+Roles: certbot_dns, common, dashy, dns, emby, kodi, ldap, mail, roundcube, wiki
 
 The path to the local directory used for backing up data through ansible.
 
@@ -4019,5 +4019,89 @@ website_ipv6:
 Default:
 ```
 website_ipv6: []
+```
+---
+
+## wiki_cert_name
+Roles: wiki
+
+The name used for the wiki certbot certificate.
+
+Example:
+```
+wiki_cert_name: example.local
+```
+
+Default:
+```
+wiki_cert_name: '{{ default_domain }}'
+```
+---
+
+## wiki_hostnames
+Roles: wiki
+
+A list of hostnames that can be used to access the wiki/Raneto instance.
+
+Example:
+```
+wiki_hostnames: 
+  - wiki.example.local
+  - docs.example.local
+```
+
+Default:
+```
+wiki_hostnames: 
+  - 'wiki.{{ default_domain }}'
+```
+---
+
+## wiki_ipv6:
+Roles: wiki
+
+IPv6 address used for the wiki/Raneto site. Use "false" to disabled IPv6.
+
+Example:
+```
+wiki_ipv6: 2001:db8:1234::18
+
+```
+
+Default:
+```
+wiki_ipv6: False
+```
+---
+
+## wiki_support_email
+Roles: wiki
+
+Email address used for the "Get in touch" footer on the wiki pages.
+
+Example:
+```
+wiki_support_email: wiki_help@example.local
+```
+
+Default:
+```
+wiki_support_email: `wiki@{{ default_domain }}'
+```
+---
+
+## wiki_title:
+Roles: wiki
+
+The title used for the wiki/Raneto site.
+
+Example:
+```
+wiki_title: Example Wiki
+```
+
+Default:
+```
+wiki_title: Example Docs
 ```
 ---

@@ -1,0 +1,12 @@
+- name: restart nginx
+  service:
+    name: nginx
+    state: restarted
+
+- name: restart wiki
+  command: pm2 restart wiki
+
+- name: build wiki
+  command: npm
+  args:
+    chdir: /var/www/wiki

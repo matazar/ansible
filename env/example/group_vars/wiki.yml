@@ -1,0 +1,7 @@
+wiki_title: Example Docs
+wiki_support_email: wiki@example.local
+wiki_hostnames: 
+  - wiki.example.local
+  - docs.example.local
+
+wiki_ipv6: 2001:db8:1234::18

@@ -92,3 +92,9 @@
     - sendmail
   tags:
     - sendmail
+
+- hosts: wiki
+  roles:
+    - wiki
+  tags:
+    - wiki

@@ -1,0 +1,91 @@
+- name: Ensure git is installed
+  apt:
+    state: present
+    name: [git]
+
+- name: Clone Git Repo
+  git:
+    repo: https://github.com/gilbitron/Raneto.git
+    dest: /var/www/raneto
+    clone: yes
+    update: no
+  register: new_wiki_instance
+
+# Initial install steps
+- block:
+  - name: Run npm install for wiki
+    command: npm install
+    args:
+      chdir: /var/www/raneto
+  - name: build wiki
+    command: npm run gulp
+    args:
+      chdir: /var/www/raneto
+  when: new_wiki_instance.changed
+
+- name: Check for custom configuration folder
+  stat: 
+    path: /var/www/raneto/default
+  register: default_config
+
+- name: Clone example configuration folder
+  copy:
+    src: /var/www/raneto/example/
+    dest: /var/www/raneto/default
+    remote_src: yes
+  when: not default_config.stat.exists
+
+- name: Update wiki config file
+  template:
+    src: config.default.js.j2
+    dest: /var/www/raneto/default/config.default.js
+
+# PM2 is used to run wiki as a service.
+- name: Ensure PM2 is installed
+  npm:
+    name: pm2
+    global: yes
+    production: yes
+    state: present
+
+- name: Ensure PM2 is enabled on boot
+  block:
+    - name: Check for PM2 service file
+      stat: 
+        path: /etc/systemd/system/pm2-root.service
+      register: pm2_service
+      changed_when: not pm2_service.stat.exists
+    - name: Ensure PM2 is enabled
+      command: pm2 startup
+      when: pm2_service.changed
+
+- name: Ensure wiki is enabled in PM2
+  block:
+  - name: Check if wiki is already configured in PM2
+    command: pm2 info wiki
+    register: pm2_list
+    changed_when: pm2_list.rc != 0 
+    failed_when: false
+  - name: Enable wiki in PM2
+    command: pm2 start /var/www/raneto/default/server.js --name wiki --watch /var/www/raneto/default/ --log /var/www/raneto/log.log
+    when: pm2_list.changed
+
+- include: certs.yml
+
+- name: Update nginx config
+  template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/sites-available/wiki.conf
+  notify: restart nginx
+
+- name: Ensure the site is enabled
+  file: 
+    src: "/etc/nginx/sites-available/wiki.conf"
+    dest: "/etc/nginx/sites-enabled/wiki.conf"
+    state: link
+  notify: restart nginx
+
+- name: Ensure nginx is running
+  service: 
+    name: nginx
+    state: started

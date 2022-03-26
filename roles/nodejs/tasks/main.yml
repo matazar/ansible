@@ -10,7 +10,7 @@
     src: nodesource.list.j2
     dest: /etc/apt/sources.list.d/nodesource.list
 
-- name: Ensure nodejs are installed
+- name: Ensure nodejs is installed
   apt:
     state: latest
     update_cache: yes

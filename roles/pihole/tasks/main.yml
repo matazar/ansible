@@ -56,7 +56,7 @@
   no_log: true
   notify: restart pihole
 
-- name: Add option for local dns records0
+- name: Add option for local dns records
   template:
     dest: /etc/dnsmasq.d/02-lan.conf
     src: 02-lan.conf.j2
@@ -70,6 +70,15 @@
   when: local_dns_zones
   notify:
     - restart pihole
+
+- name: Fetch list of domains currently allowed
+  command: sqlite3 /etc/pihole/gravity.db "select domain from domainlist;" ".exit"
+  register: domain_allow_list
+  changed_when: false
+
+- name: Updated domain exception/bypass list
+  include: exception.yml
+  with_items: '{{ pihole_domain_exceptions }}'
 
 - name: Update pihole
   command: /usr/local/bin/pihole -up

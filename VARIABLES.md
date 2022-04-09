@@ -2295,6 +2295,24 @@ pihole_dnssec: false
 ```
 ---
 
+## pihole_domain_exceptions
+Roles: pihole
+
+A list of domains to remove from the downloaded ad block lists.
+
+Example:
+```
+pihole_domain_exceptions:
+  - ads.example.local
+  - cdn.example.local
+```
+
+Default:
+```
+pihole_domain_exceptions: []
+```
+---
+
 ## pihole_hostname
 Roles: pihole
 

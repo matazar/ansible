@@ -4,5 +4,6 @@ pihole_ipv6: "{{ ipv6_address | default(false) }}"
 pihole_password: pihole
 pihole_dnssec: false
 pihole_https_enable: true
+pihole_domain_exceptions: []
 local_dns_zones: {}
 dns_forwarders: ['8.8.8.8', '4.4.4.4']

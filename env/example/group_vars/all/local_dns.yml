@@ -28,4 +28,6 @@ dns_forwarders:
   - 4.2.2.1
   - 4.2.2.2
 
-    
+pihole_domain_exceptions:
+  - ads.example.local
+  - cdn.example.local

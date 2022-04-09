@@ -1,0 +1,3 @@
+- name: 'Add {{ item }} to exception/bypass list.'
+  command: 'pihole -w {{ item }}'
+  when: item not in domain_allow_list.stdout_lines

@@ -8,4 +8,4 @@ wiki_ipv6: False
 
 # Raneto app settings
 wiki_title: Example Docs
-wiki_support_email: `wiki@{{ default_domain }}'
+wiki_support_email: 'wiki@{{ default_domain }}'

@@ -17,7 +17,7 @@ postgresql_version: 13
 php_version: php7.4
 php_fpm: '{{ php_version }}-fpm'
 
-composer_checksum: 48f9fdc9ad93904fee96550b45ae03a51f69718502ee855da894b4ad71d2dfe0
+composer_checksum: 3b3b5a899c06a46aec280727bdf50aad14334f6bc40436ea76b07b650870d8f4
 
 mail_server: 'mail.{{ default_domain }}'
 sieve_port: 4190

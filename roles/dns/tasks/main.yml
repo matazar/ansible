@@ -91,20 +91,15 @@
   rescue:
     - set_fact: 
         sign_zone: true
-
     - name: Generate a new rndc key file
       command: 'rndc-confgen -a -A hmac-sha512 -k "certbot." -c /etc/bind/certbot.key'
       when: master_ns_host | default(false)
-
-    - name: Copy certbot key to host
-      copy:
-        src: '{{ backup_dir }}/dns/certbot.key'
-        dest: '/etc/bind/certbot.key'
-        mode: '0744'
-        owner: bind
-        group: bind
-      when: not master_ns_host | default(false)
-    
+    - name: Download a copy of the certbot rndc key
+      fetch:
+        dest: '{{ backup_dir }}/dns/certbot.key'
+        src: '/etc/bind/certbot.key'
+        flat: yes
+      when: master_ns_host | default(false)
     - name: Set permissions on the new rndc key file
       file:
         state: touch
@@ -112,6 +107,7 @@
         group: bind
         mode: '0744'
         path: '/etc/bind/certbot.key'
+      when: master_ns_host | default(false)
   when: certbot_dns_enable
 
 - name: Make sure our zone folders exist

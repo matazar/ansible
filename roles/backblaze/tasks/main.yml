@@ -20,7 +20,7 @@
       state: latest
 
 # Deal with account registration for b2.
-- include: accounts.yml
+- include: account.yml
 
 - include: backups.yml
   loop: '{{ backblaze_backups }}'

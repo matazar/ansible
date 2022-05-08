@@ -5,4 +5,4 @@
     changed_when: false
   rescue:
   - name: Register account in b2.
-    command: '{{ backblaze_venv }}/bin/b2 authorize-account {{ backblaze_app_keys[backblaze_app_id].app_id }} {{ backblaze_app_keys[item].app_key }}'
+    command: '{{ backblaze_venv }}/bin/b2 authorize-account {{ backblaze_app_keys[backblaze_app_id].app_id }} {{ backblaze_app_keys[backblaze_app_id].app_key }}'

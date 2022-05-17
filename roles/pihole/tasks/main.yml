@@ -71,14 +71,25 @@
   notify:
     - restart pihole
 
-- name: Fetch list of domains currently allowed
-  command: sqlite3 /etc/pihole/gravity.db "select domain from domainlist;" ".exit"
-  register: domain_allow_list
-  changed_when: false
-
-- name: Updated domain exception/bypass list
-  include: exception.yml
-  with_items: '{{ pihole_domain_exceptions }}'
+- block:
+  - name: Ensure sqlite3 is installed.
+    apt:
+      name: sqlite3
+      state: present
+  - name: Fetch list of domains currently allowed
+    command: sqlite3 /etc/pihole/gravity.db "select domain from domainlist;" ".exit"
+    register: domain_allow_list
+    changed_when: false
+  rescue: 
+  - name: Generate empty list domain exceptions
+    command: echo ''
+    register: domain_allow_list
+    changed_when: false
+  always:
+  - name: Update domain exception/bypass list
+    include: exception.yml
+    with_items: '{{ pihole_domain_exceptions }}'
+  when: 'pihole_domain_exceptions | length > 0'
 
 - name: Update pihole
   command: /usr/local/bin/pihole -up

@@ -1,4 +1,4 @@
-PIHOLE_INTERFACE={{ ansible_facts.default_ipv4.alias }}
+PIHOLE_INTERFACE={{ default_if | default(ansible_facts.default_ipv4.alias) }}
 IPV4_ADDRESS={{ ansible_host }}/24
 {% if pihole_ipv6 | default(false) %}
 IPV6_ADDRESS={{ pihole_ipv6 }}

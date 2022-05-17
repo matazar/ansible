@@ -2262,6 +2262,25 @@ Default:
 ```
 php_version: php7.4
 ```
+---
+
+## pihole_cert_domains
+Roles: pihole
+
+A list of domains to include with the wildcard certificate for pihole.
+
+Example:
+```
+pihole_cert_domains: 
+  - example.local
+  - example2.local
+```
+
+Default:
+```
+pihole_cert_domains: []
+```
+---
 
 ## pihole_cert_name
 Roles: pihole

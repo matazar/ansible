@@ -1,3 +1,4 @@
+pihole_cert_domains: []
 pihole_cert_name: '{{ pihole_hostname}}'
 pihole_hostname: "{{ inventory_hostname }}"
 pihole_ipv6: "{{ ipv6_address | default(false) }}"

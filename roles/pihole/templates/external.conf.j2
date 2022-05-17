@@ -3,6 +3,16 @@ $HTTP["host"] == "{{ pihole_hostname }}" {
   setenv.add-environment = ("fqdn" => "true")
 
   # Enable the SSL engine with a LE cert, only for this specific host
+
+$SERVER["socket"] ==    "[::]:443" { 
+  ssl.engine = "enable"
+  ssl.privkey = "/etc/letsencrypt/live/{{ pihole_cert_name }}/privkey.pem"
+  ssl.pemfile =  "/etc/letsencrypt/live/{{ pihole_cert_name }}/fullchain.pem"
+  ssl.honor-cipher-order = "enable"
+  ssl.cipher-list = "EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH"
+  ssl.use-sslv2 = "disable"
+  ssl.use-sslv3 = "disable" 
+ }
   $SERVER["socket"] == ":443" {
     ssl.engine = "enable"
     ssl.privkey = "/etc/letsencrypt/live/{{ pihole_cert_name }}/privkey.pem"

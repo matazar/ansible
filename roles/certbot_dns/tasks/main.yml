@@ -42,7 +42,6 @@
 - set_fact:
     deploy_hook: "{{ deploy_services + ';' + cert_scripts | join(';') }}"
 
-
 - block:
     - name: "Run certbot for {{ cert_name }}"
       shell: "{{ certbot_bin }} certonly --dns-rfc2136 --dns-rfc2136-credentials /root/.certbot.ini --non-interactive --agree-tos --email {{ cert_email }} --cert-name {{ cert_name }} -d {{ cert_domains | join(' -d ') }}"

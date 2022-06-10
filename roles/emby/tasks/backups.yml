@@ -15,3 +15,17 @@
     - plugins
     - metadata
     - data
+
+- block:
+  - name: Ensure local plugin backup folder exists.
+    local_action:
+      module: file
+      path: '{{ backup_dir }}/emby/{{ inventory_hostname }}/server_config_backup/'
+      state: directory
+    become: false
+  - name: Grab a copy of the Server Configration Backup plugin backups.
+    synchronize:
+      dest: '{{ backup_dir }}/emby/{{ inventory_hostname }}/server_config_backup/'
+      src: '{{ emby_backup_dir }}'
+      mode: pull
+  when: emby_plugin_backups

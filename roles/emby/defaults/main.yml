@@ -1,10 +1,12 @@
 backup_dir: "{{ playbook_dir }}/env/{{ env }}/backups"
 
+emby_backup_dir: /usr/backups/emby
+emby_plugin_backups: false
 emby_cert_name: '{{ emby_hostnames | first }}'
 emby_hostnames: 
     - 'emby.{{ default_domain }}'
 
-emby_deb_url: https://github.com/MediaBrowser/Emby.Releases/releases/download/4.6.7.0/emby-server-deb_4.6.7.0_amd64.deb
+emby_deb_url: https://github.com/MediaBrowser/Emby.Releases/releases/download/4.7.2.0/emby-server-deb_4.7.2.0_amd64.deb
 
 # Mounts
 media_shares: {}

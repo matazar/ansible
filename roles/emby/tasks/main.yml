@@ -27,6 +27,14 @@
       - emby_deb_version != emby_installed_version
       - emby_installed_version != '0.0.0.0'
 
+# Ensure plugin backup folder exists.
+- name: Ensure backup folder for "Server Configuration Backup" plugin exists.
+  file:
+    state: directory
+    path: '{{ emby_backup_dir }}'
+    owner: emby
+  when: emby_plugin_backups
+
 # Restore data when the folders didn't exist before the install.
 - include: restore.yml
   when: emby_seeded.changed

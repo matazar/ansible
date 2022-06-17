@@ -1,0 +1,46 @@
+- name: Ensure wireguard is installed.
+  apt:
+    state: present
+    name: wireguard
+    
+# Ensure server keys exist
+- include: keys.yml
+
+- include: psk.yml
+  when: wg_psk
+
+- name: Ensure IPv4 forwarding is enabled
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    state: present
+    reload: yes
+
+- name: Ensure IPv6 forwarding is enabled
+  sysctl:
+    name: net.ipv6.conf.all.forwarding
+    value: '1'
+    state: present
+    reload: yes
+
+- name: Check wg configuration
+  template:
+    dest: /etc/wireguard/wg0.test
+    src: wg0.conf.j2
+    mode: '0600'
+  register: wg_settings
+
+- block: 
+  - name: Stop WireGuard
+    command: wg-quick down wg0
+    ignore_errors: yes
+  - name: Update WireGuard configuration
+    template:
+      dest: /etc/wireguard/wg0.conf
+      src: wg0.conf.j2
+      mode: '0600'
+  - name: Start WireGuard
+    command: wg-quick up wg0
+  when: wg_settings.changed
+
+- include: backups.yml

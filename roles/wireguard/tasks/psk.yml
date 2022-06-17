@@ -1,0 +1,25 @@
+- name: Check for pre-shared key file.
+  command: test -f /etc/wireguard/client.psk
+  register: psk_check
+  changed_when: psk_check.rc !=0
+  failed_when: false
+
+- block:
+    - name: Restore pre-shared key
+      copy:
+        dest: /etc/wireguard/client.psk
+        src: '{{ backup_dir }}/wireguard/{{ inventory_hostname }}/client.psk'
+  rescue:
+    - name: Generate server keys.
+      shell: wg genpsk > /etc/wireguard/client.psk
+    - name: Set permission on key files.
+      file:
+        state: file
+        path: /etc/wireguard/client.psk
+        mode: 0600
+  when: psk_check.changed
+
+- name: Read private key file
+  command: cat /etc/wireguard/client.psk
+  changed_when: false
+  register: wg_pre_shared_key

@@ -1,0 +1,25 @@
+- name: Download server key files
+  fetch:
+    src: /etc/wireguard/{{ item }}.key
+    dest: '{{ backup_dir }}/wireguard/{{ inventory_hostname }}/{{ item }}.key'
+    flat: yes
+  with_items: 
+    - private
+    - public
+
+- name: Download pre-shared key
+  fetch:
+    src: /etc/wireguard/client.psk
+    dest: '{{ backup_dir }}/wireguard/{{ inventory_hostname }}/client.psk'
+    flat: yes
+  when: wg_psk
+
+- name: Add public key to host vars
+  local_action:
+    module:  blockinfile
+    marker_begin: wireguard start
+    marker_end: wireguard end
+    path: "{{ playbook_dir }}/env/{{ env }}/host_vars/{{ inventory_hostname }}.yml"
+    block: "wg_public_key: {{ wg_public_key.stdout }}\nwg_client_psk: {{ wg_pre_shared_key.stdout }}"
+    state: present
+  become: false

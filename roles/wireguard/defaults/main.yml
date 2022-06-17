@@ -1,0 +1,7 @@
+wg_ipv4_subnet: 10.0.10.1/24
+wg_ipv6_subnet: fc10:1:2::1/64
+wg_port: 51122
+wg_nat: true
+wg_psk: false
+wg_ufw: false
+wg_clients: []

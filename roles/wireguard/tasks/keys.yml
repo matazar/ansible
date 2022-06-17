@@ -1,0 +1,36 @@
+- name: Check for server private key.
+  command: test -f /etc/wireguard/private.key
+  register: privkey_check
+  changed_when: privkey_check.rc !=0
+  failed_when: false
+
+- block:
+    - name: Restore server keys
+      copy:
+        dest: /etc/wireguard/{{ item }}.key
+        src: '{{ backup_dir }}/wireguard/{{ inventory_hostname }}/{{ item }}.key'
+      with_items: 
+        - private
+        - public
+  rescue:
+    - name: Generate server keys.
+      shell: wg genkey | sudo tee /etc/wireguard/private.key | wg pubkey | sudo tee /etc/wireguard/public.key
+    - name: Set permission on key files.
+      file:
+        state: file
+        path: '{{ item }}'
+        mode: 0600
+      with_items:
+        - /etc/wireguard/private.key 
+        - /etc/wireguard/public.key
+  when: privkey_check.changed
+
+- name: Read public key file
+  command: cat /etc/wireguard/public.key
+  changed_when: false
+  register: wg_public_key
+
+- name: Read private key file
+  command: cat /etc/wireguard/private.key
+  changed_when: false
+  register: wg_private_key

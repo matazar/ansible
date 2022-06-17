@@ -1,0 +1,33 @@
+[Interface]
+Address = {{ wg_ipv4_subnet }},{{ wg_ipv6_subnet }}
+SaveConfig = true
+ListenPort = {{ wg_port }}
+PrivateKey = {{ wg_private_key.stdout}}
+{% if wg_nat %}
+{% if wg_ufw %}
+PostUp = iptables -A FORWARD -i {{  default_if | default(ansible_facts.default_ipv4.alias) }} -o wg0 -j ACCEPT; iptables -A FORWARD -i wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o {{  default_if | default(ansible_facts.default_ipv4.alias) }} -j MASQUERADE; ip6tables -A FORWARD -i wg0 -j ACCEPT; ip6tables -t nat -A POSTROUTING -o {{  default_if | default(ansible_facts.default_ipv4.alias) }} -j MASQUERADE; ufw route allow in on wg0 out on {{  default_if | default(ansible_facts.default_ipv4.alias) }}; ufw route allow in on {{  default_if | default(ansible_facts.default_ipv4.alias) }} out on wg0; ufw allow proto udp from any to any port {{ wg_port }}
+PostDown = iptables -D FORWARD -i {{  default_if | default(ansible_facts.default_ipv4.alias) }} -o wg0 -j ACCEPT; iptables -D FORWARD -i wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o {{  default_if | default(ansible_facts.default_ipv4.alias) }} -j MASQUERADE; ip6tables -D FORWARD -i wg0 -j ACCEPT; ip6tables -t nat -D POSTROUTING -o {{  default_if | default(ansible_facts.default_ipv4.alias) }} -j MASQUERADE; ufw route delete allow in on wg0 out on {{  default_if | default(ansible_facts.default_ipv4.alias) }}; ufw route delete allow in on {{  default_if | default(ansible_facts.default_ipv4.alias) }} out on wg0; ufw delete allow proto udp from any to any port {{ wg_port }}
+{% else %}
+PostUp = iptables -A FORWARD -i {{  default_if | default(ansible_facts.default_ipv4.alias) }} -o wg0 -j ACCEPT; iptables -A FORWARD -i wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o {{  default_if | default(ansible_facts.default_ipv4.alias) }} -j MASQUERADE; ip6tables -A FORWARD -i wg0 -j ACCEPT; ip6tables -t nat -A POSTROUTING -o {{  default_if | default(ansible_facts.default_ipv4.alias) }} -j MASQUERADE; 
+PostDown = iptables -D FORWARD -i {{  default_if | default(ansible_facts.default_ipv4.alias) }} -o wg0 -j ACCEPT; iptables -D FORWARD -i wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o {{  default_if | default(ansible_facts.default_ipv4.alias) }} -j MASQUERADE; ip6tables -D FORWARD -i wg0 -j ACCEPT; ip6tables -t nat -D POSTROUTING -o {{  default_if | default(ansible_facts.default_ipv4.alias) }} -j MASQUERADE; 
+{% endif %}
+{% else %}
+{% if wg_ufw %}
+PostUp = iptables -A FORWARD -o %i -j ACCEPT; ufw route allow in on wg0 out on {{  default_if | default(ansible_facts.default_ipv4.alias) }}; ufw route allow in on {{  default_if | default(ansible_facts.default_ipv4.alias) }} out on wg0; ufw allow proto udp from any to any port {{ wg_port }}
+PostDown = iptables -D FORWARD -o %i -j ACCEPT; ufw route delete allow in on wg0 out on {{  default_if | default(ansible_facts.default_ipv4.alias) }}; ufw route delete allow in on {{  default_if | default(ansible_facts.default_ipv4.alias) }} out on wg0; ufw delete allow proto udp from any to any port {{ wg_port }}
+{% else %}
+PostUp = iptables -A FORWARD -o %i -j ACCEPT; 
+PostDown = iptables -D FORWARD -o %i -j ACCEPT;
+{% endif %}
+{% endif%}
+
+{% for client in wg_clients %}
+[Peer]
+PublicKey = {{ wg_clients[client].public_key }}
+AllowedIPs = {{ wg_clients[client].ipv4 | ipaddr('host/prefix') }}, {{ wg_clients[client].ipv6 | ipaddr('host/prefix') }}
+{% if wg_psk %}
+PresharedKey = {{ wg_pre_shared_key.stdout }}
+{% endif %}
+
+{% endfor %}
+

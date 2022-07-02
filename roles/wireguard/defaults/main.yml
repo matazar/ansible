@@ -1,7 +1,11 @@
 wg_ipv4_subnet: 10.0.10.1/24
 wg_ipv6_subnet: fc10:1:2::1/64
-wg_port: 51122
-wg_nat: true
+wg_port: 51820
+wg_nat: false
 wg_psk: false
-wg_ufw: false
 wg_clients: []
+wg_sysctl:
+  - net.ipv4.ip_forward
+  - net.ipv6.conf.all.forwarding
+  - net.ipv6.conf.default.forwarding
+  - 'net.ipv6.conf.{{ default_if | default(ansible_facts.default_ipv4.alias) }}.proxy_ndp'

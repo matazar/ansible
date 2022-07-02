@@ -9,19 +9,24 @@
 - include: psk.yml
   when: wg_psk
 
-- name: Ensure IPv4 forwarding is enabled
+- name: Set sysctl variables
   sysctl:
-    name: net.ipv4.ip_forward
+    name: '{{ item }}'
     value: '1'
     state: present
     reload: yes
+    sysctl_file: /etc/sysctl.d/01-wireguard.conf
+  with_items: 
+    - '{{ wg_sysctl }}'
 
-- name: Ensure IPv6 forwarding is enabled
-  sysctl:
-    name: net.ipv6.conf.all.forwarding
-    value: '1'
-    state: present
-    reload: yes
+- name: Create list of IPv6 addresses required for WireGuard
+  block:
+  - set_fact: 
+      wg_ipv6_addresses: []
+  - set_fact:
+      wg_ipv6_addresses: "{{ wg_ipv6_addresses + [wg_clients[item].ipv6|ipaddr('address')] }}"
+    with_items: '{{ wg_clients }}'
+  when: wg_ipv6_subnet
 
 - name: Check wg configuration
   template:
@@ -42,5 +47,10 @@
   - name: Start WireGuard
     command: wg-quick up wg0
   when: wg_settings.changed
+
+- name: Ensure WireGuard server is enabled
+  service:
+    name: wg-quick@wg0
+    enabled: yes
 
 - include: backups.yml

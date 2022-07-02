@@ -20,6 +20,6 @@
     marker_begin: wireguard start
     marker_end: wireguard end
     path: "{{ playbook_dir }}/env/{{ env }}/host_vars/{{ inventory_hostname }}.yml"
-    block: "wg_public_key: {{ wg_public_key.stdout }}\nwg_client_psk: {{ wg_pre_shared_key.stdout }}"
+    block: "wg_public_key: {{ wg_public_key.stdout | default('') }}\nwg_client_psk: {{ wg_pre_shared_key.stdout | default('') }}"
     state: present
   become: false

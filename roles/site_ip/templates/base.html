@@ -10,7 +10,7 @@
             $.ajax({
                 type: "GET",
                 url: 'https://{{ ip_site_v4_hostname }}',
-                timeout: 10000,
+                timeout: {{ ip_timeout }},
                 data: {
                     format: 'json'
                 },
@@ -24,7 +24,7 @@
             $.ajax({
                 type: "GET",
                 url: 'https://{{ ip_site_v6_hostname }}/',
-                timeout: 10000,
+                timeout: {{ ip_timeout }},
                 data: {
                     format: 'json'
                 },

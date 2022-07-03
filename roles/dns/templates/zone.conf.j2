@@ -20,7 +20,11 @@ $TTL 86400
 {% endfor %}
 {% endif %}
 
-{{ domain }}.		IN	TXT 	"{{ spf_txt }}"   
+{% if dns_zones[domain].spf_txt | default(false) %}
+{{ domain }}.		IN	TXT 	"{{ dns_zones[domain].spf_txt }}"
+{% else %}
+{{ domain }}.		IN	TXT 	"{{ spf_default_txt }}"
+{% endif %}
 
 {% for ns in nameservers %}
 {% if nameservers[ns].domain == domain %}
@@ -46,10 +50,10 @@ $TTL 86400
 {% endfor %}
 {% endif %}
 
-{% if dns_zones[domain].dmarc | default(false) %}
-_dmarc	IN	TXT		"{{ dns_zones[domain].dmarc }}"
+{% if dns_zones[domain].dmarc_txt | default(false) %}
+_dmarc	IN	TXT		"{{ dns_zones[domain].dmarc_txt }}"
 {% else %}
-_dmarc	IN	TXT		"{{ dmarc_txt }}"
+_dmarc	IN	TXT		"{{ dmarc_default_txt }}"
 {% endif %}
 
 {% if dkim_exists.rc == 0 %}

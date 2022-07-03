@@ -662,19 +662,19 @@ dkim_txt_dir: /var/lib/bind/dkim
 ```
 ---
 
-## dmarc_txt
+## dmarc_default_txt
 Roles: dns
 
-DMARC text record used for all domains. See https://www.zytrax.com/books/dns/ch9/dmarc.html for more information.
+The default DMARC text record used when a DNS zone doesn't have one explicitly defined. See https://www.zytrax.com/books/dns/ch9/dmarc.html for more information.
 
 Example:
 ```
-dmarc_txt: "v=DMARC1;p=none;sp=reject;pct=10;rua=mailto:dmarc@example.local"
+dmarc_default_txt: "v=DMARC1;p=none;sp=reject;pct=10;rua=mailto:dmarc@example.local"
 ```
 
 Default:
 ```
-dmarc_txt: "v=DMARC1;p=reject;sp=reject;adkim=s;aspf=s;fo=1;rf=afrf;rua=mailto:dmarc@{{ domain }}"
+dmarc_default_txt: "v=DMARC1;p=reject;sp=reject;adkim=s;aspf=s;fo=1;rf=afrf;rua=mailto:dmarc@{{ domain }}"
 ```
 >Note: Default example uses "domain" variable, which turns into the current domain during the play. For example, if the zone is example.local, {{ domain }} becomes example.local. 
 ---
@@ -802,6 +802,8 @@ ns_zones:
     backup_mail:
       - mail.example2.local
     dnssec: false
+    spf_txt: 'v=spf1 a mx ~all'
+    dmarc_txt: 'v=DMARC1;p=reject;adkim=s;aspf=s;fo=1;rf=afrf;rua=mailto:dmarc@example.local'
     hostnames:
       '@':
         ipv4: 192.168.0.2
@@ -3405,19 +3407,19 @@ spammed_accounts: []
 ```
 ---
 
-## spf_txt
+## spf_default_txt
 Roles: dns
 
-The SPF text record used for all our DNS zones. See https://www.zytrax.com/books/dns/ch9/spf.html.
+The default SPF text record used when a DNS zone doesn't have one explicitly defined. See https://www.zytrax.com/books/dns/ch9/spf.html.
 
 Example:
 ```
-spf_txt: 'v=spf1 mx ~all'
+spf_default_txt: 'v=spf1 mx ~all'
 ```
 
 Default:
 ```
-spf_txt: 'v=spf1 a mx -all'
+spf_default_txt: 'v=spf1 a mx -all'
 ```
 ---
 

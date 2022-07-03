@@ -13,8 +13,8 @@ dkim_txt_dir: /var/lib/bind/dkim
 dkim_key: 'dkim'
 dkim_keys: ['{{ dkim_key }}']
 
-spf_txt: 'v=spf1 a mx -all'
-dmarc_txt: "v=DMARC1;p=reject;sp=reject;adkim=s;aspf=s;fo=1;rf=afrf;rua=mailto:dmarc@{{ domain }}"
+spf_default_txt: 'v=spf1 a mx -all'
+dmarc_default_txt: "v=DMARC1;p=reject;sp=reject;adkim=s;aspf=s;fo=1;rf=afrf;rua=mailto:dmarc@{{ domain }}"
 
 # Zone 
 dns_zone_refresh: 7200

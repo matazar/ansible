@@ -158,3 +158,9 @@ _Required variables_: None
 The wiki role configures an instance of a (Raneto)[http://raneto.com/], a flat file CMS/wiki. The role uses certbot_dns and nginx to create an HTTPS proxy to the site.
 
 _Required variables_: **wiki_hostnames**, **wiki_cert_name**, **wiki_title**, **wiki_support_email**
+
+## wireguard
+
+The wireguard role sets up a WireGuard VPN server. IPv6 NAT can be enabled with the wg_nat variable. Role assumes clients will create their own keys. Server keys are automatically generated if none exist and the public (and PSK) key is added to the server's host_vars file.
+
+_Required variables_: **wg_clients**

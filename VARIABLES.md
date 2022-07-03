@@ -1321,6 +1321,27 @@ firewall_enable: false
 ```
 ---
 
+## firewall_open_ports
+Roles: common
+
+A list of ports you wish to allow through iptables. False to disable.
+
+Example:
+```
+firewall_open_ports: 
+  4379:
+    udp: true
+  27015:
+    tcp: true
+    udp: true
+```
+
+Default:
+```
+fw_custom: false
+```
+---
+
 ## force_ipv4_mounts
 Roles: emby, kodi, transmission
 
@@ -4088,6 +4109,131 @@ website_ipv6:
 Default:
 ```
 website_ipv6: []
+```
+---
+
+## wg_clients
+Roles: wireguard
+
+A dictionary of clients including their public key, IPV4 and optionally IPv6 addresses.
+
+Example:
+```
+wg_clients:
+  Android:
+    public_key: BxCxRGb5amcBslKZDmcjZBFGjpQOc3nUrXkH3M5xjiQ=
+    ipv4: 10.10.10.2
+    ipv6: 2001:db8:1:2::2/128
+  Work_Laptop:
+    public_key: RvCxRGb5amcBslKzDmcjZeFGjpQOc3nUrXkH3K2xqip=
+    ipv4: 10.10.10.3
+    ipv6: 2001:db8:1:2::3/128
+```
+
+Default:
+```
+wg_clients: []
+```
+---
+
+## wg_ipv4_subnet
+Roles: common, wireguard
+
+IPv4 subnet used by WireGuard.
+
+Example:
+```
+wg_ipv4_subnet: 192.168.10.1/24
+```
+
+Default:
+```
+wg_subnet: 10.0.10.1/24
+```
+---
+
+## wg_ipv6_subnet
+Roles: common, wireguard
+
+IPv4 subnet used by WireGuard. Set to false to disable.
+
+Example:
+```
+wg_ipv6_subnet: 2001:db8:1:2::1/64
+```
+
+Default:
+```
+wg_ipv6_subnet: fc10:1:2::1/64
+```
+---
+
+## wg_nat
+Roles: common, wiregaurd
+
+Enables NAT for IPv6 on the WireGuard server. Useful when the server only has a single IPv6 address.
+
+Example:
+```
+wg_nat: true
+```
+
+Default:
+```
+wg_nat: false
+```
+---
+
+## wg_port
+Roles: common, wireguard
+
+Set the port used for WireGuard.
+
+Example:
+```
+wg_port: 51194
+```
+
+Default:
+```
+wg_port: 51820
+```
+---
+
+## wg_psk
+Roles: wireguard
+
+Generates a pre shared key and configures WireGuard to use it. Key is added to host's host_vars file.
+
+Example:
+```
+wg_psk: true
+```
+
+Default:
+```
+wg_psk: false
+```
+---
+
+## wg_sysctrl
+Roles: wireguard
+
+A list of sysctl values to enable on the WireGuard server.
+
+Example:
+```
+wg_sysctl:
+  - net.ipv4.ip_forward
+```
+
+Default:
+```
+wg_sysctl:
+  - net.ipv4.ip_forward
+  - net.ipv6.conf.all.forwarding
+  - net.ipv6.conf.default.forwarding
+  - 'net.ipv6.conf.{{ default_if | default(ansible_facts.default_ipv4.alias) }}.proxy_ndp'
 ```
 ---
 

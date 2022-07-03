@@ -2,14 +2,14 @@
   - name: Ensure IPv6 addresses are configured for boot
     blockinfile:
       path: /etc/network/interfaces
-      block: "{% for ip in ipv6_addresses %}{% if ip %}iface {{ ansible_default_ipv6['interface'] }} inet6 static\n{{ '\t' }}address {{ ip }}/64\n\n{% endif %}{% endfor %}"
+      block: "{% for ip in ipv6_addresses %}{% if ip %}iface {{ ansible_default_ipv6['interface'] }} inet6 static\n{{ '\t' }}address {{ ip | ipaddr('host/prefix') }}\n\n{% endif %}{% endfor %}"
       insertafter: "EOF"
   # Find out what IPv6 addresses are missing from the host
   - set_fact:
       missing_ipv6: "{% if item not in ansible_all_ipv6_addresses and item != false %}{{ missing_ipv6 | default([]) + [item] }}{% else %}{{ missing_ipv6 | default([]) }}{% endif %}"
     with_items: "{{ ipv6_addresses | default([]) }}"
   - name: "Ensure IPv6 is configured on the host"
-    command: "ip -6 addr add {{ item }}/64 dev {{ ansible_default_ipv6['interface'] | default(False) }}"
+    command: "ip -6 addr add {{ item | ipaddr('host/prefix') }} dev {{ ansible_default_ipv6['interface'] | default(False) }}"
     loop: "{{ missing_ipv6 }}"
     when: 
       - 'missing_ipv6 | length > 0'

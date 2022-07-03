@@ -36,6 +36,7 @@ local_subnet:
 
 # Firewall
 firewall_enable: false
+firewall_open_ports: false
 trusted_hosts: []
 
 ldap_allow_list: []
@@ -55,3 +56,8 @@ transmission_https_only: false
 transmission_allow_list: []
 
 samba_ipv6: false
+
+wg_ipv4_subnet: 10.0.10.1/24
+wg_ipv6_subnet: fc10:1:2::1/64
+wg_port: 51820
+wg_nat: false

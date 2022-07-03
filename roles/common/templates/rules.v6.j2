@@ -32,6 +32,16 @@
 {% endif %}
 {% endif %}
 {% endif %}
+{% if firewall_open_ports %}
+{% for port in firewall_open_ports %}
+{% if firewall_open_ports[port]['tcp'] | default(false) %}
+-A INPUT -p tcp -m state --state NEW -m tcp --dport {{ port }} -j ACCEPT
+{% endif %}
+{% if firewall_open_ports[port]['udp'] | default(false) %}
+-A INPUT -p udp -m state --state NEW -m udp --dport {{ port }} -j ACCEPT
+{% endif %}
+{% endfor %}
+{% endif %}
 {% if 'samba' in group_names %}
 {% if samba_ipv6 %}
 -A INPUT -d {{ local_ipv6 | ipaddr('subnet') }} -p tcp -m tcp --dport 139 -j ACCEPT
@@ -118,6 +128,14 @@ and we need to extract the values. This keeps the hostvar simple at least. Don't
 -A INPUT -p tcp -m state --state NEW -m tcp --dport 8920 -j DROP
 {% endif %}
 
+{% if 'vpn' in group_names %}
+-A INPUT -p udp -m state --state NEW -m udp --dport {{ wg_port }} -j ACCEPT
+{% if 'wg0' in ansible_interfaces %}
+-A FORWARD -i wg0 -j ACCEPT
+-A FORWARD -o wg0 -j ACCEPT
+{% endif %}
+{% endif %}
+
 # Hostname
 -A INPUT -d {{ ipv6_address | ipaddr('address') }}/{{ ipv6_address | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 80 -j ACCEPT
 -A INPUT -d {{ ipv6_address | ipaddr('address') }}/{{ ipv6_address | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 443 -j ACCEPT
@@ -128,3 +146,16 @@ and we need to extract the values. This keeps the hostvar simple at least. Don't
 {% endfor %}
 
 COMMIT
+
+{% if 'vpn' in group_names %}
+{% if wg_nat %}
+*nat
+:PREROUTING ACCEPT [135:12610]
+:INPUT ACCEPT [0:0]
+:OUTPUT ACCEPT [7:573]
+:POSTROUTING ACCEPT [7:573]
+-A POSTROUTING -s {{ wg_ipv6_subnet }} -o {{ default_if | default(ansible_facts.default_ipv4.alias) }} -j MASQUERADE
+-A POSTROUTING -s fc23::/64 -o enp0s3 -j MASQUERADE
+COMMIT
+{% endif %}
+{% endif %}

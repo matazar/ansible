@@ -22,8 +22,7 @@ sshd : {{ local_subnet | ipaddr('subnet') }} : allow
 # Allow SSH on non-standard port for all
 {{ sshd_public_port }} : ALL : allow
 {% endif %}
-# sshd : ALL : deny
-
+sshd : ALL : deny
 {% else %}
 sshd : ALL : allow
 

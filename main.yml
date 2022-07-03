@@ -98,3 +98,10 @@
     - wiki
   tags:
     - wiki
+
+- hosts: vpn
+  roles:
+    - wireguard
+  tags:
+    - vpn
+    - wireguard

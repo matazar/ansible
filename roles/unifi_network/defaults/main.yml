@@ -1,3 +1,5 @@
 unifi_network_cert_name: '{{ default_domain }}'
 unifi_network_domains:
   - '{{ default_domain }}'
+
+cert_group: ssl-certs

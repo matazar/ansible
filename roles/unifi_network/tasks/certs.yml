@@ -35,7 +35,16 @@
       state: restarted
   when: new_cert.changed | default(false)
 
-- name: Ensure script for installing unifi certs is updated.
+- name: Ensure python script for installing unifi certs is updated.
   copy:
     src: unifi_cert.py
     dest: /root/unifi_cert.py
+    mode: 0770
+
+- name: Ensure renewal hook script is updated
+  template:
+    src: unifi_network.sh.j2
+    dest: /etc/letsencrypt/renewal-hooks/post/unifi_network.sh
+    mode: 0770
+    owner: root
+    group: '{{ cert_group }}'

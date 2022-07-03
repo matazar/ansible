@@ -21,10 +21,8 @@ class unifi(object):
         self.cmds = []
         # Create the required commands
         if self.unifi_type in ['network', 'all']:
-            print('Network')
             self.network_cmds()
         if self.unifi_type in ['video', 'all']:
-            print('Video')
             self.video_cmds()
 
     def __call__(self):

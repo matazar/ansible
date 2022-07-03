@@ -10,6 +10,7 @@ PostUp = {% for ip in wg_ipv6_addresses %}ip -6 neigh add proxy {{ ip }} dev {{ 
 PostDown = {% for ip in wg_ipv6_addresses %}ip -6 neigh del proxy {{ ip }} dev {{ default_if | default(ansible_facts.default_ipv4.alias)}};{% endfor %}
 {% endif %}
 
+
 {% for client in wg_clients %}
 [Peer]
 PublicKey = {{ wg_clients[client].public_key }}
@@ -18,5 +19,6 @@ AllowedIPs = {{ wg_clients[client].ipv4 | ipaddr('host/prefix') }}{% if wg_ipv6_
 {% if wg_psk %}
 PresharedKey = {{ wg_pre_shared_key.stdout | default('') }}
 {% endif %}
+
 {% endfor %}
 

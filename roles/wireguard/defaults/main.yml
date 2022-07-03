@@ -9,3 +9,4 @@ wg_sysctl:
   - net.ipv6.conf.all.forwarding
   - net.ipv6.conf.default.forwarding
   - 'net.ipv6.conf.{{ default_if | default(ansible_facts.default_ipv4.alias) }}.proxy_ndp'
+  

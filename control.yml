@@ -1,0 +1,13 @@
+- hosts: all
+  tasks:
+    - name: Restart
+      reboot:
+  tags:
+    - reboot
+
+- hosts: all
+  tasks:
+    - name: Shutdown
+      community.general.shutdown:
+  tags:
+    - shutdown

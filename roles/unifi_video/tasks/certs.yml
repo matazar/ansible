@@ -53,3 +53,11 @@
   copy:
     src: unifi_cert.py
     dest: /root/unifi_cert.py
+
+- name: Ensure renewal hook script is updated
+  template:
+    src: unifi_video.sh.j2
+    dest: /etc/letsencrypt/renewal-hooks/post/unifi_video.sh
+    mode: 0770
+    owner: root
+    group: '{{ cert_group }}'

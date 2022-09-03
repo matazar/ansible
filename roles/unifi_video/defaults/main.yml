@@ -3,3 +3,4 @@ unifi_video_domains:
   - '{{ default_domain }}'
 
 unifi_video_path: /media/recordings
+cert_group: ssl-certs

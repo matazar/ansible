@@ -53,3 +53,20 @@ backblaze_backups:
     keep_days: 60
     path: /var/vmail
     bucket: email
+
+wg_ipv6_subnet: 2001:db8:1:2::1/64
+wg_ipv4_subnet: 10.0.10.1/24
+wg_psk: true
+wg_clients:
+  android1:
+    public_key: si1KDufd6eFYgRepG54XeykVFISAsXBmDxOYcckiZCM=
+    ipv4: 10.0.10.2
+    ipv6: 2001:db8:1:2::2/128
+  android2: 
+    public_key: bR+FRNvuXnvWtZ9Oy9h4pIj0fLT6crgIrEdpCXkKdl4=
+    ipv4: 10.0.10.3
+    ipv6: 2001:db8:1:2::3/128
+  worklaptop:
+    public_key: 95iPot7LCBQp8OAnKFhl1mnB56XkL14CI7Yd382WvHI=
+    ipv4: 10.0.10.3
+    ipv6: 2001:db8:1:2::4/128

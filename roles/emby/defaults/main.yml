@@ -6,7 +6,7 @@ emby_cert_name: '{{ emby_hostnames | first }}'
 emby_hostnames: 
     - 'emby.{{ default_domain }}'
 
-emby_deb_url: https://github.com/MediaBrowser/Emby.Releases/releases/download/4.7.6.0/emby-server-deb_4.7.6.0_amd64.deb
+emby_deb_url: https://github.com/MediaBrowser/Emby.Releases/releases/download/4.7.8.0/emby-server-deb_4.7.8.0_amd64.deb
 
 # Mounts
 media_shares: {}

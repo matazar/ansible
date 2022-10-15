@@ -6,7 +6,7 @@ roundcube_ipv6: "{{ ipv6_address | default(false) }}"
 roundcube_title: "{{ mail_server.split('.')[1] | capitalize }} Webmail"
 roundcube_cert_name: '{{ roundcube_hostname }}'
 roundcube_des_key: ''
-roundcube_version: 1.5.2
+roundcube_version: 1.6.0
 roundcube_download_url: 'https://github.com/roundcube/roundcubemail/releases/download/{{ roundcube_version }}/roundcubemail-{{ roundcube_version }}-complete.tar.gz'
 roundcube_db_username: roundcube
 #roundcube_db_password : ''

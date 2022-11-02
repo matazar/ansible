@@ -86,7 +86,12 @@
     changed_when: pm2_list.rc != 0 
     failed_when: false
   - name: Enable dashy in PM2
-    command: pm2 start /var/www/dashy/server.js --name dashy --watch /var/www/dashy/public/ --log /var/www/dashy/log.log
+    command: pm2 start yarn --name dashy --watch /var/www/dashy/public --log /var/www/dashy/log.log -- start
+    args:
+      chdir: "/var/www/dashy"
+    when: pm2_list.changed
+  - name: Save pm2 changes
+    command: pm2 save
     when: pm2_list.changed
 
 - include: certs.yml

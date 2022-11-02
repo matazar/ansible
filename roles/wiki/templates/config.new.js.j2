@@ -18,7 +18,7 @@ var theme_name = 'dist';
 var config = {
 
   // Your site title (format: page_title - site_title)
-  site_title: '{{ wiki_title }}',
+  site_title: 'Raneto Docs',
 
   // The base URL of your site (can use %base_url% in Markdown files)
   // This should be the full path to your Raneto installation:
@@ -38,10 +38,10 @@ var config = {
   path_prefix: '',
 
   // Used for the "Get in touch" page footer link
-  support_email: '{{ wiki_support_email }}',
+  support_email: '',
 
   // Footer Text / Copyright
-  copyright: 'Copyright &copy; ' + new Date().getFullYear() + ' - <a href="http://raneto.com">Powered by Raneto</a>',
+  copyright: 'Copyright &copy; ' + new Date().getFullYear() + ' - <a href="https://raneto.com">Powered by Raneto</a>',
 
   // Excerpt length (used in search)
   excerpt_length: 400,
@@ -62,7 +62,7 @@ var config = {
   theme_dir,
   theme_name,
 
-  /// Specify the path of your content folder where all your '.md' files are located
+  // Specify the path of your content folder where all your '.md' files are located
   // Fix: Cannot be an absolute path
   content_dir : path.join(__dirname, '..', 'content', 'pages'),
 
@@ -81,10 +81,10 @@ var config = {
   allow_editing : true,
 
   // Set to true to enable HTTP Basic Authentication
-  authentication : false,
+  authentication : true,
 
   // If editing is enabled, set this to true to only authenticate for editing, not for viewing
-  authentication_for_edit: false,
+  authentication_for_edit: true,
 
   // If authentication is enabled, set this to true to enable authentication for reading too
   authentication_for_read: false,
@@ -104,6 +104,14 @@ var config = {
   },
   secret: 'someCoolSecretRightHere',
 
+  // ##### WARNING #####
+  // You MUST change the username and password for security
+  // Do NOT use "admin" as a username as it's easily guessed.
+  // You are encouraged to use tools to generate a password
+  // Preferably, use a local password manager
+  // If you absolutely must use an online tool, here are some suggestions
+  // https://bitwarden.com/password-generator/
+  // https://www.grc.com/passwords.htm
   credentials    : [
     {
       username : 'admin',

@@ -23,22 +23,10 @@
       chdir: /var/www/raneto
   when: new_wiki_instance.changed
 
-- name: Check for custom configuration folder
-  stat: 
-    path: /var/www/raneto/default
-  register: default_config
-
-- name: Clone example configuration folder
-  copy:
-    src: /var/www/raneto/example/
-    dest: /var/www/raneto/default
-    remote_src: yes
-  when: not default_config.stat.exists
-
 - name: Update wiki config file
   template:
     src: config.default.js.j2
-    dest: /var/www/raneto/default/config.default.js
+    dest: /var/www/raneto/config/config.js
 
 # PM2 is used to run wiki as a service.
 - name: Ensure PM2 is installed
@@ -67,7 +55,12 @@
     changed_when: pm2_list.rc != 0 
     failed_when: false
   - name: Enable wiki in PM2
-    command: pm2 start /var/www/raneto/default/server.js --name wiki --watch /var/www/raneto/default/ --log /var/www/raneto/log.log
+    command: pm2 start npm  --name wiki --watch /var/www/raneto --log /var/www/raneto/log.log -- start
+    args:
+      chdir: "/var/www/raneto"
+    when: pm2_list.changed
+  - name: Save pm2 changes
+    command: pm2 save
     when: pm2_list.changed
 
 - include: certs.yml

@@ -12,10 +12,6 @@
     command: apt list --installed emby-server
     register: emby_installed
     changed_when: emby_installed.stdout_lines | length < 2
-  
-  # Defaults allow -C to function...
-  - set_fact:
-      emby_deb_version: '{{ emby_deb_url | default("4.6.7.0") | regex_search("(\d\.\d.\d.\d)") }}'
 
   - set_fact:
       emby_installed_version: '{{ emby_installed.stdout | default("0.0.0.0") | regex_search("(\d\.\d.\d.\d)") }}'
@@ -24,7 +20,7 @@
     apt:
       deb: '{{ emby_deb_url }}'
     when: 
-      - emby_deb_version != emby_installed_version
+      - emby_version != emby_installed_version
       - emby_installed_version != '0.0.0.0'
 
 # Ensure plugin backup folder exists.

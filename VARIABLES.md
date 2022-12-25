@@ -1071,6 +1071,21 @@ emby_plugin_backups: false
 ```
 ---
 
+## emby_version
+Roles: emby
+
+Sets the version of the emby you wish installed on the system. 
+
+Example:
+```
+emby_version: 4.7.10.0
+```
+
+Default:
+```
+emby_version: 4.7.11.0
+```
+
 ## files_admin_password
 Roles: files
 

@@ -34,11 +34,16 @@
 # DNS Queries
 -A INPUT -d {{ ansible_host | ipaddr('address') }}/{{ ansible_host | ipaddr('prefix') }} -p tcp -m tcp --dport 53 -j ACCEPT
 -A INPUT -d {{ ansible_host | ipaddr('address') }}/{{ ansible_host | ipaddr('prefix') }} -p udp -m udp --dport 53 -j ACCEPT
-{% endif %}
 
+{% endif %}
 {% if 'samba' in group_names %}
 -A INPUT -d {{ local_subnet | ipaddr('subnet') }} -p tcp -m tcp --dport 139 -j ACCEPT
 -A INPUT -d {{ local_subnet | ipaddr('subnet') }} -p tcp -m tcp --dport 445 -j ACCEPT
+{% for client in samba_allow_list | ipv4 %}
+-A INPUT -s {{ client | ipaddr('subnet') }} -p tcp -m tcp --dport 139 -j ACCEPT
+-A INPUT -s {{ client | ipaddr('subnet') }} -p tcp -m tcp --dport 445 -j ACCEPT
+{% endfor %}
+
 {% endif %}
 {% if firewall_open_ports %}
 {% for port in firewall_open_ports%}
@@ -49,13 +54,14 @@
 -A INPUT -d {{ ansible_host | ipaddr('address') }}/{{ ansible_host | ipaddr('prefix') }} -p udp -m udp --dport {{ port }} -j ACCEPT
 {% endif %}
 {% endfor %}
+
 {% endif %}
 {% if 'dns' in group_names %}
 # DNS Queries
 -A INPUT -d {{ ansible_host | ipaddr('address') }}/{{ ansible_host | ipaddr('prefix') }} -p tcp -m tcp --dport 53 -j ACCEPT
 -A INPUT -d {{ ansible_host | ipaddr('address') }}/{{ ansible_host | ipaddr('prefix') }} -p udp -m udp --dport 53 -j ACCEPT
-{% endif %}
 
+{% endif %}
 {% if 'mail'  in group_names %}
 # Mail Outgoing
 -A INPUT -d {{ ansible_host | ipaddr('address') }}/{{ ansible_host | ipaddr('prefix') }} -p tcp -m tcp --dport 25 -j ACCEPT
@@ -82,8 +88,8 @@
 # Drop everyone else
 -A INPUT -p tcp -m multiport --dport {{ doveadm_port }} -j DROP
 {% endif %}
-{% endif %}
 
+{% endif %}
 {% if 'ldap' in group_names %}
 # LDAP
 -A INPUT -s 127.0.0.1/32 -p tcp -m multiport --dport 389,636 -j ACCEPT
@@ -94,22 +100,10 @@
 -A INPUT -s {{ hostvars[host]['ansible_host'] }}/32 -p tcp -m multiport --dport 389,636 -j ACCEPT
 {% endif %}
 {% endfor %}
-{# LDAP replication is a bit messy since the inventory_hostname doesn't always match the ldap_hostname
-and we need to extract the values. This keeps the hostvar simple at least. #}
-{% if ldap_replication_hosts != [] | default([]) %}
-# LDAP Replication
-{% for host in ldap_replication_hosts %}
-{% for inv_host in groups['ldap'] %}
-{% if host == hostvars[inv_host]['ldap_hostname'] and inv_host != inventory_hostname %}
--A INPUT -s {{ hostvars[inv_host]['ansible_host'] | ipaddr('address') }}/{{ hostvars[inv_host]['ansible_host'] | ipaddr('prefix') }} -p tcp -m multiport --dport 389,636 -j ACCEPT
-{% endif %}
-{% endfor%}
-{% endfor %}
-{% endif %}
 # Drop everyone else
 -A INPUT -p tcp -m multiport --dport 389,636 -j DROP
-{% endif %}
 
+{% endif %}
 {% if 'emby' in group_names %}
 # Emby Server
 {% for host in emby_allow_list | ipv4 %}
@@ -120,6 +114,7 @@ and we need to extract the values. This keeps the hostvar simple at least. #}
 {% endif %}
 {% endfor %}
 -A INPUT -p tcp -m tcp --dport 8920 -j DROP
+
 {% endif %}
 {% if 'unifi_network' in group_names or 'unifi' in group_names %}
 -A INPUT -d {{ local_subnet | ipaddr('subnet') }} -p tcp -m tcp --dport 27117 -j ACCEPT
@@ -132,6 +127,7 @@ and we need to extract the values. This keeps the hostvar simple at least. #}
 -A INPUT -d {{ local_subnet | ipaddr('subnet') }} -p udp -m udp --dport 5656:5699 -j ACCEPT
 -A INPUT -d {{ local_subnet | ipaddr('subnet') }} -p udp -m udp --dport 3478 -j ACCEPT
 -A INPUT -d {{ local_subnet | ipaddr('subnet') }} -p udp -m udp --dport 1900 -j ACCEPT
+
 {% endif %}
 {% if 'unifi_video' in group_names %}
 -A INPUT -d {{ local_subnet | ipaddr('subnet') }} -p tcp -m tcp --dport 7080 -j ACCEPT
@@ -140,12 +136,11 @@ and we need to extract the values. This keeps the hostvar simple at least. #}
 -A INPUT -d {{ local_subnet | ipaddr('subnet') }} -p tcp -m tcp --dport 7446 -j ACCEPT
 -A INPUT -d {{ local_subnet | ipaddr('subnet') }} -p tcp -m tcp --dport 7447 -j ACCEPT
 -A INPUT -d {{ local_subnet | ipaddr('subnet') }} -p udp -m udp --dport 10001 -j ACCEPT
-
 -A INPUT -d {{ local_subnet | ipaddr('subnet') }} -p tcp -m tcp --dport 6666 -j ACCEPT
 -A INPUT -d {{ local_subnet | ipaddr('subnet') }} -p udp -m udp --dport 7004 -j ACCEPT
 -A INPUT -d {{ local_subnet | ipaddr('subnet') }} -p tcp -m tcp --dport 7442 -j ACCEPT
-{% endif %}
 
+{% endif %}
 {% if 'transmission' in group_names %}
 {% if not transmission_https_only | default(false) %}
 {% for host in transmission_allow_list | default([]) %}
@@ -154,6 +149,7 @@ and we need to extract the values. This keeps the hostvar simple at least. #}
 -A INPUT -s {{ host | ipaddr('address') }}/{{ host | ipaddr('prefix') }} -p tcp -m tcp --dport 9091 -j ACCEPT
 {% endif %}
 {% endfor %}
+
 {% endif %}
 # Transmission transfer ports
 -A INPUT -p tcp --match multiport --dports {{ transmission_low_port }}:{{ transmission_high_port }} -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
@@ -164,24 +160,23 @@ and we need to extract the values. This keeps the hostvar simple at least. #}
 -A INPUT -i tun0 -p tcp --destination-port 22 -j DROP
 -A INPUT -i tun0 -p tcp --destination-port 9091 -j DROP
 -A INPUT -i tun0 -p udp --destination-port 9091 -j DROP
-{% endif %}
 
+{% endif %}
 {% if 'vpn' in group_names %}
 -A INPUT -p udp -m udp --dport {{ wg_port }} -j ACCEPT
 {% if 'wg0' in ansible_interfaces %}
 -A FORWARD -i wg0 -j ACCEPT
 -A FORWARD -o wg0 -j ACCEPT
 {% endif %}
-{% endif %}
 
+{% endif %}
 # Block MYSQL
 -A INPUT -p tcp -m tcp --dport 3306 -j DROP
-
 # HTTP/HTTPS
 -A INPUT -p tcp -m tcp --dport 80 -j ACCEPT
 -A INPUT -p tcp -m tcp --dport 443 -j ACCEPT
-
 COMMIT
+
 {% if 'vpn' in group_names %}
 *nat
 :PREROUTING ACCEPT [1445:190283]
@@ -190,4 +185,5 @@ COMMIT
 :POSTROUTING ACCEPT [63:4925]
 -A POSTROUTING -s {{ wg_ipv4_subnet }} -o {{ default_if | default(ansible_facts.default_ipv4.alias) }} -j MASQUERADE
 COMMIT
+
 {% endif %}

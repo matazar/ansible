@@ -15,6 +15,10 @@
   no_log: true  # Keep this so passwords don't show in plain text.
   when: ansible_distribution == 'Debian'
 
+# Set up any automatic user accounts.
+- include: cleanup.yml
+  with_dict: "{{ users }}"
+
 # Basic tasks for all hosts.
 - include: core.yml
   when: ansible_distribution == 'Debian'

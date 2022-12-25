@@ -1,1 +1,10 @@
 # Tasks that clean up things like SSH keys and what have you.
+- name: "Remove stale authorized keys file for {{ item.key }}"
+  authorized_key: 
+    user: "{{ item.key }}"
+    state: absent
+    key: "{{ lookup('file', key_item) }}"
+  with_fileglob:
+      - '{{ backup_dir }}/ssh_keys/archived/*.pub'
+  loop_control:
+    loop_var: key_item

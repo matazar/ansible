@@ -19,7 +19,6 @@
 {% endif %}
 -A INPUT -p tcp -m state --state NEW -m tcp --dport 22 -j DROP
 -A INPUT -p tcp -m state --state NEW -m tcp --dport 115 -j DROP
-
 {% if 'local_dns' in group_names %}
 {% if bind_ipv6 %}
 # DNS
@@ -46,7 +45,12 @@
 {% if samba_ipv6 %}
 -A INPUT -s {{ local_ipv6 | ipaddr('subnet') }} -p tcp -m tcp --dport 139 -j ACCEPT
 -A INPUT -s {{ local_ipv6 | ipaddr('subnet') }} -p tcp -m tcp --dport 445 -j ACCEPT
+{% for client in samba_allow_list | ipv6 %}
+-A INPUT -s {{ client | ipaddr('subnet') }} -p tcp -m tcp --dport 139 -j ACCEPT
+-A INPUT -s {{ client | ipaddr('subnet') }} -p tcp -m tcp --dport 445 -j ACCEPT
+{% endfor %}
 {% endif %}
+
 {% endif %}
 {% if 'dns' in group_names %}
 {% if bind_ipv6 %}
@@ -60,8 +64,7 @@
 {% endif %}
 {% endif %}
 {% endif %}
-
-{% if 'mail'  in group_names %}
+{% if 'mail' in group_names %}
 # Mail Outgoing
 -A INPUT -d {{ mail_ipv6 | ipaddr('address') }}/{{ mail_ipv6 | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 25 -j ACCEPT
 -A INPUT -d {{ mail_ipv6 | ipaddr('address') }}/{{ mail_ipv6 | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 465 -j ACCEPT
@@ -71,7 +74,7 @@
 -A INPUT -d {{ mail_ipv6 | ipaddr('address') }}/{{ mail_ipv6 | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 993 -j ACCEPT
 # Sieve
 -A INPUT -d {{ mail_ipv6 | ipaddr('address') }}/{{ mail_ipv6 | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport {{ sieve_port }} -j ACCEPT
-#  Don't let anything connect to Amavisd
+# Don't let anything connect to Amavisd
 -A INPUT -p tcp -m multiport --dports 10024,10025,10026 -j DROP
 {% if doveadm_password %}
 # Mail Replication
@@ -80,14 +83,12 @@
 {% if 'ipv6_address' in hostvars[host] | default(False) %}
 -A INPUT -s {{ hostvars[host]['ipv6_address'] | regex_search('(\w{1,4}\:\w{1,4}:\w{1,4}:\w{1,4}:)') }}:/64 -p tcp -m multiport --dport {{ doveadm_port }} -j ACCEPT
 {% endif %}
-{% elif host | ipv6 %}
-{# Host may use a different IP to contact us, so we are allowing the entire IPv6 subnet. Might make sense to force a route on the host instead. #}
+{% elif host | ipv6 %}{# Host may use a different IP to contact us, so we are allowing the entire IPv6 subnet. Might make sense to force a route on the host instead. #}
 -A INPUT -s {{ host | ipaddr('address') | regex_search('(\w{1,4}\:\w{1,4}:\w{1,4}:\w{1,4}:)') }}:/64 -p tcp -m multiport --dport {{ doveadm_port }} -j ACCEPT
 {% endif %}
 {% endfor %}
 {% endif %}
 {% endif %}
-
 {% if 'ldap' in group_names %}
 # LDAP
 {% for host in ldap_allow_list %}
@@ -99,23 +100,9 @@
 {% endif %}
 {% endif %}
 {% endfor %}
-{# LDAP replication is a bit messy since the inventory_hostname doesn't always match the ldap_hostname
-and we need to extract the values. This keeps the hostvar simple at least. Don't assume all hosts have IPv6. #}
-{% if ldap_replication_hosts != [] | default([]) %}
-# LDAP Replication
-{% for host in ldap_replication_hosts %}
-{% for inv_host in groups['ldap'] %}
-{% if host == hostvars[inv_host]['ldap_hostname'] and inv_host != inventory_hostname %}
-{% if hostvars[inv_host]['ldap_ipv6'] | default(False) %}
--A INPUT -s {{ hostvars[inv_host]['ldap_ipv6'] | ipaddr('address') }}/{{ hostvars[inv_host]['ldap_ipv6'] | ipaddr('prefix') }} -p tcp -m multiport --dport 389,636 -j ACCEPT
-{% endif %}
-{% endif %}
-{% endfor %}
-{% endfor %}
 # Deny everyone else
 -A INPUT -p tcp -m state --state NEW -m tcp --dport 389 -j DROP
 -A INPUT -p tcp -m state --state NEW -m tcp --dport 636 -j DROP
-{% endif %}
 {% endif %}
 {% if 'unifi_network' in group_names or 'unifi' in group_names %}
 -A INPUT -d {{ ipv6_address | ipaddr('address') }}/{{ ipv6_address | ipaddr('prefix') }} -p tcp -m tcp --dport 27117 -j ACCEPT
@@ -136,7 +123,6 @@ and we need to extract the values. This keeps the hostvar simple at least. Don't
 {% endfor %}
 -A INPUT -p tcp -m state --state NEW -m tcp --dport 8920 -j DROP
 {% endif %}
-
 {% if 'vpn' in group_names %}
 -A INPUT -p udp -m state --state NEW -m udp --dport {{ wg_port }} -j ACCEPT
 {% if 'wg0' in ansible_interfaces %}
@@ -144,16 +130,14 @@ and we need to extract the values. This keeps the hostvar simple at least. Don't
 -A FORWARD -o wg0 -j ACCEPT
 {% endif %}
 {% endif %}
-
 # Hostname
 -A INPUT -d {{ ipv6_address | ipaddr('address') }}/{{ ipv6_address | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 80 -j ACCEPT
 -A INPUT -d {{ ipv6_address | ipaddr('address') }}/{{ ipv6_address | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 443 -j ACCEPT
-# Websites
 {% for address in website_ipv6 %}
+# Websites
 -A INPUT -d {{ address | ipaddr('address') }}/{{ address | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 80 -j ACCEPT
 -A INPUT -d {{ address | ipaddr('address') }}/{{ address | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 443 -j ACCEPT
 {% endfor %}
-
 COMMIT
 
 {% if 'vpn' in group_names %}
@@ -166,5 +150,6 @@ COMMIT
 -A POSTROUTING -s {{ wg_ipv6_subnet }} -o {{ default_if | default(ansible_facts.default_ipv4.alias) }} -j MASQUERADE
 -A POSTROUTING -s fc23::/64 -o enp0s3 -j MASQUERADE
 COMMIT
+
 {% endif %}
 {% endif %}

@@ -2887,6 +2887,24 @@ rspamd_rewrite_subject: 8
 ```
 ---
 
+## samba_allow_list
+Roles: common
+
+A list of IPs/Subnets that can access the smb server.
+
+Eample:
+```
+samba_allow_list:
+  - 192.168.2.30
+  - 192.168.2.31
+  - 2001:db8:123:123::/64
+```
+
+Default:
+```
+samba_allow_list: []
+```
+
 ## samba_cert_name
 Roles: samba
 

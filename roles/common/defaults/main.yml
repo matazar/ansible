@@ -45,6 +45,7 @@ ldap_replication_hosts: []
 sieve_port: 4190
 
 emby_allow_list: []
+samba_allow_list: []
 
 doveadm_allow_list: []
 doveadm_port: 12345

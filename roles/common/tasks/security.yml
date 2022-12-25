@@ -17,6 +17,7 @@
   service:
     name: iptables
     state: started
+  register: iptables_service
 
 - name: Ensure iptables is enabled
   service:
@@ -28,6 +29,9 @@
     name: ip6tables
     enabled: yes
   when: ipv6_address
+
+- debug:
+    var: iptables_service
 
 - name: Update our iptables rules
   template:

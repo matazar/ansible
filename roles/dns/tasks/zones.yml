@@ -45,6 +45,9 @@
     when: zone_test.changed or sign_zone | default(false)
     register: signed_zone
     notify: reload bind
+  - name: Run rndc sync on the domain
+    command: 'rndc sync -clean {{ domain }}'
+    when: zone_test.changed or sign_zone | default(false)
   - name: Download a copy of the dsset file.
     fetch: 
       src: '/home/{{ ansible_ssh_user }}/dsset-{{ domain }}.'

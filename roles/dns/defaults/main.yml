@@ -4,7 +4,7 @@ nameservers: {}
 dns_zones: {}
 ns_domain: '{{ default_domain }}' 
 mail_domains: []
-bind_ipv6: '{{ ipv6_address }}'
+bind_ipv6: '{{ ipv6_address | default(false) }}'
 
 certbot_dns_enable: true
 

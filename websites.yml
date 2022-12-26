@@ -1,5 +1,5 @@
-- import_playbook: '{{ env }}_websites.yml'
-  ignore_errors: true
+# Set env using extra-vars:
+# ansible-playbook -D -i env/production/inventory.yml --extra-vars "env=production" websites.yml
 
 - hosts: site_ip
   roles:
@@ -14,3 +14,4 @@
   tags:
     - files
 
+- import_playbook: '{{ env }}_websites.yml'

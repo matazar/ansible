@@ -2,6 +2,22 @@
 
 Included below is a list of variables with descriptions and examples for the various ansible roles. Variables that the user isn't expected to define are not included. See env/example/ for an example set of variables for the various plays.
 
+## allow_reboot
+Roles: none
+
+When true, a host can be restarted when required during upgrades in the update.yml playbook.
+
+Example:
+```
+allow_reboot: true
+```
+
+Default:
+```
+allow_reboot: false
+```
+---
+
 ## ansible_vault_password_file
 Roles: dev
 
@@ -2904,6 +2920,7 @@ Default:
 ```
 samba_allow_list: []
 ```
+---
 
 ## samba_cert_name
 Roles: samba

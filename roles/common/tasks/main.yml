@@ -18,6 +18,7 @@
 # Set up any automatic user accounts.
 - include: cleanup.yml
   with_dict: "{{ users }}"
+  no_log: true  # Keep this so passwords don't show in plain text.
 
 # Basic tasks for all hosts.
 - include: core.yml

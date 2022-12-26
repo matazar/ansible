@@ -24,3 +24,16 @@
 
 - include: backups.yml
   loop: '{{ backblaze_backups }}'
+
+- name: 'Set up backup configuration.'
+  template:
+    src: b2.conf.j2
+    dest: '{{ backblaze_config_dir }}/.b2.conf'
+    mode: '0700'
+
+- name: Ensure backup summary script exists.
+  copy:
+    src: backup_summary.py
+    dest: /root/backup_summary.py
+    mode: 0700
+    

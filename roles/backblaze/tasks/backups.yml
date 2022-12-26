@@ -5,11 +5,6 @@
   set_fact: 
     excludeDirs: '{% for d in item.ignore_dirs | default([]) %} --excludeDirRegex "{{ d }}"{% endfor %}'
 
-- name: 'Check {{ bucket_id }} encryption key/id.'
-  template:
-    src: b2.conf.j2
-    dest: '{{ backblaze_config_dir }}/.b2.{{ item.name }}'
-    mode: '0700'
 - name: Ensure backup job is set up.
   cron: 
     hour: '{{ item.hour | default(backblaze_default_hour) }}'
@@ -18,5 +13,4 @@
     month: '{{ item.month | default("*") }}'
     weekday: '{{ item.weekday | default("*") }}'
     name: 'Backblaze Backup for {{ item.path }} to {{ item.bucket }}'
-    # ". backblaze_config_file;" adds the encryption key to the current environment 
-    job: ". {{ backblaze_config_dir }}/.b2.{{ item.name }}; {{ backblaze_venv }}/bin/b2 sync --destinationServerSideEncryption=SSE-C --threads {{ item.threads | default('10') }} --keepDays {{ item.keep_days | default(backblaze_default_keepdays) }} --replaceNewer {{ item.path }}{{ excludeDirs }} b2://{{ item.bucket }} | tail -1"
+    job: 'python3 /root/backup_summary.py {{ item.path }}'

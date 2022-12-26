@@ -1,2 +1,16 @@
-export B2_DESTINATION_SSE_C_KEY_B64="{{ backblaze_ssec_keys[bucket_id].key_b64 }}"
-export B2_DESTINATION_SSE_C_KEY_ID="{{ backblaze_ssec_keys[bucket_id].key_id }}"
+[main]
+b2_destination_sse_c_key_b64="{{ backblaze_ssec_keys[bucket_id].key_b64 }}"
+b2_destination_sse_c_key_id="{{ backblaze_ssec_keys[bucket_id].key_id }}"
+
+{% for backup in backblaze_backups %}
+[{{ backup.path}}]
+threads={{ backup.threads | default('10') }}
+keep_days={{ backup.keep_days | default(backblaze_default_keepdays) }}
+src={{ backup.path }}
+dest=b2://{{ backup.bucket }}
+{% if backup.ignore_dirs | default(False) %}
+ignore_dirs=[{% for d in backup.ignore_dirs %}"{{ d }}"{{ ", " if not loop.last else "" }}{% endfor %}]
+{% else %}
+ignore_dirs = []
+{% endif %}
+{% endfor%}

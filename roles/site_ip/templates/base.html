@@ -21,6 +21,7 @@
                     $('#results').prepend('Unable to detect IPv4.\n')
                 },
             });
+{% if ip_site_ipv6 %}
             $.ajax({
                 type: "GET",
                 url: 'https://{{ ip_site_v6_hostname }}/',
@@ -35,6 +36,7 @@
                     $('#results').append('Unable to detect IPv6.\n')
                 },
             });
+{% endif %}
         </script>
     <pre id="results"></pre>
     </body>

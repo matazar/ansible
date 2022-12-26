@@ -1,10 +1,27 @@
-- set_fact:
-    ip_site_hostnames: '{{  [ip_site_hostname, ip_site_v4_hostname, ip_site_v6_hostname] }}'
+# IPv4/IPv6
+- block:
+  - set_fact:
+      ip_site_hostnames: '{{  [ip_site_hostname, ip_site_v4_hostname, ip_site_v6_hostname] }}'
 
-- name: 'Set up cert for {{ ip_site_hostname }}'
-  include_role:
-    name: certbot
-  vars:
-    cert_domain: "{{ ip_site_hostname }}"
-    cert_extra_domains: '{{ ip_site_hostnames }}'
-    cert_ipv6: "{{ ip_site_ipv6 }}"
+  - name: 'Set up cert for {{ ip_site_hostname }}'
+    include_role:
+      name: certbot
+    vars:
+      cert_domain: "{{ ip_site_hostname }}"
+      cert_extra_domains: '{{ ip_site_hostnames }}'
+      cert_ipv6: "{{ ip_site_ipv6 }}"
+  when: ip_site_ipv6
+
+# IPv4 Only
+- block:
+  - set_fact:
+      ip_site_hostnames: '{{  [ip_site_hostname, ip_site_v4_hostname] }}'
+
+  - name: 'Set up cert for {{ ip_site_hostname }}'
+    include_role:
+      name: certbot
+    vars:
+      cert_domain: "{{ ip_site_hostname }}"
+      cert_extra_domains: '{{ ip_site_hostnames }}'
+      cert_ipv6: "{{ ip_site_ipv6 }}"
+  when: not ip_site_ipv6

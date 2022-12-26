@@ -3,6 +3,10 @@
   debug:
     var: '{{ item }}'
 
+# Set the host to use for DKIM generation.
+- set_fact:
+    dkim_gen_host: '{{ groups.mail | intersect(ansible_play_hosts) }}'
+
 # Always try to update DKIM, corrects issues when multiple hosts generate a key with the same name.
 - block: 
   - name: Restore DKIM key/txt to host
@@ -21,6 +25,7 @@
   - name: Create DKIM keys if they do not already exist
     shell: "rspamadm dkim_keygen -b 2048 -s {{ dkim_key }} -d {{ item }} -k /var/lib/rspamd/dkim/{{ item }}_{{ dkim_key }}.private > /var/lib/rspamd/dkim/{{ item }}_{{ dkim_key }}.txt"
     notify: restart rspamd
+    when: inventory_hostname == dkim_gen_host[0]
 
 # Store a copy locally.
 - name: Store a copy of the DKIM key/txt file.
@@ -34,3 +39,4 @@
     - private
   loop_control:
     loop_var: type
+  when: inventory_hostname == dkim_gen_host[0]

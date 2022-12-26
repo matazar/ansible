@@ -12,18 +12,17 @@
   roles:  
     - {role: pihole, tags: [pihole, local_dns]}
 
-- hosts: unifi
-  roles:
-    - {role: unifi_network, tags: [unifi, unifi_network]}
-
-- hosts: unifi_video
-  roles:
-    - {role: unifi_video, tags: [unifi, unifi_video]}
-
 - hosts: samba
   roles:
-    - {role: virtualbox, tags: virtualbox}
-    - {role: samba, tags: samba}
+    - samba
+  tags: 
+    - samba
+
+- hosts: vboxhost
+  roles:
+    - virtualbox
+  tags:
+    - virtualbox
 
 - hosts: dns
   roles:

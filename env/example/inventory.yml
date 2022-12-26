@@ -73,9 +73,3 @@ cloud1.example.local
 
 [transmission]
 vm1.example.local
-
-[unifi]
-vm1.example.local
-
-[unifi_video]
-vm1.example.local

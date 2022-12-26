@@ -104,18 +104,6 @@
 -A INPUT -p tcp -m state --state NEW -m tcp --dport 389 -j DROP
 -A INPUT -p tcp -m state --state NEW -m tcp --dport 636 -j DROP
 {% endif %}
-{% if 'unifi_network' in group_names or 'unifi' in group_names %}
--A INPUT -d {{ ipv6_address | ipaddr('address') }}/{{ ipv6_address | ipaddr('prefix') }} -p tcp -m tcp --dport 27117 -j ACCEPT
--A INPUT -d {{ ipv6_address | ipaddr('address') }}/{{ ipv6_address | ipaddr('prefix') }} -p udp -m udp --dport 10001 -j ACCEPT
--A INPUT -d {{ ipv6_address | ipaddr('address') }}/{{ ipv6_address | ipaddr('prefix') }} -p tcp -m tcp --dport 8843 -j ACCEPT
--A INPUT -d {{ ipv6_address | ipaddr('address') }}/{{ ipv6_address | ipaddr('prefix') }} -p tcp -m tcp --dport 8443 -j ACCEPT
--A INPUT -d {{ ipv6_address | ipaddr('address') }}/{{ ipv6_address | ipaddr('prefix') }} -p tcp -m tcp --dport 8880 -j ACCEPT
--A INPUT -d {{ ipv6_address | ipaddr('address') }}/{{ ipv6_address | ipaddr('prefix') }} -p tcp -m tcp --dport 8080 -j ACCEPT
--A INPUT -d {{ ipv6_address | ipaddr('address') }}/{{ ipv6_address | ipaddr('prefix') }} -p tcp -m tcp --dport 6789 -j ACCEPT
--A INPUT -d {{ ipv6_address | ipaddr('address') }}/{{ ipv6_address | ipaddr('prefix') }} -p udp -m udp --dport 5656:5699 -j ACCEPT
--A INPUT -d {{ ipv6_address | ipaddr('address') }}/{{ ipv6_address | ipaddr('prefix') }} -p udp -m udp --dport 3478 -j ACCEPT
--A INPUT -d {{ ipv6_address | ipaddr('address') }}/{{ ipv6_address | ipaddr('prefix') }} -p udp -m udp --dport 1900 -j ACCEPT
-{% endif %}
 {% if 'emby' in group_names %}
 # Emby Server
 {% for host in emby_allow_list | ipv6 %}

@@ -9,7 +9,12 @@
       path: /usr/local/bin/composer.phar
       checksum_algorithm: sha256
     register: composer_phar
-    failed_when: not composer_phar.stat.exists or composer_phar.stat.checksum != composer_checksum
+    failed_when: not composer_phar.stat.exists
+  - name: Check composer version
+    command: /usr/local/bin/composer --version
+    register: composer_version_check
+    failed_when: composer_version not in composer_version_check.stdout
+    changed_when: false
   rescue:
     - name: Download composer
       get_url: 

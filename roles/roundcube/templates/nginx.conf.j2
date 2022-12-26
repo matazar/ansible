@@ -10,8 +10,8 @@ server {
     charset         utf-8;
 
     # SSL certificate
-    ssl_certificate     /etc/letsencrypt/live/{{ roundcube_cert_name  }}/fullchain.pem;
-    ssl_certificate_key     /etc/letsencrypt/live/{{ roundcube_cert_name  }}/privkey.pem;
+    ssl_certificate     /etc/letsencrypt/live/{{ roundcube_hostname }}/fullchain.pem;
+    ssl_certificate_key     /etc/letsencrypt/live/{{ roundcube_hostname }}/privkey.pem;
 
     # SSL cipher configuration
     ssl_protocols TLSv1.3 TLSv1.2;
@@ -38,7 +38,7 @@ server {
     ssl_stapling_verify on;
 
     # Verify chain of trust of OCSP
-    ssl_trusted_certificate /etc/letsencrypt/live/{{ roundcube_cert_name  }}/chain.pem;
+    ssl_trusted_certificate /etc/letsencrypt/live/{{ roundcube_hostname }}/chain.pem;
 
     # Accept large files
     client_max_body_size 1G;

@@ -1,0 +1,23 @@
+- name: Install postgresql
+  apt:
+    name: [postgresql, python3-psycopg2]
+    state: present
+
+- name: Ensure postgresql is running
+  service: 
+    name: postgresql
+    state: started
+
+- name: Set up postgresql root password
+  postgresql_user:
+    name: postgresql
+    state: present
+    password: "{{ postgresql_root_password }}"
+  become_user: postgres
+
+- name: Update postgresql config
+  template:
+    src: pg_hba.conf.j2
+    dest: "/etc/postgresql/{{ postgresql_version }}/main/pg_hba.conf"
+  notify:
+    - restart postgresql

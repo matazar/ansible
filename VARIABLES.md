@@ -418,19 +418,19 @@ certbot_dns_enable: true
 ```
 ---
 
-## composer_checksum
+## composer_version
 Roles: roundcube
 
-Set the version of composer by setting the sha256 checksum from the Composer (composer.phar) versions history found on https://getcomposer.org/download/. 
+Compare installed version of composer against this variable. Install latest version of composer if the values don't match.
 
 Example:
 ```
-composer_checksum: 721cc27f81c6485fff70e6f56b9f2aadae770a1f8974a384c34e35987a230d8c
+composer_version: 2.4.0
 ```
 
 Default:
 ```
-composer_checksum: 48f9fdc9ad93904fee96550b45ae03a51f69718502ee855da894b4ad71d2dfe0
+composer_version: 2.5.1
 ```
 ---
 
@@ -2538,22 +2538,6 @@ reset_data: true
 Default:
 ```
 reset_data: false
-```
----
-
-## roundcube_cert_name
-Roles: roundcube
-
-Name used for the roundcube certbot certificate.
-
-Example:
-```
-roundcube_cert_name: 'webmail.example.local'
-```
-
-Default:
-```
-roundcube_cert_name: '{{ roundcube_hostname }}'
 ```
 ---
 

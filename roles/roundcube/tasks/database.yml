@@ -3,14 +3,7 @@
     name: postgresql
     state: started
 
-- name: Set up postgresql root password
-  postgresql_user:
-    name: postgresql
-    state: present
-    password: "{{ postgresql_root_password }}"
-  become_user: postgres
-
-- name: Ensure mailman user exists.
+- name: Ensure mail database user exists.
   postgresql_user:
     name: "{{ roundcube_db_username }}"
     password: "{{ roundcube_db_password }}"
@@ -18,13 +11,6 @@
     login_password: "{{ postgresql_root_password }}"
     login_user: postgres
   become_user: postgres
-
-- name: Update postgresql config
-  template:
-    src: pg_hba.conf.j2
-    dest: "/etc/postgresql/{{ postgresql_version }}/main/pg_hba.conf"
-  notify:
-    - restart postgresql
 
 - name: Ensure the roundcube database exists
   postgresql_db:

@@ -4,7 +4,6 @@ roundcube_hostname: "webmail.{{ default_domain }}"
 roundcube_extra_hostnames: []
 roundcube_ipv6: "{{ ipv6_address | default(false) }}"
 roundcube_title: "{{ mail_server.split('.')[1] | capitalize }} Webmail"
-roundcube_cert_name: '{{ roundcube_hostname }}'
 roundcube_des_key: ''
 roundcube_version: 1.6.0
 roundcube_download_url: 'https://github.com/roundcube/roundcubemail/releases/download/{{ roundcube_version }}/roundcubemail-{{ roundcube_version }}-complete.tar.gz'
@@ -17,7 +16,7 @@ postgresql_version: 13
 php_version: php7.4
 php_fpm: '{{ php_version }}-fpm'
 
-composer_checksum: 3b3b5a899c06a46aec280727bdf50aad14334f6bc40436ea76b07b650870d8f4
+composer_version: 2.5.1
 
 mail_server: 'mail.{{ default_domain }}'
 sieve_port: 4190

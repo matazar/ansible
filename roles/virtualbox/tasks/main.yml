@@ -13,7 +13,7 @@
 
 - name: Install VirtualBox
   apt:
-    name: virtualbox-6.1
+    name: 'virtualbox-{{ vbox_version }}'
     state: latest
     update_cache: yes
 

@@ -4010,6 +4010,22 @@ users: []
 ```
 ---
 
+## vbox_version
+Roles: virtualbox
+
+Version of VirtualBox to install.
+
+Example:
+```
+vbox_version: 6.1
+```
+
+Default:
+```
+vbox_version: 7.0
+```
+---
+
 ## vboxsf_user
 Roles: vboxguest
 

@@ -1,5 +1,5 @@
-{% for host in media_shares  %}
-{% for share in media_shares[host] %}
+{% for host in smb_shares  %}
+{% for share in smb_shares[host] %}
 {% if host | ipv4 %}
 //{{ host }}/{{ share }} 		/media/{{ host.split('.')[2] }}_{{ host.split('.')[3] }}_{{ share }} 	cifs 	x-systemd.automount,credentials=/root/media.conf 	0 	0
 {% elif host | ipv6 %}

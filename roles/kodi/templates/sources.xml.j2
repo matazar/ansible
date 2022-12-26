@@ -6,9 +6,9 @@
         <default pathversion="1"></default>
         <source>
             <name>cartoons</name>
-{% for host in media_shares  %}
-{% for share in media_shares[host] %}
-{% if media_shares[host][share]['type'] == "cartoons" %}
+{% for host in smb_shares  %}
+{% for share in smb_shares[host] %}
+{% if smb_shares[host][share]['type'] == "cartoons" %}
             <path pathversion="1">/media/{{ host.split('.')[0] }}_{{ share }}/</path>
 {% endif %}
 {% endfor %}
@@ -17,9 +17,9 @@
         </source>
         <source>
             <name>tv</name>
-{% for host in media_shares  %}
-{% for share in media_shares[host] %}
-{% if media_shares[host][share]['type'] == "tv" %}
+{% for host in smb_shares  %}
+{% for share in smb_shares[host] %}
+{% if smb_shares[host][share]['type'] == "tv" %}
             <path pathversion="1">/media/{{ host.split('.')[0] }}_{{ share }}/</path>
 {% endif %}
 {% endfor %}
@@ -28,9 +28,9 @@
         </source>
         <source>
             <name>movies</name>
-{% for host in media_shares  %}
-{% for share in media_shares[host] %}
-{% if media_shares[host][share]['type'] == "movies" %}
+{% for host in smb_shares  %}
+{% for share in smb_shares[host] %}
+{% if smb_shares[host][share]['type'] == "movies" %}
             <path pathversion="1">/media/{{ host.split('.')[0] }}_{{ share }}/</path>
 {% endif %}
 {% endfor %}
@@ -39,9 +39,9 @@
         </source>
         <source>
             <name>misc</name>
-{% for host in media_shares  %}
-{% for share in media_shares[host] %}
-{% if media_shares[host][share]['type'] == False %}
+{% for host in smb_shares  %}
+{% for share in smb_shares[host] %}
+{% if smb_shares[host][share]['type'] == False %}
             <path pathversion="1">/media/{{ host.split('.')[0] }}_{{ share }}/</path>
 {% endif %}
 {% endfor %}
@@ -53,9 +53,9 @@
         <default pathversion="1"></default>
         <source>
             <name>music</name>
-{% for host in media_shares  %}
-{% for share in media_shares[host] %}
-{% if media_shares[host][share]['type'] == "music" %}
+{% for host in smb_shares  %}
+{% for share in smb_shares[host] %}
+{% if smb_shares[host][share]['type'] == "music" %}
             <path pathversion="1">/media/{{ host.split('.')[0] }}_{{ share }}/</path>
 {% endif %}
 {% endfor %}

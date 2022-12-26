@@ -1,4 +1,4 @@
-media_shares:
+smb_shares:
     nas.example.local:
         tv:
           name: tv

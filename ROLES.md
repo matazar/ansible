@@ -47,7 +47,7 @@ _Required variables_: **ns_domain**, **nameservers**, **mail_domains**, **dns_zo
 
 The emby role sets up an emby server instance that use SMB shares to access network media. Server is intended to be accessed over the WAN, using a firewall allow list to only allow specific IPs/Subnets. The role can back up and restore data, but by default assumes there is only one instance of the data per environment.
 
-_Required variables_: **emby_hostnames**, **media_shares**, **media_user**, **media_password**
+_Required variables_: **emby_hostnames**, **smb_shares**, **smb_user**, **smb_password**
 
 ## files
 
@@ -59,7 +59,7 @@ _Required variables_: **files_hostnames**, **files_admin_password**
 
 The kodi role installs and configures [kodi](https://kodi.tv/) instances, intended to be run off a Raspberry Pi. The role includes SMB mounts for accessing media on network shares. The role is set to automatically backup and restore the Kodi data.
 
-_Required variables_: **media_shares**, **media_user**, **media_password**
+_Required variables_: **smb_shares**, **smb_user**, **smb_password**
 
 ## ldap
 

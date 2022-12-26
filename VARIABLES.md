@@ -2124,59 +2124,6 @@ Default:
 ```
 mail_users: {}
 ```
-
-## media_shares
-Roles: emby, kodi
-
-A dictionary containing the hostname/IP and share names for our media SMB folders.
-
-Example:
-```
-media_shares:
-  '192.168.0.15':
-    - music
-  'nas.example.local':
-    - tv 
-    - movies
-    - downloads
-```
-
-Default:
-```
-media_shares: {}
-```
----
-
-## media_user
-Roles: emby, kodi
-
-The username used for accessing the media_shares.
-
-Example:
-```
-media_user: media
-```
-
-Default:
-```
-media_user: ''
-```
----
-
-## media_password
-Roles: emby, kodi
-
-The password used for accessing the media_shares. 
-
-Example:
-```
-media_password: media
-```
-
-Default:
-```
-media_password: ''
-```
 ---
 
 ## message_size_limit
@@ -3042,7 +2989,7 @@ samba_users:
   guest:
     password: "guest"
   media:
-    password: "{{ media_password }}"
+    password: "{{ smb_password }}"
 ```
 
 Default:
@@ -3387,6 +3334,60 @@ site_title: '{{ inventory_hostname }}'
 Default:
 ```
 site_title: "Under Construction"
+```
+---
+
+## smb_password
+Roles: emby, kodi
+
+The password used for accessing the smb_shares. 
+
+Example:
+```
+smb_password: media
+```
+
+Default:
+```
+smb_password: ''
+```
+---
+
+## smb_shares
+Roles: emby, kodi
+
+A dictionary containing the hostname/IP and share names for our media SMB folders.
+
+Example:
+```
+smb_shares:
+  '192.168.0.15':
+    - music
+  'nas.example.local':
+    - tv 
+    - movies
+    - downloads
+```
+
+Default:
+```
+smb_shares: {}
+```
+---
+
+## smb_user
+Roles: emby, kodi
+
+The username used for accessing the smb_shares.
+
+Example:
+```
+smb_user: media
+```
+
+Default:
+```
+smb_user: ''
 ```
 ---
 

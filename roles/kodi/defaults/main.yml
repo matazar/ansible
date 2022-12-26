@@ -11,9 +11,9 @@ kodi_user: pi
 os_gui: lightdm
 
 smb_workgroup: WORKGROUP
-media_shares: {}
-media_user: ''
-media_password: ''
+smb_shares: {}
+smb_user: ''
+smb_password: ''
 force_ipv4_mounts: false
 
 local_dns_zones: {}   # Used for force_ipv4_mounts

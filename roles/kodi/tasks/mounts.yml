@@ -1,6 +1,6 @@
 - name: "Create a list of shares for {{ item }}"
   set_fact:
-    shares: "{{ media_shares[item] | list }}"
+    shares: "{{ smb_shares[item] | list }}"
     
 - name: "Ensure network share folders exist for {{ item }}"
   file:

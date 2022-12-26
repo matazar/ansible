@@ -10,7 +10,7 @@ emby_hostnames:
 
 emby_cert_name: 'dashy.example.local'
   
-media_shares:
+smb_shares:
   '192.168.0.15':
     - music
   'nas.example.local':

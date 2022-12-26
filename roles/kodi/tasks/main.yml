@@ -46,7 +46,7 @@
       name: cifs-utils
       state: present
   - include: mounts.yml
-    with_items: "{{ media_shares }}"
+    with_items: "{{ smb_shares }}"
   - name: Add mount script
     template:
       src: fstab.if-up.j2
@@ -59,7 +59,7 @@
       warn: no
     failed_when: False
     when: media_cred.changed or fstab_media.changed
-  when: media_shares != [] and media_shares != {}
+  when: smb_shares != [] and smb_shares != {}
 
 # Kodi Config
 - include: config.yml

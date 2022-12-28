@@ -97,6 +97,13 @@
     state: reloaded
   with_items: [dovecot,postfix]
   
+- name: Updated mail monit configuration
+  template:
+    src: monit.j2
+    dest: /etc/monit/conf.d/mail
+  notify: restart monit
+  when: monit_enabled | default(true)
+
 # Call backblaze role if we have any backups defined:
 - include_role:
     name: backblaze

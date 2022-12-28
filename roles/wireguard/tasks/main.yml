@@ -54,3 +54,10 @@
     enabled: yes
 
 - include: backups.yml
+
+- name: Updated WireGuard monit configuration
+  template:
+    src: monit.j2
+    dest: /etc/monit/conf.d/wireguard
+  notify: restart monit
+  when: monit_enabled | default(true)

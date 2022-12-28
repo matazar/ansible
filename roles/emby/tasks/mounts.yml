@@ -18,6 +18,21 @@
   file:
     state: directory
     path: "/media/{{ share_prefix }}_{{ share }}"
+  register: new_network_shares
   loop: "{{ shares }}"
   loop_control:
     loop_var: share
+
+- name: List newly created folders 
+  set_fact:
+    new_folders: '{% for path in new_network_shares.results if path.changed %}{{ path.path }} {% endfor %}'
+
+# Used by Monit to detect when the mounts are disconnected.
+- name: Ensure new folders have disconnected.txt file
+  file:
+    state: touch
+    path: '{{ share_path }}/disconnected.txt'
+  loop: "{{ new_folders.split(' ') }}"
+  loop_control:
+    loop_var: share_path
+  when: new_folders != ''

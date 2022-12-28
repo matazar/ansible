@@ -36,3 +36,10 @@
   when: emby_seeded.changed
 
 - include: media.yml
+
+- name: Update monit configuration file for emby server.
+  template:
+    src: monit.j2
+    dest: /etc/monit/conf.d/emby
+  notify: restart monit
+  when: monit_enabled | default(true)

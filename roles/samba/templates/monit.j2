@@ -1,0 +1,4 @@
+check process smbd with pidfile /var/run/samba/smbd.pid
+    start program = "/etc/init.d/smbd start"
+    stop  program = "/etc/init.d/smbd stop"
+    if failed host {{ ansible_host }} port 445 type TCP then restart

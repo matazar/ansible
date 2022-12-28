@@ -30,9 +30,6 @@
     enabled: yes
   when: ipv6_address
 
-- debug:
-    var: iptables_service
-
 - name: Update our iptables rules
   template:
     src: "rules.{{ item }}.j2"

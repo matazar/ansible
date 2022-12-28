@@ -1,0 +1,12 @@
+# Revert to IPv4/IPv6 for backup mounts using monit
+{% for host in smb_shares  %}
+{% for share in smb_shares[host] %}
+{% if host | ipv4 %}
+//{{ host }}/{{ share }} 		/media/{{ host.split('.')[2] }}_{{ host.split('.')[3] }}_{{ share }} 	cifs 	x-systemd.automount,credentials=/root/media.conf 	0 	0
+{% elif host | ipv6 %}
+//{{ host }}/{{ share }} 		/media/{{ host.split(':')[-1] }}_{{ share }} 	cifs 	x-systemd.automount,credentials=/root/media.conf 	0 	0
+{% else %}
+//{{ local_dns_zones[host.split('.', 1)[1]][host.split('.', 1)[0]] }}/{{ share }}		/media/{{ host.split('.')[0] }}_{{ share }} 		cifs 	x-systemd.automount,credentials=/root/media.conf 	0 	0
+{% endif %}
+{% endfor %}
+{% endfor %}

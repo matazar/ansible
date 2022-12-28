@@ -8,6 +8,7 @@ transmission_mounts: []
 #smb_user: admin
 #smb_password: ''
 force_ipv4_mounts: false
+ip_check_url: ifconfig.me
 
 transmission_https: true
 transmission_https_only: false

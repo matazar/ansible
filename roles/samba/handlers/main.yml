@@ -2,3 +2,13 @@
   service:
     name: smbd
     state: restarted
+
+- name: restart monit
+  service:
+    name: monit
+    state: restarted
+  
+- name: reload monit
+  service:
+    name: monit
+    state: reloaded

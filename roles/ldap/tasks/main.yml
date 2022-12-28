@@ -81,4 +81,9 @@
     attributes:
       olcLogLevel: '{{ ldap_log_level }}'
 
-          
+- name: Updated ldap monit configuration
+  template:
+    src: monit.j2
+    dest: /etc/monit/conf.d/ldap
+  notify: restart monit
+  when: monit_enabled | default(true)

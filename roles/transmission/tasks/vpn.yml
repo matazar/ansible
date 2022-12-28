@@ -68,3 +68,10 @@
   - name: Connect to the VPN
     command: 'nordvpn connect {{ nordvpn_country }}'
   when: vpn_status.changed
+
+- name: Updated VPN monit configuration
+  template:
+    src: monit.j2
+    dest: /etc/monit/conf.d/vpn
+  notify: restart monit
+  when: monit_enabled | default(true)

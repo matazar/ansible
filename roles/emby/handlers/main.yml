@@ -2,3 +2,13 @@
   service:
     name: emby-server
     state: restarted
+
+- name: restart monit
+  service:
+    name: monit
+    state: restarted
+  
+- name: reload monit
+  service:
+    name: monit
+    state: reloaded

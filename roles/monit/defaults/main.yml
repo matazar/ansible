@@ -1,0 +1,2 @@
+monit_email: 'monit@{{ default_domain }}'
+monit_email_port: 587

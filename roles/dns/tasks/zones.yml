@@ -44,7 +44,7 @@
     command: "dnssec-signzone -A -3 {{ lookup('password', '/dev/null length=16 chars=hexdigits') }} -N INCREMENT -K /var/cache/bind -o {{ domain }} -t /var/lib/bind/{{ domain }}.db"
     when: zone_test.changed or sign_zone | default(false)
     register: signed_zone
-    notify: reload bind
+    notify: restart bind
   - name: Run rndc sync on the domain
     command: 'rndc sync -clean {{ domain }}'
     when: zone_test.changed or sign_zone | default(false)

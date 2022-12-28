@@ -44,3 +44,9 @@
 # Install AMD graphics drivers when required.
 - include: ati_driver.yml
   when: "'ati' in group_names"
+
+- include_role:
+    name: monit
+  when: monit_enabled
+  tags: 
+    - monit

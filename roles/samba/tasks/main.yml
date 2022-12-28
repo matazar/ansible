@@ -1,4 +1,4 @@
-- name: Install Samba
+- name: Install samba
   apt:
     name: samba
     state: latest
@@ -8,13 +8,13 @@
     name: python3-pexpect
     state: latest
 
-- name: Update Samba config file
+- name: Update samba config file
   template:
     src: smb.conf.j2
     dest: /etc/samba/smb.conf
   notify: restart samba
 
-# Deal with Samba Users
+# Deal with samba Users
 - include: users.yml
   with_dict: "{{ samba_users }}"
   no_log: true  # Keep this so passwords don't show in plain text.
@@ -27,9 +27,15 @@
   tags:
     - certs
 
-- name: Ensure Samba is running
+- name: Ensure samba is running
   systemd:
     state: started
     name: smbd
     enabled: yes
 
+- name: Updated samba monit configuration
+  template:
+    src: monit.j2
+    dest: /etc/monit/conf.d/samba
+  notify: restart monit
+  when: monit_enabled | default(true)

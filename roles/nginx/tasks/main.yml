@@ -77,3 +77,10 @@
   file: 
     path: /etc/nginx/sites-available
     state: directory
+
+- name: Updated nginx monit configuration
+  template:
+    src: monit.j2
+    dest: /etc/monit/conf.d/nginx
+  notify: restart monit
+  when: monit_enabled | default(true)

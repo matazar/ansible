@@ -1,0 +1,14 @@
+check process postfix with pidfile /var/spool/postfix/pid/master.pid
+    start program = "/etc/init.d/postfix start"
+    stop  program = "/etc/init.d/postfix stop"
+    if failed port 587 protocol smtp then restart
+
+check process dovecot with pidfile /var/run/dovecot/master.pid
+    start program = "/etc/init.d/dovecot start"
+    stop program = "/etc/init.d/dovecot stop"
+    if failed port 143 with protocol imap for 5 cycles then restart
+
+check process rspamd
+    matching 'rspamd: main process'
+    start program = "/etc/init.d/rspamd start"
+    stop program = "/etc/init.d/rspamd stop"

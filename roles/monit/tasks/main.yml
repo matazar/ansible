@@ -1,0 +1,34 @@
+- name: Ensure monit is installed.
+  apt:
+    name: monit
+    state: present
+
+- name: Update main monitrc configuration
+  template:
+    src: monitrc.j2
+    dest: /etc/monit/monitrc
+  
+- name: Update OS monit configuration
+  template:
+    src: os.j2
+    dest: /etc/monit/conf.d/os
+  notify:
+    - restart monit
+
+- name: Update VM specific monit configuration
+  template:
+    src: vm.j2
+    dest: /etc/monit/conf.d/vm
+  notify: 
+    - restart monit
+  when: ansible_facts.bios_version == "VirtualBox"
+
+- name: Ensure monit is running
+  service:
+    name: monit
+    state: started
+
+- name: Ensure monit is enabled
+  service:
+    name: monit
+    enabled: true

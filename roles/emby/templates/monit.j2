@@ -1,0 +1,10 @@
+# Ensure smb mounts are connected. Stop emby-server if unable to connect to avoid clearing library.
+{% for host in smb_shares  %}
+{% for share in smb_shares[host] %}
+check file {{ host.split('.')[0] }}_{{ share }} with path /media/{{ host.split('.')[0] }}_{{ share }}/disconnected.txt
+  start = "/usr/bin/mount -T /etc/fstab.media.backup /media/{{ host.split('.')[0] }}_{{ share }}"
+  if exists then start
+  if 2 restarts within 3 cycles then exec "/usr/sbin/service emby-server stop"
+
+{% endfor %}
+{% endfor %}

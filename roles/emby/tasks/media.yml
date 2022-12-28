@@ -4,6 +4,12 @@
     dest: /etc/fstab.media
   register: fstab_media
 
+- name: Update backup network share fstab file for use with monit.
+  template:
+    src: media.backup.fstab.j2
+    dest: /etc/fstab.media.backup
+  when: monit_enabled | default(true)
+
 - name: Update network share credentials
   template:
     src: media.conf.j2

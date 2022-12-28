@@ -1429,6 +1429,22 @@ guest_addition_pkgs:
 ```
 ---
 
+## ip_check_url
+Roles: transmission
+
+Website used to check your public IP address. Tested with site_ip role's IPv4 check.
+
+Example:
+```
+ip_check_url: ipv4.example.com
+```
+
+Default:
+```
+ip_check_url: ifconfig.me
+```
+---
+
 ## ipv6_address
 Roles: common
 
@@ -2139,6 +2155,54 @@ message_size_limit: 10000000
 Default:
 ```
 message_size_limit: 20480000
+```
+---
+
+## monit_email
+Roles: monit
+
+Set the email address that will be receiving the alert emails from monit.
+
+Example:
+```
+monit_email: monit@example.com
+```
+
+Default:
+```
+monit_email: 'monit@{{ default_domain }}'
+```
+---
+
+## monit_email_port
+Roles: monit
+
+Set the email port to use for monit alerts.
+
+Example:
+```
+monit_email_port: 25
+```
+
+Default:
+```
+monit_email_port: 587
+```
+---
+
+## monit_enabled
+Roles: common, dns, emby, emby_theater, ldap, mail, nginx, samba, transmission, wireguard
+
+When true, monit will be installed and configured for the various roles.
+
+Example:
+```
+monit_enabled: false
+```
+
+Default:
+```
+monit_enabled: true
 ```
 ---
 

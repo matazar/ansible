@@ -1,0 +1,4 @@
+# Ensure VM IPv4 is still configured
+check network {{ ansible_default_ipv4.interface }}
+    with address {{ ansible_host }}
+    if failed link then alert

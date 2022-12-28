@@ -2,3 +2,13 @@
   systemd:
     state: restarted
     name: transmission-daemon
+
+- name: restart monit
+  service:
+    name: monit
+    state: restarted
+  
+- name: reload monit
+  service:
+    name: monit
+    state: reloaded

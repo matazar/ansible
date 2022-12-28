@@ -1,0 +1,43 @@
+- name: Ensure dependencies are installed
+  apt:
+    name: [cec-utils, libasound2, libatomic1, libc6, libegl1, libgcc-s1, libpulse0, libstdc++6]
+    state: present
+
+# Handle install/upgrade process with .deb file
+- block:
+  - name: Check if Emby Theater is installed
+    command: apt list --installed emby-theater
+    register: emby_theater_installed
+    changed_when: emby_theater_installed.stdout_lines | length < 2
+
+  - set_fact:
+      emby_theater_installed_version: '{{ emby_theater_installed.stdout | default("0.0.0.0") | regex_search("(\d\.\d.\d.\d)") }}'
+
+  - name: Install Emby Theater
+    apt:
+      deb: '{{ emby_theater_deb_url }}'
+    when: 
+      - emby_theater_version != emby_theater_installed_version
+      - emby_theater_installed_version != '0.0.0.0'
+
+# Set auto login for Mate
+- name: Update Mate configuration file
+  template:
+    src: lightdm.conf.j2
+    dest: /etc/lightdm/lightdm.conf
+
+# Auto launch Emby Theater
+- name: Ensure autostart directory exists
+  file:
+    path: '/home/{{ emby_theater_user }}/.config/autostart'
+    state: directory
+    owner: '{{ emby_theater_user }}'
+    group: '{{ emby_theater_user }}'
+
+- name: Ensure Emby-Theater is set to auto start
+  template:
+    src: emby-theater.desktop.j2
+    dest: '/home/{{ emby_theater_user }}/.config/autostart/emby-theater.desktop'
+    owner: '{{ emby_theater_user }}'
+    group: '{{ emby_theater_user }}'
+    mode: '0700'

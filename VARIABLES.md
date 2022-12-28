@@ -1087,6 +1087,54 @@ emby_plugin_backups: false
 ```
 ---
 
+## emby_theater_deb_url
+Roles: emby_theater
+
+The download URL for the emby theater deb file.
+
+Example:
+```
+emby_theater_deb_url: 'https://github.com/MediaBrowser/emby-theater-electron/releases/download/3.0.19/emby-theater-deb_3.0.19_arm64.deb'
+```
+
+Default:
+```
+emby_theater_deb_url: 'https://github.com/MediaBrowser/emby-theater-electron/releases/download/{{ emby_theater_version }}/emby-theater-deb_{{ emby_theater_version }}_amd64.deb'
+```
+---
+
+## emby_theater_user
+Roles: emby_theater
+
+The user running emby theater. Used to set Mate auto login user and emby theater launch on login.
+
+Example:
+```
+emby_theater_user: emby
+```
+
+Default:
+```
+emby_theater_user: media
+```
+---
+
+## emby_theater_version
+Roles: emby_theater
+
+Sets the version of emby theater to install on the host.
+
+Example:
+```
+emby_theater_version: 3.0.18
+```
+
+Default:
+```
+emby_theater_version: 3.0.19
+```
+---
+
 ## emby_version
 Roles: emby
 

@@ -42,6 +42,14 @@
   tags:
     - emby
 
+- hosts: emby_theater
+  roles:
+    - emby_theater
+  tags:
+    - emby_theater
+    - emby-theater
+    - emby theater
+
 - hosts: dashy
   roles:
     - dashy

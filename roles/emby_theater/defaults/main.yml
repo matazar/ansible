@@ -1,0 +1,3 @@
+emby_theater_version: 3.0.19
+emby_theater_deb_url: 'https://github.com/MediaBrowser/emby-theater-electron/releases/download/{{ emby_theater_version }}/emby-theater-deb_{{ emby_theater_version }}_amd64.deb'
+emby_theater_user: media

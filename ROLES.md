@@ -43,11 +43,17 @@ The DNS role sets up bind9 as an authoritative DNS server. The role supports mul
 
 _Required variables_: **ns_domain**, **nameservers**, **mail_domains**, **dns_zones**
 
-## emby
+## emby_server
 
-The emby role sets up an emby server instance that use SMB shares to access network media. Server is intended to be accessed over the WAN, using a firewall allow list to only allow specific IPs/Subnets. The role can back up and restore data, but by default assumes there is only one instance of the data per environment.
+The emby server role sets up an emby server instance that use SMB shares to access network media. Server is intended to be accessed over the WAN, using a firewall allow list to only allow specific IPs/Subnets. The role can back up and restore data, but by default assumes there is only one instance of the data per environment.
 
-_Required variables_: **emby_hostnames**, **smb_shares**, **smb_user**, **smb_password**
+_Required variables_: **emby_server_hostnames**, **smb_shares**, **smb_user**, **smb_password**
+
+## emby_theater
+
+The emby theater role creates an emby theater instance intended for a system connected to directly to a TV. The emby_theeater_user variable is used to automatically login to that specific account on boot (when using Mate) and immediately launch Emby Theater.
+
+_Required variables_: **emby_theater_user**
 
 ## files
 
@@ -72,6 +78,12 @@ _Required variables_: **ldap_hostname**, **ldap_rootpw**, **ldap_pw**, **mail_do
 The mail role installs postfix, dovecot and rspamd. Dovecot/Postfix use LDAP as the backend for email accounts. The role enables the rspamd web dashboard, but only for IPs in the trusted_hosts variable.
 
 _Required variables_: **primary_mail_domain**, **mail_hostname**, **rspamd_hostname**, **rspamd_controller_password**, **ldap_pw**
+
+## monit
+
+The monit role is set to run as a part of common role and is enabled by default. It installs monit and configures some basic system checks which alerts the user via email about high load or low disk space. Other roles can then add their own monit checks to the system to potentially correct issues automatically or warn the user about problems with the system or services.
+
+_Required variables_: **monit_email**, **mail_server**
 
 ## nginx
 

@@ -2151,7 +2151,7 @@ mail_localip: 127.0.0.3
 ---
 
 ## mail_server
-Roles: roundcube, sendmail
+Roles: roundcube, sendmail, monit
 
 The hostname of the mail server to send our mail from.
 

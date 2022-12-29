@@ -8,28 +8,28 @@
 
 # Handle install/upgrade process with .deb file
 - block:
-  - name: Check if Emby server is installed
+  - name: Check if Emby Server is installed
     command: apt list --installed emby-server
     register: emby_installed
     changed_when: emby_installed.stdout_lines | length < 2
 
   - set_fact:
-      emby_installed_version: '{{ emby_installed.stdout | default("0.0.0.0") | regex_search("(\d\.\d.\d.\d)") }}'
+      emby_server_installed_version: '{{ emby_installed.stdout | default("0.0.0.0") | regex_search("(\d\.\d.\d.\d)") }}'
 
-  - name: Install Emby server
+  - name: Install Emby Server
     apt:
-      deb: '{{ emby_deb_url }}'
+      deb: '{{ emby_server_deb_url }}'
     when: 
-      - emby_version != emby_installed_version
-      - emby_installed_version != '0.0.0.0'
+      - emby_server_version != emby_server_installed_version
+      - emby_server_installed_version != '0.0.0.0'
 
 # Ensure plugin backup folder exists.
 - name: Ensure backup folder for "Server Configuration Backup" plugin exists.
   file:
     state: directory
-    path: '{{ emby_backup_dir }}'
+    path: '{{ emby_server_backup_dir }}'
     owner: emby
-  when: emby_plugin_backups
+  when: emby_server_plugin_backups
 
 # Restore data when the folders didn't exist before the install.
 - include: restore.yml
@@ -37,7 +37,7 @@
 
 - include: media.yml
 
-- name: Update monit configuration file for emby server.
+- name: Update monit configuration file for Emby Server.
   template:
     src: monit.j2
     dest: /etc/monit/conf.d/emby

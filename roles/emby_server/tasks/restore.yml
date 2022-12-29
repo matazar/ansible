@@ -1,4 +1,4 @@
-- name: Stop Emby server
+- name: Stop Emby Server
   service: 
     name: emby-server
     state: stopped

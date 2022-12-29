@@ -26,6 +26,6 @@
   - name: Grab a copy of the Server Configration Backup plugin backups.
     synchronize:
       dest: '{{ backup_dir }}/emby/{{ inventory_hostname }}/server_config_backup/'
-      src: '{{ emby_backup_dir }}'
+      src: '{{ emby_server_backup_dir }}'
       mode: pull
-  when: emby_plugin_backups
+  when: emby_server_plugin_backups

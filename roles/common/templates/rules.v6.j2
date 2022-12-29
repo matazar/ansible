@@ -104,7 +104,7 @@
 -A INPUT -p tcp -m state --state NEW -m tcp --dport 389 -j DROP
 -A INPUT -p tcp -m state --state NEW -m tcp --dport 636 -j DROP
 {% endif %}
-{% if 'emby' in group_names %}
+{% if 'emby_server' in group_names %}
 # Emby Server
 {% for host in emby_allow_list | ipv6 %}
 -A INPUT -s {{ host | ipaddr('address') }}/{{ host | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 8920 -j ACCEPT

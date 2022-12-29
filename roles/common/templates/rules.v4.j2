@@ -104,7 +104,7 @@
 -A INPUT -p tcp -m multiport --dport 389,636 -j DROP
 
 {% endif %}
-{% if 'emby' in group_names %}
+{% if 'emby_server' in group_names %}
 # Emby Server
 {% for host in emby_allow_list | ipv4 %}
 {% if host | ansible.netcommon.ipaddr('net') %}

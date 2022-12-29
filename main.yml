@@ -36,11 +36,14 @@
   tags:
     - kodi
 
-- hosts: emby
+- hosts: emby_server
   roles:
-    - emby
+    - emby_server
   tags:
     - emby
+    - emby_server
+    - emby-server
+    - emby server
 
 - hosts: emby_theater
   roles:

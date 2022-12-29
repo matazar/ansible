@@ -139,20 +139,6 @@ The transmission role sets up the transmission bittorrent client/dashboard. It a
 
 _Required variables_: **transmission_hostnames**, **transmission_download_dir**
 
-## unifi_network
-
-The unifi_network role sets up an instance of a Ubiquity Unifi Network controller, using certbot_dns to generate a wildcard ssl certificate. This role does not configure or backup/restore the data for Unifi Network.
-
-_Required variables_: **unifi_network_cert_name**, **unifi_network_domains**
-
-## unifi_video
-
-(Depreacated) The unifi_video role sets up an instance of Ubiquity's Unifi Video software which has been discontinued as they attempt to force users to use Unifi Protect which doesn't run on custom hardware. The role uses certbot_dns to generate the SSL certificate. This role does not configure or backup/restore the data for Unifi-Video.
-
-This role cannot be used on the same host as the unifi_network role.
-
-_Required variables_: **unifi_video_cert_name**, **unifi_video_domains**
-
 ## vboxguest
 
 The vboxguest role installs the apps required to build the guest additions for VirtualBox, and then builds them by running the script on the included ISO, if inserted. The host will be rebooted after the installation to apply the changes.

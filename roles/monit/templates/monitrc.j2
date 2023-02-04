@@ -47,6 +47,10 @@ set statefile /var/lib/monit/state
 # port 25 - it is possible to override this with the PORT option.
 #
 set mailserver {{ mail_server }} port {{ monit_email_port }}
+{% if monit_smtp_username %}
+    username {{ monit_smtp_username }} password {{ monit_smtp_password }}
+{% endif %}
+    using TLS
     with timeout 30 seconds
     using hostname "{{ inventory_hostname }}"
 

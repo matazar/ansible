@@ -1,2 +1,7 @@
 monit_email: 'monit@{{ default_domain }}'
 monit_email_port: 587
+
+monit_memory_warn_percent: 75
+
+monit_smtp_username: false
+monit_smtp_password: ''

@@ -2254,6 +2254,55 @@ monit_enabled: true
 ```
 ---
 
+# monit_memory_warn_percent
+Roles: monit
+
+When memory usage is above this percentage, monit will alert via email.
+
+Example:
+```
+monit_memory_warn_percent: 90
+```
+
+Default:
+```
+monit_memory_warn_percent: 75
+```
+---
+
+# monit_smtp_password
+Roles: monit
+
+SMTP password used by monit to send email alerts.
+
+Exmaple:
+```
+monit_smtp_password: '$ecretPassw0rd.'
+```
+
+Default:
+```
+monit_smtp_password: ''
+```
+---
+
+# monit_smtp_username
+Roles: monit
+
+SMTP username used by monit to send email alerts. If not defined, monit will attempt to send the email without authentication.
+
+Example:
+```
+monit_smtp_username: monit@example.local
+```
+
+Default:
+```
+monit_smtp_username: false
+```
+---
+
+
 ## nameservers
 Roles: dns
 

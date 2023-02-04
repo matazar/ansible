@@ -36,14 +36,15 @@
     - webmail
     - roundcube
 
-- hosts: emby
+- hosts: emby_server
   tasks:
-  - name: Backup emby
+  - name: Backup emby server
     include_role:
-      name: emby
+      name: emby_server
       tasks_from: backups
   tags:
     - emby
+    - emby_server
 
 - hosts: kodi
   tasks:

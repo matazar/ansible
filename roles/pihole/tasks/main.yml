@@ -127,5 +127,5 @@
       notify: restart lighttpd
       with_items:
         - external.conf
-        - lighttpd.conf
+        # - lighttpd.conf
   when: pihole_https_enable

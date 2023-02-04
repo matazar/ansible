@@ -15,10 +15,14 @@ Port 22
 Port {{ sshd_public_port }}
 {% endif %}
 #AddressFamily any
+{% if sshd_strict_ipv4 %}
+ListenAddress {{ ansible_host }}
+{% else %}
 ListenAddress 0.0.0.0
+{% endif%}
 {% if ipv6_address %}
 {% if sshd_strict_ipv6 %}
-ListenAddress {{ ipv6_address }}
+ListenAddress [{{ ipv6_address }}]
 {% else %}
 ListenAddress ::
 {% endif %}

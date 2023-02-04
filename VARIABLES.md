@@ -2018,6 +2018,24 @@ ldap_tls: false
 ```
 ---
 
+# local_dns_clients
+Roles: common
+
+When set and using iptables on the host, only these clients will be able to query the DNS server instead of the local_subnet.
+
+Example:
+```
+local_dns_clients:
+  - 192.168.3.0/24
+  - 2607:f2c0:eaa6:602::1/64
+```
+
+Default:
+```
+local_dns_clients: []
+```
+---
+
 ## local_dns_zones
 Roles: emby_server, kodi, pihole, transmission
 
@@ -3667,10 +3685,26 @@ sshd_service_name: sshd
 ```
 ---
 
+## sshd_strict_ipv4
+Roles: common
+
+When true, SSHD will be set to only listen on the IP defined as ansible_host. When false, SSHD will listen on all IPv4 IPs.
+
+Example: 
+```
+sshd_strict_ipv4: false
+```
+
+Default:
+```
+sshd_strict_ipv4: true
+```
+---
+
 ## sshd_strict_ipv6
 Roles: common
 
-When true, SSHD will be set to only listen on the primary IPv6 IP (ipv6_addresss). When false, SSHD will listen on all IPv6 IPs on the host.
+When true, SSHD will be set to only listen on the primary IPv6 IP (ipv6_addresss). When false, SSHD will listen on all IPv6 IPs.
 
 Example: 
 ```

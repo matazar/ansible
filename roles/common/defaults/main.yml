@@ -16,6 +16,7 @@ sudo_nopasswd: []
 # SSHD 
 sshd_service_name: sshd
 sshd_keytype: ed25519
+sshd_strict_ipv4: false
 sshd_public_port: 0
 sshd_strict_ipv6: true
 
@@ -38,6 +39,7 @@ local_subnet:
 firewall_enable: false
 firewall_open_ports: false
 trusted_hosts: []
+local_dns_clients: []
 
 ldap_allow_list: []
 ldap_replication_hosts: []

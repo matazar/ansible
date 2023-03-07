@@ -22,7 +22,7 @@
     src: "ansible.cfg.j2"
     dest: "/home/{{ primary_user}}/.ansible.cfg"
 
-- name: Ensure ansible vault password file dkim_exists
+- name: Ensure ansible vault password file exists
   template:
     src: '{{ ansible_vault_password_file }}'
     dest: '{{ ansible_vault_password_file }}'

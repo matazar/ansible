@@ -29,7 +29,7 @@
         groups: 
           - vboxsf
         name: "{{ vboxsf_user }}" 
-    - name: Reboot host to apply new kernl.
+    - name: Reboot host to apply new kernel
       reboot:
   rescue:
     - name: Mount Guest Addition

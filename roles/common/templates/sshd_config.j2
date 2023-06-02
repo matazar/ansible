@@ -137,3 +137,6 @@ Subsystem sftp	/usr/lib/openssh/sftp-server
 
 ClientAliveInterval 180
 
+{% if sshd_lowdelay %}
+IPQoS cs0 cs0
+{% endif %}

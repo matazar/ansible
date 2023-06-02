@@ -71,3 +71,11 @@
   copy:
     src: pbx_cert.py
     dest: /root/pbx_cert.py
+
+- name: Ensure renewal hook script is up to date.
+  template:
+    src: asterisk.sh.j2
+    dest: /etc/letsencrypt/renewal-hooks/post/asterisk.sh
+    mode: 0770
+    owner: root
+    group: '{{ cert_group }}'

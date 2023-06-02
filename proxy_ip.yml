@@ -1,0 +1,9 @@
+# Use a proxy to update IP allow list since my home IP changes periodically.
+# ansible-playbook -D -i env/production/inventory.yml --extra-vars "gateway_user=proxy" --extra-vars "gateway_host=proxy.host.local" proxy_ip.yml
+
+- hosts: vultr
+  vars:
+     ansible_ssh_common_args: '-o ProxyCommand="ssh -W %h:%p -q {{ gateway_user }}@{{ gateway_host }}"'
+  roles:
+    - common
+    

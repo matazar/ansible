@@ -1,0 +1,2 @@
+---
+# This file exists to prevent errors when the main website playbook is called without extra vars for the env variable.

@@ -19,7 +19,7 @@ class pbx(object):
         self.cmds = []
         # Create the required commands
         self.cert_cmds()
-        
+
     def __call__(self):
         """
         Execute all the commands.
@@ -32,25 +32,27 @@ class pbx(object):
         Executes the provided command using subprocess.
         stdout/stderr only show when verbose is enabled.
         """
-        stdout, stderr = False, False
-        results = subprocess.run(cmd_list, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        results = subprocess.run(cmd_list, stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE)
         if self.verbose:
             print('command: %s' % (' '.join(cmd_list)))
             print('stdout: %s' % (results.stdout.decode('UTF-8')))
             if results.stderr:
                 print('stderr: %s' % (results.stderr.decode('UTF-8')))
-    
+
     def cert_cmds(self):
         """
-        Creates all the commands we need to import the certificate into Asterisk.
+        Creates all the commands we need to import
+        the certificate into Asterisk.
         """
         # Copy certs to folders.
-        self.cmds.extend(['cp /etc/letsencrypt/live/%s/cert.pem /etc/asterisk/%s.test' % 
-                            (self.cert_name, self.cert_name), # This is for the playbook test.
-                          'cp /etc/letsencrypt/live/%s/cert.pem /etc/asterisk/keys/%s.crt' % 
-                            (self.cert_name, self.cert_name),
-                          'cp /etc/letsencrypt/live/%s/privkey.pem /etc/asterisk/keys/%s.key' % 
-                            (self.cert_name, self.cert_name)])
+        self.cmds.extend(
+            [f'cp /etc/letsencrypt/live/{ self.cert_name }/cert.pem ' +
+             f'/etc/asterisk/{ self.cert_name }.test'  # Playbook test.
+             f'cp /etc/letsencrypt/live/{ self.cert_name }/cert.pem ' +
+             f'/etc/asterisk/keys/{ self.cert_name }.crt',
+             f'cp /etc/letsencrypt/live/{ self.cert_name }/privkey.pem ' +
+             f'/etc/asterisk/keys/{ self.cert_name }.key'])
         # Deal with ownership and permissions
         self.cmds.extend(['chmod -R 0700 /etc/asterisk/keys/',
                           'chown -R asterisk:asterisk /etc/asterisk/keys/'])
@@ -60,11 +62,14 @@ class pbx(object):
                           'fwconsole sysadmin installHttpsCert default',
                           'fwconsole sysadmin updatecert'])
 
+
 def main():
     # Create menu with argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('-v', '--verbose', help='Enable verbose output.', action='store_true')
-    parser.add_argument('cert_name', help='Name of the Let\'s Encrypt Certificate.')
+    parser.add_argument('-v', '--verbose', help='Enable verbose output.',
+                        action='store_true')
+    parser.add_argument('cert_name',
+                        help='Name of the Let\'s Encrypt Certificate.')
     parser.parse_args()
     args = parser.parse_args()
 
@@ -74,4 +79,3 @@ def main():
 
 
 main()
-

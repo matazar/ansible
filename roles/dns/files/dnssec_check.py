@@ -1,10 +1,12 @@
 # Checks DNSSEC domains and signs any that will expire soon.
+
 import argparse
 import subprocess
 import re
 import datetime
 import secrets
 import sys
+
 
 class Domains(object):
     """
@@ -26,7 +28,7 @@ class Domains(object):
 
     def load_domains(self, config_file):
         """
-        Load the domains from a "config" file. 
+        Load the domains from a "config" file.
         """
         # Just in case the config file doesn't exist.'
         try:
@@ -43,10 +45,11 @@ class Domains(object):
                 domains.append(domain.strip(' '))
         return domains
 
+
 class DNSSEC(object):
     """
-    Runs commands to check DNSSEC domains for when they expire and run the command
-    to sign them again when necessary.
+    Runs commands to check DNSSEC domains for when they expire and
+    run the command to sign them again when necessary.
     """
     def __init__(self, config_file, days=5, verbose=False):
         """
@@ -57,13 +60,14 @@ class DNSSEC(object):
         self.config_file = config_file
         self.domains = Domains(self.config_file, verbose=False)
         self.now = datetime.datetime.now()
-    
+
     def __call__(self):
         """
         Check each domain and sign if below the threshold.
         """
         # Regex to pull dnssec expiry date
-        rrsig_regex = re.compile('RRSIG (?:A|aaaa|NSEC) \d{1,2} \d \d{3,7} \(\s+(\d{14}) (\d{14})')
+        rrsig_regex = re.compile(
+            r'RRSIG (?:A|aaaa|NSEC) \d{1,2} \d \d{3,7} \(\s+(\d{14}) (\d{14})')
         # Get our domain list
         domain_list = self.domains()
         # Always warn if the list is empty
@@ -94,7 +98,7 @@ class DNSSEC(object):
             else:
                 # Missing RRSIG, warn even with quiet mode.
                 print('Domain %s has no RRSIG record.' % (domain))
-        
+
     def run(self, cmd_list):
         """
         Executes the provided command using subprocess.
@@ -110,13 +114,11 @@ class DNSSEC(object):
                 'stderr': results.stderr.decode('UTF-8'),
                 'rc': results.returncode}
 
-
     def rrsig_dates(self, dates):
         """
         Returns the dates from the RRSIG date
         """
         exp = datetime.datetime.strptime(dates[0], '%Y%m%d%H%M%S')
-        _reg = datetime.datetime.strptime(dates[1], '%Y%m%d%H%M%S')
         return exp
 
     def sign_domain(self, domain):
@@ -126,8 +128,8 @@ class DNSSEC(object):
         # Generate our salt
         salt = secrets.token_hex(8)
         # Set up the command
-        signzone_cmd = ['/usr/sbin/dnssec-signzone', '-A', '-3', salt, '-N', 'INCREMENT',
-                        '-K', '/var/cache/bind/', '-o', domain,
+        signzone_cmd = ['/usr/sbin/dnssec-signzone', '-A', '-3', salt, '-N',
+                        'INCREMENT', '-K', '/var/cache/bind/', '-o', domain,
                         '-t', '/var/lib/bind/%s.db' % (domain)]
         # Run it
         result = self.run(signzone_cmd)
@@ -141,16 +143,20 @@ def main():
     """
     # cli menu
     parser = argparse.ArgumentParser()
-    parser.add_argument('-v', '--verbose', help='Enable verbose output.', action='store_true')
-    parser.add_argument('-d', '--days', help='Number of days before the domain expires to sign.', default=5)
-    parser.add_argument('domain_list', default='/root/.dnssec_domains.conf', nargs='?',
-                        help='Path to list of DNSSEC domains. Default ~/.dnssec_domains.conf')
+    parser.add_argument('-v', '--verbose', help='Enable verbose output.',
+                        action='store_true')
+    parser.add_argument('-d', '--days', default=5,
+                        help='Days before domain expiry to sign.')
+    parser.add_argument('domain_list', default='/root/.dnssec_domains.conf',
+                        nargs='?',
+                        help='Path to list of DNSSEC domains. ' +
+                        'Default ~/.dnssec_domains.conf')
     parser.parse_args()
     args = parser.parse_args()
-    
+
     # Run it
     d = DNSSEC(args.domain_list, args.days, args.verbose)
     d()
-    
+
 
 main()

@@ -9,44 +9,57 @@
     mode: '0770'
   changed_when: False
 
-# Set up any automatic user accounts.
-- include: users.yml
-  with_dict: "{{ users }}"
-  no_log: true  # Keep this so passwords don't show in plain text.
-  when: ansible_distribution == 'Debian'
+# Avoid all these tasks on minimal group members. Typically proprietary systems/software.
+- block: 
+  # Set up any automatic user accounts.
+  - include: users.yml
+    with_dict: "{{ users }}"
+    no_log: true  # Keep this so passwords don't show in plain text.
+    when: ansible_distribution == 'Debian'
 
-# Set up any automatic user accounts.
-- include: cleanup.yml
-  with_dict: "{{ users }}"
-  no_log: true  # Keep this so passwords don't show in plain text.
+  # Set up any automatic user accounts.
+  - include: cleanup.yml
+    with_dict: "{{ users }}"
+    no_log: true  # Keep this so passwords don't show in plain text.
 
-# Basic tasks for all hosts.
-- include: core.yml
-  when: ansible_distribution == 'Debian'
+  # Basic tasks for all hosts.
+  - include: core.yml
+    when: ansible_distribution == 'Debian'
 
-- include: network.yml
-  when: ansible_distribution == 'Debian'
+  - include: network.yml
+    when: ansible_distribution == 'Debian'
 
-- set_fact: 
-    firewall_enable: true
-  when: "'public' in group_names"
+  - set_fact: 
+      firewall_enable: true
+    when: "'public' in group_names"
 
-# Set hosts.allow on all hosts just to be cautious
-- name: Update the hosts.allow file
-  template:
-    src: hosts.allow.j2
-    dest: /etc/hosts.allow
+  # Set hosts.allow on all hosts just to be cautious
+  - name: Update the hosts.allow file
+    template:
+      src: hosts.allow.j2
+      dest: /etc/hosts.allow
 
-# Deal with security on anything open to the public.
-- include: security.yml
-  when: firewall_enable
+  # Deal with security on anything open to the public.
+  - include: security.yml
+    when: firewall_enable
 
-# Install AMD graphics drivers when required.
-- include: ati_driver.yml
-  when: "'ati' in group_names"
+  # Install AMD graphics drivers when required.
+  - include: ati_driver.yml
+    when: "'ati' in group_names"
 
-- include_role:
-    name: monit
-  when: monit_enabled
-  tags: 
-    - monit
+  - include_role:
+      name: monit
+    when: "monit_enabled and 'minimal' not in group_names"
+    tags: 
+      - monit
+  when: "'minimal' not in group_names"
+
+# Just install the bare minimum we need to get by with.
+- block: 
+  - name: 'Ensure nano is installed.'
+    apt: 
+      name: nano
+      state: latest
+      install_recommends: yes
+    when: ansible_distribution == 'Debian'
+  when: "'minimal' in group_names"

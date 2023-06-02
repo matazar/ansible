@@ -365,23 +365,6 @@ Default:
 ```
 ---
 
-## cert_scripts
-Roles: certbot, certbot_dns
-
-Scripts to be run whenever any certificate is renewed.
-
-Example:
-```
-cert_scripts:  
-    - python3.6 /root/pbx_cert.py pbx.example.local
-```
-
-Default:
-```  
-cert_scripts: []
-```
----
-
 ## cert_services
 Roles: certbot, certbot_dns
 

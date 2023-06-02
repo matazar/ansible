@@ -1,4 +1,4 @@
-- include: certs.yml
+- include_tasks: certs.yml
 
 # Make it easier to upload recordings
 - block:

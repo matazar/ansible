@@ -15,7 +15,7 @@
 - set_fact:
     domain_dnssec_keys: []
 
-- include: dnssec.yml
+- include_tasks: dnssec.yml
   loop: '{{ dnssec_algorithms }}'
   loop_control: 
     loop_var: algorithm

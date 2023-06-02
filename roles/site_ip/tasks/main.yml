@@ -1,4 +1,4 @@
-- include: certs.yml
+- include_tasks: certs.yml
 
 - name: Ensure system has venv
   apt:

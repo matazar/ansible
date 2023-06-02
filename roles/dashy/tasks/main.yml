@@ -57,7 +57,7 @@
       notify: build dashy
   when: not dashy_config.stat.exists
 
-- include: backups.yml
+- include_tasks: backups.yml
   
 # PM2 is used to run dashy as a service.
 - name: Ensure PM2 is installed
@@ -94,7 +94,7 @@
     command: pm2 save
     when: pm2_list.changed
 
-- include: certs.yml
+- include_tasks: certs.yml
 
 - name: Update nginx config
   template:

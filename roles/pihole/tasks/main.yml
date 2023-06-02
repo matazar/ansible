@@ -87,7 +87,7 @@
     changed_when: false
   always:
   - name: Update domain exception/bypass list
-    include: exception.yml
+    include_tasks: exception.yml
     with_items: '{{ pihole_domain_exceptions }}'
   when: 'pihole_domain_exceptions | length > 0'
 
@@ -114,7 +114,7 @@
 
 # Enable SSL
 - block:
-    - include: certs.yml
+    - include_tasks: certs.yml
     - name: Ensure mod_openssl is installed.
       apt:
         name: lighttpd-mod-openssl

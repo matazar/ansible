@@ -63,7 +63,7 @@
     command: pm2 save
     when: pm2_list.changed
 
-- include: certs.yml
+- include_tasks: certs.yml
 
 - name: Update nginx config
   template:

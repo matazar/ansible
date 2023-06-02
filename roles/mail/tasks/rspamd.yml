@@ -150,7 +150,7 @@
     owner: _rspamd
     group: _rspamd
 
-- include: rspamd_dkim.yml
+- include_tasks: rspamd_dkim.yml
   with_items: '{{ mail_domains }}'
 
 - name: Ensure rspamd services are enabled

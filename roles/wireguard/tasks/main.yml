@@ -4,9 +4,9 @@
     name: wireguard
     
 # Ensure server keys exist
-- include: keys.yml
+- include_tasks: keys.yml
 
-- include: psk.yml
+- include_tasks: psk.yml
   when: wg_psk
 
 - name: Set sysctl variables
@@ -53,7 +53,7 @@
     name: wg-quick@wg0
     enabled: yes
 
-- include: backups.yml
+- include_tasks: backups.yml
 
 - name: Updated WireGuard monit configuration
   template:

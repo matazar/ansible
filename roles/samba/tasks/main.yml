@@ -15,15 +15,15 @@
   notify: restart samba
 
 # Deal with samba Users
-- include: users.yml
+- include_tasks: users.yml
   with_dict: "{{ samba_users }}"
   no_log: true  # Keep this so passwords don't show in plain text.
 
-- include: shares.yml
+- include_tasks: shares.yml
   with_dict: "{{ samba_shares }}"
 
 # Handle certs
-- include: certs.yml
+- include_tasks: certs.yml
   tags:
     - certs
 

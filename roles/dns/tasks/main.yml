@@ -139,7 +139,7 @@
     - master_ns_host | default(false)
   ignore_errors: yes
 
-- include: zones.yml
+- include_tasks: zones.yml
   loop: "{{ dns_zones | list }}"
   loop_control:
     loop_var: domain

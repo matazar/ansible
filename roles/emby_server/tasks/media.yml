@@ -22,7 +22,7 @@
     state: present
 
 # Config share mount folders
-- include: mounts.yml
+- include_tasks: mounts.yml
   with_items: '{{ smb_shares }}'
 
 - name: Add mount script

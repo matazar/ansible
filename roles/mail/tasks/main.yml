@@ -1,4 +1,4 @@
-- include: certs.yml
+- include_tasks: certs.yml
 
 - name: Set postfix for unattended install
   debconf:
@@ -77,11 +77,11 @@
     src: ldap.conf.j2
     dest: /etc/ldap/ldap.conf
 
-- include: postfix.yml
+- include_tasks: postfix.yml
 
-- include: dovecot.yml
+- include_tasks: dovecot.yml
 
-- include: rspamd.yml
+- include_tasks: rspamd.yml
 
 - name: Add dovecot and postfix to fail2ban
   template:

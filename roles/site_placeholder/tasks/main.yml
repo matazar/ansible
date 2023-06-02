@@ -41,7 +41,7 @@
       src: 'index.html.j2'
       dest: "{{ site_directory }}/index.html"
 
-- include: style.yml
+- include_tasks: style.yml
       
 - name: Set permissions
   file:

@@ -71,5 +71,5 @@
     notify: restart kodi
   when: skin_settings.changed
 
-- include: restore.yml
+- include_tasks: restore.yml
   when: kodi_autostart.changed or kodi_restore_backups | default(false)

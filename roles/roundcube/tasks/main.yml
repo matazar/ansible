@@ -1,4 +1,4 @@
-- include: certs.yml
+- include_tasks: certs.yml
 
 - name: Install prereqs
   apt:
@@ -95,7 +95,7 @@
     dest: /etc/nginx/fastcgi_params
   notify: 'restart {{ php_fpm }}'
 
-- include: composer.yml
+- include_tasks: composer.yml
 
 - name: Ensure the service is enabled
   service:
@@ -110,7 +110,7 @@
     name: www-data
   notify: restart nginx
 
-- include: database.yml
+- include_tasks: database.yml
 
 - name: Make sure the errors.log file exists
   file:

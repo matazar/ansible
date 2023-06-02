@@ -12,21 +12,21 @@
 # Avoid all these tasks on minimal group members. Typically proprietary systems/software.
 - block: 
   # Set up any automatic user accounts.
-  - include: users.yml
+  - include_tasks: users.yml
     with_dict: "{{ users }}"
     no_log: true  # Keep this so passwords don't show in plain text.
     when: ansible_distribution == 'Debian'
 
   # Set up any automatic user accounts.
-  - include: cleanup.yml
+  - include_tasks: cleanup.yml
     with_dict: "{{ users }}"
     no_log: true  # Keep this so passwords don't show in plain text.
 
   # Basic tasks for all hosts.
-  - include: core.yml
+  - include_tasks: core.yml
     when: ansible_distribution == 'Debian'
 
-  - include: network.yml
+  - include_tasks: network.yml
     when: ansible_distribution == 'Debian'
 
   - set_fact: 
@@ -40,11 +40,11 @@
       dest: /etc/hosts.allow
 
   # Deal with security on anything open to the public.
-  - include: security.yml
+  - include_tasks: security.yml
     when: firewall_enable
 
   # Install AMD graphics drivers when required.
-  - include: ati_driver.yml
+  - include_tasks: ati_driver.yml
     when: "'ati' in group_names"
 
   - include_role:

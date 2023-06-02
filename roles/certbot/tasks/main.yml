@@ -7,7 +7,7 @@
     name: '{{ cert_group }}'
     state: present
 
-- include: provision.yml
+- include_tasks: provision.yml
 
-- include: certbot.yml
+- include_tasks: certbot.yml
 

@@ -1,5 +1,5 @@
 # Ensure NordVPN is set up.
-- include: vpn.yml
+- include_tasks: vpn.yml
   when: transmission_vpn
 
 - name: Install transmission
@@ -49,10 +49,10 @@
   when: transmission_settings.changed
 
 # Ensure we have downloads folder via smb mount or vbox mount.
-- include: smb_mounts.yml
+- include_tasks: smb_mounts.yml
   when: transmission_mounts != []
 
-- include: vbox.yml
+- include_tasks: vbox.yml
   when: transmission_vboxguest
 
 - name: Ensure transmission is enabled
@@ -68,5 +68,5 @@
     minute: "*/10"
     job: '/usr/bin/transmission-remote -a {{ transmission_torrent_dir }}/*.torrent > /dev/null 2>&1'
 
-- include: nginx.yml
+- include_tasks: nginx.yml
   when: transmission_https

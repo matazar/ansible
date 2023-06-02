@@ -74,7 +74,7 @@
         group: www-data
       when: custom_style.changed
 
-- include: certs.yml
+- include_tasks: certs.yml
 
 - name: Set permissions on the folder
   file:

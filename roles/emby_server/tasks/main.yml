@@ -1,4 +1,4 @@
-- include: certs.yml
+- include_tasks: certs.yml
 
 - name: Check to ensure Emby data exists
   stat:
@@ -32,10 +32,10 @@
   when: emby_server_plugin_backups
 
 # Restore data when the folders didn't exist before the install.
-- include: restore.yml
+- include_tasks: restore.yml
   when: emby_seeded.changed
 
-- include: media.yml
+- include_tasks: media.yml
 
 - name: Update monit configuration file for Emby Server.
   template:

@@ -45,7 +45,7 @@
     apt:
       name: cifs-utils
       state: present
-  - include: mounts.yml
+  - include_tasks: mounts.yml
     with_items: "{{ smb_shares }}"
   - name: Add mount script
     template:
@@ -62,7 +62,7 @@
   when: smb_shares != [] and smb_shares != {}
 
 # Kodi Config
-- include: config.yml
+- include_tasks: config.yml
 
 - name: Set source.xml file
   template:
@@ -70,6 +70,6 @@
     dest: "/home/{{ kodi_user }}/.kodi/userdata/sources.xml"
 
 # Deal with Raspberry Pi specific settings
-- include: pi.yml
+- include_tasks: pi.yml
   when: ansible_facts.lsb.id == 'Raspbian'
 

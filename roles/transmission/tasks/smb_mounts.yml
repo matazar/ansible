@@ -16,7 +16,7 @@
     state: present
 
 # Config share mount folders
-- include: mount.yml
+- include_tasks: mount.yml
   with_items: '{{ transmission_mounts }}'
 
 - name: Add mount script

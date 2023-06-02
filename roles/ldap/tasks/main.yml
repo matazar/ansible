@@ -1,4 +1,4 @@
-- include: certs.yml
+- include_tasks: certs.yml
 
 - name: Ensure OpenLDAP is installed and up-to-date.
   apt:
@@ -51,7 +51,7 @@
         bind_dn: '{{ ldap_admin }}'
         bind_pw: '{{ ldap_pw }}'
   rescue:
-  - include: provision.yml
+  - include_tasks: provision.yml
 
 - name: Update ldap.conf file
   template:
@@ -67,11 +67,11 @@
       olcLocalSSF: 128
   
 # Ensure PPolicy is enabled/working
-- include: ppolicy.yml
+- include_tasks: ppolicy.yml
   when: ldap_ppolicy_enable
 
 # Replication
-- include: replication.yml
+- include_tasks: replication.yml
   when: ldap_replication_enable
 
 - name: Set log level

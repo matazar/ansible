@@ -1,0 +1,51 @@
+# Set up certs for Unifi Apps
+- set_fact: 
+    unifi_domains: []
+
+- set_fact: 
+    unifi_domains: '{{ unifi_domains + ["*."+item.split(".")[-2:] | join(".")] }}'
+  with_items: '{{ unifi_cert_domains }}'
+
+- include_role:
+    name: certbot_dns
+  vars:
+    cert_name: "{{ unifi_cert_name }}"
+    cert_domains: '{{ unifi_domains }}'
+  tags:
+    - certbot
+
+# Link Unifi certificates to locations Unifi OS expects.
+- block:
+  - name: Check if current certificate file is a link
+    stat:
+      path: /data/unifi-core/config/unifi-core.crt
+    register: unifi_certificate_file
+  - name: Remove existing certificate
+    file:
+      path: /data/unifi-core/config/unifi-core.crt
+      state: absent
+    when: not unifi_certificate_file.stat.islnk | default(True)
+  - name: Link Let's Encrypt certificate file
+    file:
+      src: "/etc/letsencrypt/live/{{ unifi_cert_name }}/fullchain.pem"
+      dest: /data/unifi-core/config/unifi-core.crt
+      state: link
+    when: not unifi_certificate_file.stat.islnk | default(True)
+    notify: restart unifi-core
+  - name: Check if current certificate key file is a link
+    stat:
+      path: /data/unifi-core/config/unifi-core.key
+    register: unifi_certificate_key
+  - name: Remove existing certificate key file
+    file:
+      path: /data/unifi-core/config/unifi-core.key
+      state: absent
+    when: not unifi_certificate_key.stat.islnk | default(True)
+  - name: Link Let's Encrypt certificate key file
+    file:
+      src: "/etc/letsencrypt/live/{{ unifi_cert_name }}/privkey.pem"
+      dest: /data/unifi-core/config/unifi-core.key
+      state: link
+    when: not unifi_certificate_key.stat.islnk | default(True)
+    notify: restart unifi-core
+ 

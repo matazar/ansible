@@ -115,3 +115,15 @@
   tags:
     - vpn
     - wireguard
+
+- hosts: unifi_os
+  roles:
+    - unifi_os
+  tags:
+    - unifi
+    - unifi os
+    - unifi_os
+    - unifi network
+    - unifi_network
+    - unifi protect
+    - unifi_protect

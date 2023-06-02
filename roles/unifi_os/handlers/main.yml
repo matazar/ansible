@@ -1,0 +1,4 @@
+- name: restart unifi-core
+  service:
+    name: unifi-core
+    state: restarted

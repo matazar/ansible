@@ -12,7 +12,12 @@ var path = require('path');
 //
 // Themes from NPM
 // use "dist" as the theme name for modules (for now)
-var theme_dir = path.join(__dirname, '..', 'node_modules', '@raneto/theme-default');
+var theme_dir = path.join(
+  __dirname,
+  '..',
+  'node_modules',
+  '@raneto/theme-default'
+);
 var theme_name = 'dist';
 
 var config = {
@@ -41,7 +46,7 @@ var config = {
   support_email: '{{ wiki_support_email }}',
 
   // Footer Text / Copyright
-  copyright: 'Copyright &copy; ' + new Date().getFullYear() + ' - <a href="http://raneto.com">Powered by Raneto</a>',
+  copyright: `Copyright &copy; ${new Date().getFullYear()} - <a href="https://raneto.com">Powered by Raneto</a>`,
 
   // Excerpt length (used in search)
   excerpt_length: 400,
@@ -62,12 +67,12 @@ var config = {
   theme_dir,
   theme_name,
 
-  /// Specify the path of your content folder where all your '.md' files are located
+  // Specify the path of your content folder where all your '.md' files are located
   // Fix: Cannot be an absolute path
-  content_dir : path.join(__dirname, '..', 'content', 'pages'),
+  content_dir: path.join(__dirname, '..', 'content', 'pages'),
 
   // Where is the public directory or document root?
-  public_dir  : path.join(theme_dir, theme_name, 'public'),
+  public_dir: path.join(theme_dir, theme_name, 'public'),
 
   // The base URL of your images folder,
   // Relative to config.public_dir
@@ -78,10 +83,10 @@ var config = {
   analytics: '',
 
   // Set to true to enable the web editor
-  allow_editing : true,
+  allow_editing: true,
 
   // Set to true to enable HTTP Basic Authentication
-  authentication : false,
+  authentication: false,
 
   // If editing is enabled, set this to true to only authenticate for editing, not for viewing
   authentication_for_edit: false,
@@ -94,7 +99,7 @@ var config = {
   google_group_restriction: {
     enabled: false,
     api_key: 'GOOGLE_API_KEY',
-    group_name : 'GOOGLE_GROUP_NAME'
+    group_name: 'GOOGLE_GROUP_NAME'
   },
   oauth2 : {
     client_id: 'GOOGLE_CLIENT_ID',
@@ -104,17 +109,24 @@ var config = {
   },
   secret: 'someCoolSecretRightHere',
 
-  credentials    : [
+  // ##### WARNING #####
+  // You MUST change the username and password for security
+  // Do NOT use "admin" as a username as it's easily guessed.
+  // You are encouraged to use tools to generate a password
+  // Preferably, use a local password manager
+  // If you absolutely must use an online tool, here are some suggestions
+  // https://bitwarden.com/password-generator/
+  // https://www.grc.com/passwords.htm
+  credentials: [
     {
-      username : 'admin',
-      password : 'password'
+      username: 'admin',
+      password: 'password',
     },
     {
-      username : 'admin2',
-      password : 'password'
-    }
-  ],
-
+      username: 'admin2',
+      password: 'password',
+    },
+  ]
   locale: 'en',
 
   // Support search with extra languages
@@ -127,7 +139,7 @@ var config = {
   rtl_layout: false,
 
   // Edit Home Page title, description, etc.
-  home_meta : {
+  home_meta: {
     // title       : 'Custom Home Title',
     // description : 'Custom Home Description'
   },

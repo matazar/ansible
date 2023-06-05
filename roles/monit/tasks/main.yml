@@ -7,6 +7,8 @@
   template:
     src: monitrc.j2
     dest: /etc/monit/monitrc
+  notify: 
+    - restart monit
   
 - name: Update OS monit configuration
   template:

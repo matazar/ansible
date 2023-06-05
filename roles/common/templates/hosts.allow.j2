@@ -9,20 +9,21 @@
 #
 {% if firewall_enable %}
 {% for host in trusted_hosts %}
-{% if host | ipv4 %}
-sshd : {{ host | ipaddr('address') }}/{{ host | ipaddr('prefix') }} : allow
-{% elif host | ipv6 %}
-sshd : {{ host | ipwrap }} : allow
+{% if host | ansible.utils.ipv4 %}
+sshd : {{ host | ansible.utils.ipaddr('address') }}/{{ host | ansible.utils.ipaddr('prefix') }} : allow
+{% elif host | ansible.utils.ipv6 %}
+sshd : {{ host | ansible.utils.ipwrap }} : allow
 {% endif %}
 {% endfor %}
-{% if local_subnet | network_in_usable(ansible_host) or 'local' in group_names %}
-sshd : {{ local_subnet | ipaddr('subnet') }} : allow
+{% if local_subnet | ansible.utils.network_in_usable(ansible_host) or 'local' in group_names %}
+sshd : {{ local_subnet | ansible.utils.ipaddr('subnet') }} : allow
 {% endif %}
 {% if sshd_public_port %}
 # Allow SSH on non-standard port for all
 {{ sshd_public_port }} : ALL : allow
 {% endif %}
 sshd : ALL : deny
+
 {% else %}
 sshd : ALL : allow
 
@@ -31,14 +32,14 @@ sshd : ALL : allow
 slapd : 127.0.0.1 : allow
 slapd : [::1] : allow
 {% for host in ldap_allow_list %}
-{% if host | ipv4 %}
+{% if host | ansible.utils.ipv4 %}
 slapd : {{ host }} : allow
-{% elif host | ipv6 %}
-slapd : {{ host | ipwrap }} : allow
+{% elif host | ansible.utils.ipv6 %}
+slapd : {{ host | ansible.utils.ipwrap }} : allow
 {% elif host in hostvars | default(False) %}
 slapd : {{ hostvars[host]['ansible_host'] }} : allow
 {% if hostvars[host]['ipv6_address'] | default(False) %}
-slapd : {{ hostvars[host]['ipv6_address'] | ipwrap }} : allow
+slapd : {{ hostvars[host]['ipv6_address'] | ansible.utils.ipwrap }} : allow
 {% endif %}
 {% endif %}
 {% endfor %}
@@ -48,6 +49,10 @@ slapd : ALL : deny
 {% if 'webmail' in group_names %}
 mysqld : 127.0.0.1 : allow
 mysqld : ALL : deny
+
+{% endif %}
+{% if 'sendmail' in group_names %}
+sendmail: all
 
 {% endif %}
 # Allow anything from localhost.

@@ -1,13 +1,13 @@
 - name: Enable contrib/non-free deb in repo
   lineinfile:
-    regex: '(deb http:\/\/.+ bullseye main( contrib)?( non-free)?)'
-    line: deb http://deb.debian.org/debian/ bullseye main contrib non-free
+    regex: '(deb http://deb\.debian\.org/debian/ bookworm main([\w\s-]*))'
+    line: deb http://deb.debian.org/debian/ bookworm main contrib non-free-firmware
     path: /etc/apt/sources.list
 
 - name: Enable contrib/non-free deb-src in repo
   lineinfile:
-    regex: '(deb-src http:\/\/.+ bullseye main( contrib)?( non-free)?)'
-    line: deb-src http://deb.debian.org/debian/ bullseye main contrib non-free
+    regex: '(deb-src http://deb\.debian\.org/debian/ bookworm main([\w\s-]*))'
+    line: deb-src http://deb.debian.org/debian/ bookworm main contrib non-free-firmware
     path: /etc/apt/sources.list
 
 - name: Install AMD drivers
@@ -15,4 +15,3 @@
     state: present
     update_cache: yes
     name: [xserver-xorg-video-amdgpu, firmware-amd-graphics]
-

@@ -5,7 +5,11 @@ server {
 {% endif %}
     server_name {{ rspamd_hostname }};
 {% for host in trusted_hosts %}
-    allow  {{ host | ipaddr('address') }}/{{ host | ipaddr('prefix') }};
+{% if host | ansible.utils.ipaddr('address') %}
+    allow  {{ host | ansible.utils.ipaddr('address') }}/{{ host | ansible.utils.ipaddr('prefix') }};
+{% elif host | ansible.utils.ipaddr('network') %}
+    allow  {{ host | ansible.utils.ipaddr('network') }};
+{% endif %}
 {% endfor %}
     deny   all;
     add_header Strict-Transport-Security "max-age=31536000; includeSubdomains";

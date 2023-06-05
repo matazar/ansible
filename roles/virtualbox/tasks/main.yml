@@ -3,13 +3,13 @@
     dest: /etc/apt/sources.list.d/virtualbox.list
     src: virtualbox.list.j2
 
-- name: Add the virtualbox keys
-  apt_key:
-    url: '{{ item }}'
-    state: present
+- name: Import Visual Studio Code GPG Key
+  get_url: 
+    url: 'https://www.virtualbox.org/download/{{ item }}'
+    dest: '/etc/apt/trusted.gpg.d/{{ item }}'
   with_items:
-    - 'https://www.virtualbox.org/download/oracle_vbox_2016.asc'
-    - 'https://www.virtualbox.org/download/oracle_vbox.asc'
+    - 'oracle_vbox_2016.asc'
+    - 'oracle_vbox.asc'
 
 - name: Install VirtualBox
   apt:

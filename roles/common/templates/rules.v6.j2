@@ -10,12 +10,12 @@
 # Ping
 -A INPUT -p ipv6-icmp -j ACCEPT
 # SSH
-{% for host in trusted_hosts | ipv6 %}
--A INPUT -s {{ host| ipaddr('address') }}/{{ host | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT
+{% for host in trusted_hosts | ansible.utils.ipv6 %}
+-A INPUT -s {{ host| ansible.utils.ipaddr('address') }}/{{ host | ansible.utils.ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT
 {% endfor %}
 {% if sshd_public_port %}
 # SSH
--A INPUT -d {{ ipv6_address | ipaddr('address') }}/{{ ipv6_address | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport {{ sshd_public_port }} -j ACCEPT
+-A INPUT -d {{ ipv6_address | ansible.utils.ipaddr('address') }}/{{ ipv6_address | ansible.utils.ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport {{ sshd_public_port }} -j ACCEPT
 {% endif %}
 -A INPUT -p tcp -m state --state NEW -m tcp --dport 22 -j DROP
 -A INPUT -p tcp -m state --state NEW -m tcp --dport 115 -j DROP
@@ -26,25 +26,25 @@
 -A INPUT -p tcp -m state --state NEW -m tcp --dport 53 -j ACCEPT
 -A INPUT -p udp -m state --state NEW -m udp --dport 53 -j ACCEPT
 {% else %}
--A INPUT -d {{ bind_ipv6 | ipaddr('address') }}/{{ bind_ipv6 | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 53 -j ACCEPT
--A INPUT -d {{ bind_ipv6 | ipaddr('address') }}/{{ bind_ipv6 | ipaddr('prefix') }} -p udp -m state --state NEW -m udp --dport 53 -j ACCEPT
+-A INPUT -d {{ bind_ipv6 | ansible.utils.ipaddr('address') }}/{{ bind_ipv6 | ansible.utils.ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 53 -j ACCEPT
+-A INPUT -d {{ bind_ipv6 | ansible.utils.ipaddr('address') }}/{{ bind_ipv6 | ansible.utils.ipaddr('prefix') }} -p udp -m state --state NEW -m udp --dport 53 -j ACCEPT
 {% endif %}
 {% endif %}
 {% endif %}
 {% if 'local_dns' in group_names %}
 {% if local_dns_clients != [] %}
-{% for client in local_dns_clients | ipv6 %}
-{% if client | ipaddr('subnet') %}
--A INPUT -s {{ client | ipaddr('subnet') }} -p tcp -m state --state NEW -m tcp --dport 53 -j ACCEPT
--A INPUT -s {{ client | ipaddr('subnet') }} -p udp -m state --state NEW -m udp --dport 53 -j ACCEPT
+{% for client in local_dns_clients | ansible.utils.ipv6 %}
+{% if client | ansible.utils.ipaddr('subnet') %}
+-A INPUT -s {{ client | ansible.utils.ipaddr('subnet') }} -p tcp -m state --state NEW -m tcp --dport 53 -j ACCEPT
+-A INPUT -s {{ client | ansible.utils.ipaddr('subnet') }} -p udp -m state --state NEW -m udp --dport 53 -j ACCEPT
 {% else %}
--A INPUT -s {{ client | ipaddr('address') }}/{{ client | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 53 -j ACCEPT
--A INPUT -s {{ client | ipaddr('address') }}/{{ client | ipaddr('prefix') }} -p udp -m state --state NEW -m udp --dport 53 -j ACCEPT
+-A INPUT -s {{ client | ansible.utils.ipaddr('address') }}/{{ client | ansible.utils.ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 53 -j ACCEPT
+-A INPUT -s {{ client | ansible.utils.ipaddr('address') }}/{{ client | ansible.utils.ipaddr('prefix') }} -p udp -m state --state NEW -m udp --dport 53 -j ACCEPT
 {% endif %}
 {% endfor %}
 {% else %}
--A INPUT -d {{ local_ipv6  | ipaddr('address') }}/{{ local_ipv6 | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 53 -j ACCEPT
--A INPUT -d {{ local_ipv6  | ipaddr('address') }}/{{ local_ipv6 | ipaddr('prefix') }} -p udp -m state --state NEW -m udp --dport 53 -j ACCEPT
+-A INPUT -d {{ local_ipv6  | ansible.utils.ipaddr('address') }}/{{ local_ipv6 | ansible.utils.ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 53 -j ACCEPT
+-A INPUT -d {{ local_ipv6  | ansible.utils.ipaddr('address') }}/{{ local_ipv6 | ansible.utils.ipaddr('prefix') }} -p udp -m state --state NEW -m udp --dport 53 -j ACCEPT
 {% endif %}
 {% endif %}
 {% if firewall_open_ports %}
@@ -59,11 +59,11 @@
 {% endif %}
 {% if 'samba' in group_names %}
 {% if samba_ipv6 %}
--A INPUT -s {{ local_ipv6 | ipaddr('subnet') }} -p tcp -m tcp --dport 139 -j ACCEPT
--A INPUT -s {{ local_ipv6 | ipaddr('subnet') }} -p tcp -m tcp --dport 445 -j ACCEPT
-{% for client in samba_allow_list | ipv6 %}
--A INPUT -s {{ client | ipaddr('subnet') }} -p tcp -m tcp --dport 139 -j ACCEPT
--A INPUT -s {{ client | ipaddr('subnet') }} -p tcp -m tcp --dport 445 -j ACCEPT
+-A INPUT -s {{ local_ipv6 | ansible.utils.ipaddr('subnet') }} -p tcp -m tcp --dport 139 -j ACCEPT
+-A INPUT -s {{ local_ipv6 | ansible.utils.ipaddr('subnet') }} -p tcp -m tcp --dport 445 -j ACCEPT
+{% for client in samba_allow_list | ansible.utils.ipv6 %}
+-A INPUT -s {{ client | ansible.utils.ipaddr('subnet') }} -p tcp -m tcp --dport 139 -j ACCEPT
+-A INPUT -s {{ client | ansible.utils.ipaddr('subnet') }} -p tcp -m tcp --dport 445 -j ACCEPT
 {% endfor %}
 {% endif %}
 
@@ -75,21 +75,21 @@
 -A INPUT -p tcp -m state --state NEW -m tcp --dport 53 -j ACCEPT
 -A INPUT -p udp -m state --state NEW -m udp --dport 53 -j ACCEPT
 {% else %}
--A INPUT -d {{ bind_ipv6 | ipaddr('address') }}/{{ bind_ipv6 | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 53 -j ACCEPT
--A INPUT -d {{ bind_ipv6 | ipaddr('address') }}/{{ bind_ipv6 | ipaddr('prefix') }} -p udp -m state --state NEW -m udp --dport 53 -j ACCEPT
+-A INPUT -d {{ bind_ipv6 | ansible.utils.ipaddr('address') }}/{{ bind_ipv6 | ansible.utils.ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 53 -j ACCEPT
+-A INPUT -d {{ bind_ipv6 | ansible.utils.ipaddr('address') }}/{{ bind_ipv6 | ansible.utils.ipaddr('prefix') }} -p udp -m state --state NEW -m udp --dport 53 -j ACCEPT
 {% endif %}
 {% endif %}
 {% endif %}
 {% if 'mail' in group_names %}
 # Mail Outgoing
--A INPUT -d {{ mail_ipv6 | ipaddr('address') }}/{{ mail_ipv6 | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 25 -j ACCEPT
--A INPUT -d {{ mail_ipv6 | ipaddr('address') }}/{{ mail_ipv6 | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 465 -j ACCEPT
--A INPUT -d {{ mail_ipv6 | ipaddr('address') }}/{{ mail_ipv6 | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 587 -j ACCEPT
+-A INPUT -d {{ mail_ipv6 | ansible.utils.ipaddr('address') }}/{{ mail_ipv6 | ansible.utils.ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 25 -j ACCEPT
+-A INPUT -d {{ mail_ipv6 | ansible.utils.ipaddr('address') }}/{{ mail_ipv6 | ansible.utils.ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 465 -j ACCEPT
+-A INPUT -d {{ mail_ipv6 | ansible.utils.ipaddr('address') }}/{{ mail_ipv6 | ansible.utils.ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 587 -j ACCEPT
 # Mail Incoming
--A INPUT -d {{ mail_ipv6 | ipaddr('address') }}/{{ mail_ipv6 | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 143 -j ACCEPT
--A INPUT -d {{ mail_ipv6 | ipaddr('address') }}/{{ mail_ipv6 | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 993 -j ACCEPT
+-A INPUT -d {{ mail_ipv6 | ansible.utils.ipaddr('address') }}/{{ mail_ipv6 | ansible.utils.ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 143 -j ACCEPT
+-A INPUT -d {{ mail_ipv6 | ansible.utils.ipaddr('address') }}/{{ mail_ipv6 | ansible.utils.ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 993 -j ACCEPT
 # Sieve
--A INPUT -d {{ mail_ipv6 | ipaddr('address') }}/{{ mail_ipv6 | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport {{ sieve_port }} -j ACCEPT
+-A INPUT -d {{ mail_ipv6 | ansible.utils.ipaddr('address') }}/{{ mail_ipv6 | ansible.utils.ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport {{ sieve_port }} -j ACCEPT
 # Don't let anything connect to Amavisd
 -A INPUT -p tcp -m multiport --dports 10024,10025,10026 -j DROP
 {% if doveadm_password %}
@@ -99,8 +99,8 @@
 {% if 'ipv6_address' in hostvars[host] | default(False) %}
 -A INPUT -s {{ hostvars[host]['ipv6_address'] | regex_search('(\w{1,4}\:\w{1,4}:\w{1,4}:\w{1,4}:)') }}:/64 -p tcp -m multiport --dport {{ doveadm_port }} -j ACCEPT
 {% endif %}
-{% elif host | ipv6 %}{# Host may use a different IP to contact us, so we are allowing the entire IPv6 subnet. Might make sense to force a route on the host instead. #}
--A INPUT -s {{ host | ipaddr('address') | regex_search('(\w{1,4}\:\w{1,4}:\w{1,4}:\w{1,4}:)') }}:/64 -p tcp -m multiport --dport {{ doveadm_port }} -j ACCEPT
+{% elif host | ansible.utils.ipv6 %}{# Host may use a different IP to contact us, so we are allowing the entire IPv6 subnet. Might make sense to force a route on the host instead. #}
+-A INPUT -s {{ host | ansible.utils.ipaddr('address') | regex_search('(\w{1,4}\:\w{1,4}:\w{1,4}:\w{1,4}:)') }}:/64 -p tcp -m multiport --dport {{ doveadm_port }} -j ACCEPT
 {% endif %}
 {% endfor %}
 {% endif %}
@@ -108,11 +108,11 @@
 {% if 'ldap' in group_names %}
 # LDAP
 {% for host in ldap_allow_list %}
-{% if host | ipv6 %}
--A INPUT -s {{ host | ipaddr('address') }}/{{ host | ipaddr('prefix') }} -p tcp -m multiport --dport 389,636 -j ACCEPT
+{% if host | ansible.utils.ipv6 %}
+-A INPUT -s {{ host | ansible.utils.ipaddr('address') }}/{{ host | ansible.utils.ipaddr('prefix') }} -p tcp -m multiport --dport 389,636 -j ACCEPT
 {% elif host in hostvars | default([]) %}
 {% if hostvars[host]['ipv6_address'] | default(False) %}
--A INPUT -s {{ hostvars[host]['ipv6_address'] | ipaddr('address') }}/{{ hostvars[host]['ipv6_address'] | ipaddr('prefix') }} -p tcp -m multiport --dport 389,636 -j ACCEPT
+-A INPUT -s {{ hostvars[host]['ipv6_address'] | ansible.utils.ipaddr('address') }}/{{ hostvars[host]['ipv6_address'] | ansible.utils.ipaddr('prefix') }} -p tcp -m multiport --dport 389,636 -j ACCEPT
 {% endif %}
 {% endif %}
 {% endfor %}
@@ -122,8 +122,8 @@
 {% endif %}
 {% if 'emby_server' in group_names %}
 # Emby Server
-{% for host in emby_allow_list | ipv6 %}
--A INPUT -s {{ host | ipaddr('address') }}/{{ host | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 8920 -j ACCEPT
+{% for host in emby_allow_list | ansible.utils.ipv6 %}
+-A INPUT -s {{ host | ansible.utils.ipaddr('address') }}/{{ host | ansible.utils.ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 8920 -j ACCEPT
 {% endfor %}
 -A INPUT -p tcp -m state --state NEW -m tcp --dport 8920 -j DROP
 {% endif %}
@@ -135,12 +135,12 @@
 {% endif %}
 {% endif %}
 # Hostname
--A INPUT -d {{ ipv6_address | ipaddr('address') }}/{{ ipv6_address | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 80 -j ACCEPT
--A INPUT -d {{ ipv6_address | ipaddr('address') }}/{{ ipv6_address | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 443 -j ACCEPT
+-A INPUT -d {{ ipv6_address | ansible.utils.ipaddr('address') }}/{{ ipv6_address | ansible.utils.ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 80 -j ACCEPT
+-A INPUT -d {{ ipv6_address | ansible.utils.ipaddr('address') }}/{{ ipv6_address | ansible.utils.ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 443 -j ACCEPT
 {% for address in website_ipv6 %}
 # Websites
--A INPUT -d {{ address | ipaddr('address') }}/{{ address | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 80 -j ACCEPT
--A INPUT -d {{ address | ipaddr('address') }}/{{ address | ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 443 -j ACCEPT
+-A INPUT -d {{ address | ansible.utils.ipaddr('address') }}/{{ address | ansible.utils.ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 80 -j ACCEPT
+-A INPUT -d {{ address | ansible.utils.ipaddr('address') }}/{{ address | ansible.utils.ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 443 -j ACCEPT
 {% endfor %}
 COMMIT
 

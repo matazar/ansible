@@ -2,7 +2,7 @@ server {
     # HTTPS configuration
     listen {{ ansible_host }}:443 ssl http2;
 {% if dashy_ipv6 %}
-    listen {{ dashy_ipv6 | ipwrap }}:443  ssl http2;
+    listen {{ dashy_ipv6 | ansible.utils.ipwrap }}:443  ssl http2;
 {% endif %}
     server_name {% for hostname in dashy_hostnames %}{{ hostname }} {% endfor %};
     root    /var/www/dashy/public;

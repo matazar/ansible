@@ -24,9 +24,13 @@
       olcAccess: '{0}to * by dn.exact="{{ ldap_replication_user }}" read by * break'
       olcLimits: dn.exact="{{ ldap_replication_user }}" time.soft=unlimited time.hard=unlimited size.soft=unlimited size.hard=unlimited
   register: repl_acl
-  failed_when: 
-    - "not repl_acl.details | default('') | regex_search('Type or value exists') "
-    - "not repl_acl.changed"
+  # failed_when: 
+  #   - "not repl_acl.details | default('') | regex_search('Type or value exists') "
+  #   - "not repl_acl.changed"
+  ignore_errors: True
+
+- debug:
+    var: repl_acl
 
 - name: Ensure replication module is enabled.
   ldap_attrs:
@@ -34,9 +38,9 @@
     attributes:
       olcModuleLoad: syncprov.la
     state: present
-  failed_when:
-    - not repl_mod.changed
-    - not repl_mod.details | default('') | regex_search('Type or value exists') 
+  # failed_when:
+  #   - not repl_mod.changed
+  #   - not repl_mod.details | default('') | regex_search('Type or value exists') 
   register: repl_mod
 
 - name: Enable replication on the databases

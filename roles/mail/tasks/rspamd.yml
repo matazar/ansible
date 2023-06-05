@@ -1,6 +1,8 @@
-- name: Add the rspamd gpg key
-  apt_key:
+- name: Import the rspamd gpg key
+  get_url: 
     url: https://rspamd.com/apt-stable/gpg.key
+    dest: /etc/apt/trusted.gpg.d/rspamd.asc
+  register: rspamd_gpg_key
 
 - name: Ensure we have the rspamd repo added.
   template:

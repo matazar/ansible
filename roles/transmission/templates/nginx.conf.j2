@@ -8,8 +8,8 @@ server {
 {% if transmission_allow_list != [] %}
 
 {% for host in transmission_allow_list %}
-{% if not host | ipaddr('127.0.0.1/8')%}
-    allow  {{ host | ipaddr('address') }}/{{ host | ipaddr('prefix') }};
+{% if not host | ansible.utils.ipaddr('127.0.0.1/8')%}
+    allow  {{ host | ansible.utils.ipaddr('address') }}/{{ host | ansible.utils.ipaddr('prefix') }};
 {% endif %}
 {% endfor %}
     deny   all;

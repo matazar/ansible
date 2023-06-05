@@ -26,6 +26,7 @@ smtpd_tls_security_level = may
 smtpd_tls_auth_only = yes
 smtpd_tls_cert_file = /etc/letsencrypt/live/{{ mail_hostname }}/fullchain.pem
 smtpd_tls_key_file = /etc/letsencrypt/live/{{ mail_hostname }}/privkey.pem
+smtpd_relay_before_recipient_restrictions = yes
 smtpd_sender_restrictions =
 	permit_mynetworks
 	permit_sasl_authenticated
@@ -49,6 +50,9 @@ smtpd_recipient_restrictions =
     reject_rbl_client           {{ dqs_key }}.zen.dq.spamhaus.net=127.0.0.[2..255]
 {% endif %}
     check_recipient_access      hash:/etc/postfix/rejected_addresses
+smtpd_relay_restrictions =
+    permit_mynetworks
+    reject_unauth_destination
 virtual_uid_maps = static:1002
 virtual_gid_maps = static:1002
 virtual_alias_maps =
@@ -56,7 +60,6 @@ virtual_alias_maps =
 virtual_mailbox_domains = proxy:ldap:/etc/postfix/domains.cf
 virtual_transport = lmtp:unix:private/dovecot-lmtp
 # rspamd
-#smtpd_milters = unix:/var/lib/rspamd/milter.sock
 smtpd_milters = inet:localhost:11332
 # skip mail without checks if something goes wrong
 milter_default_action = accept
@@ -68,7 +71,7 @@ header_checks = pcre:/etc/postfix/header_checks
 smtpd_sasl_type = dovecot
 smtpd_sasl_path = private/auth
 smtpd_sasl_auth_enable = yes
-smtpd_sasl_security_options = noanonymous
+#smtpd_sasl_security_options = noanonymous
 smtpd_sasl_local_domain = $myhostname
 
 myhostname = {{ mail_hostname }}
@@ -76,7 +79,7 @@ alias_maps = hash:/etc/aliases
 alias_database = hash:/etc/aliases
 mydestination = localdomain, localhost, localhost.localdomain, localhost, {{ mail_hostname }}
 relayhost = 
-mynetworks = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128 
+mynetworks = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128 cidr:/etc/postfix/network_table
 
 mailbox_size_limit = 0
 recipient_delimiter = -
@@ -86,7 +89,6 @@ inet_protocols = ipv4, ipv6
 {% else %}
 inet_protocols = ipv4, ipv6
 {% endif %}
-
 
 myorigin = /etc/mailname
 
@@ -100,4 +102,4 @@ smtpd_client_message_rate_limit = 25
 default_extra_recipient_limit = 50
 duplicate_filter_limit = 50
 default_destination_recipient_limit = 50
-compatibility_level = 2
+compatibility_level = 3.6

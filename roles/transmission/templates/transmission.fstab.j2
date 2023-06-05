@@ -1,8 +1,8 @@
 {% for host in transmission_mounts  %}
 {% for share in transmission_mounts[host] %}
-{% if host | ipv4 %}
+{% if host | ansible.utils.ipv4 %}
 //{{ host }}/{{ share }} 		/mnt/{{ host.split('.')[2] }}_{{ host.split('.')[3] }}_{{ share }} 	cifs 	x-systemd.automount,credentials=/root/.samba.conf,uid=debian-transmission  	0 	0
-{% elif host | ipv6 %}
+{% elif host | ansible.utils.ipv6 %}
 //{{ host }}/{{ share }} 		/mnt/{{ host.split(':')[-1] }}_{{ share }} 	cifs 	x-systemd.automount,credentials=/root/.samba.conf,uid=debian-transmission 	0 	0
 {% else %}
 {% if force_ipv4_mounts %}

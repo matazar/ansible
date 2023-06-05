@@ -66,7 +66,7 @@
     "rpc-url": "/transmission/",
     "rpc-username": "",
 {% if transmission_allow_list == [] %}
-    "rpc-whitelist": "127.0.0.1,{{ local_subnet | ipaddr('network') | regex_replace('(\d{1,3}\.\d{1,3}\.\d{1,3}\.)\d{1,3}', '\\1*') }}",
+    "rpc-whitelist": "127.0.0.1,{{ local_subnet | ansible.utils.ipaddr('network') | regex_replace('(\d{1,3}\.\d{1,3}\.\d{1,3}\.)\d{1,3}', '\\1*') }}",
 {% else %}
     "rpc-whitelist": "127.0.0.1,{{ transmission_allow_list | join(',')}}",
 {% endif %}

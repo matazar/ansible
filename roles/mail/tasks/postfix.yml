@@ -34,7 +34,6 @@
     dest: '/etc/postfix/{{ item }}'
   with_items:
     - virtual
-    - network_table
     - dnsbl-reply-map
     - rejected_addresses
   register: new_virtual
@@ -45,7 +44,6 @@
   command: '/usr/sbin/postmap hash:/etc/postfix/{{ item }}' 
   with_items:
     - virtual
-    - network_table
     - dnsbl-reply-map
     - rejected_addresses
   when: new_virtual.changed

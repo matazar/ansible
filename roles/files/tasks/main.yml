@@ -11,12 +11,12 @@
 # start and enable php-fpm
 - name: Ensure php-fpm is running
   service: 
-    name: php7.4-fpm
+    name: php8.2-fpm
     state: started
 
 - name: Ensure php-fpm is enabled
   service: 
-    name: php7.4-fpm
+    name: php8.2-fpm
     enabled: yes
 
 - name: Clone Git Repo
@@ -85,12 +85,12 @@
   
 - name: Ensure php-fpm is running
   service:
-    name: php7.4-fpm
+    name: php8.2-fpm
     state: started
 
 - name: Ensure php-fpm is running
   service:
-    name: php7.4-fpm
+    name: php8.2-fpm
     enabled: yes
 
 - name: Update files nginx file

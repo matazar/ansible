@@ -12,20 +12,20 @@
 -A INPUT -p icmp -m icmp --icmp-type 8 -j ACCEPT
 # SSH
 {% if 'local' in group_names %}
--A INPUT -s {{ local_subnet | ipaddr('subnet') }} -p tcp -m tcp --dport 22 -j ACCEPT
+-A INPUT -s {{ local_subnet | ansible.utils.ipaddr('subnet') }} -p tcp -m tcp --dport 22 -j ACCEPT
 {% endif %}
-{% for host in trusted_hosts | ipv4 %}
-{% if host | ipaddr('subnet') %}
+{% for host in trusted_hosts | ansible.utils.ipv4 %}
+{% if host | ansible.utils.ipaddr('subnet') %}
 {% if host != local_subnet %}
--A INPUT -s {{ host | ipaddr('subnet') }} -p tcp -m tcp --dport 22 -j ACCEPT
+-A INPUT -s {{ host | ansible.utils.ipaddr('subnet') }} -p tcp -m tcp --dport 22 -j ACCEPT
 {% endif %}
 {% else %}
--A INPUT -s {{ host | ipaddr('address') }}/{{ host | ipaddr('prefix') }} -p tcp -m tcp --dport 22 -j ACCEPT
+-A INPUT -s {{ host | ansible.utils.ipaddr('address') }}/{{ host | ansible.utils.ipaddr('prefix') }} -p tcp -m tcp --dport 22 -j ACCEPT
 {% endif %}
 {% endfor %}
 {% if sshd_public_port %}
 # Accept external SSH 
--A INPUT -d {{ ansible_host | ipaddr('address') }}/{{ ansible_host | ipaddr('prefix') }} -p tcp -m tcp --dport {{ sshd_public_port }} -j ACCEPT
+-A INPUT -d {{ ansible_host | ansible.utils.ipaddr('address') }}/{{ ansible_host | ansible.utils.ipaddr('prefix') }} -p tcp -m tcp --dport {{ sshd_public_port }} -j ACCEPT
 {% endif %}
 -A INPUT -p tcp -m tcp --dport 22 -j DROP
 -A INPUT -p tcp -m tcp --dport 115 -j DROP
@@ -33,56 +33,56 @@
 {% if 'local_dns' in group_names %}
 # DNS Queries
 {% if local_dns_clients != [] %}
-{% for client in local_dns_clients | ipv4 %}
-{% if client | ipaddr('subnet') %}
--A INPUT -s {{ client | ipaddr('subnet') }} -p tcp -m tcp --dport 53 -j ACCEPT
--A INPUT -s {{ client | ipaddr('subnet') }} -p udp -m udp --dport 53 -j ACCEPT
+{% for client in local_dns_clients | ansible.utils.ipv4 %}
+{% if client | ansible.utils.ipaddr('subnet') %}
+-A INPUT -s {{ client | ansible.utils.ipaddr('subnet') }} -p tcp -m tcp --dport 53 -j ACCEPT
+-A INPUT -s {{ client | ansible.utils.ipaddr('subnet') }} -p udp -m udp --dport 53 -j ACCEPT
 {% else %}
--A INPUT -s {{ client | ipaddr('address') }}/{{ client | ipaddr('prefix') }} -p tcp -m tcp --dport 53 -j ACCEPT
--A INPUT -s {{ client | ipaddr('address') }}/{{ client | ipaddr('prefix') }} -p udp -m udp --dport 53 -j ACCEPT
+-A INPUT -s {{ client | ansible.utils.ipaddr('address') }}/{{ client | ansible.utils.ipaddr('prefix') }} -p tcp -m tcp --dport 53 -j ACCEPT
+-A INPUT -s {{ client | ansible.utils.ipaddr('address') }}/{{ client | ansible.utils.ipaddr('prefix') }} -p udp -m udp --dport 53 -j ACCEPT
 {% endif %}
 {% endfor %}
 {% else %}
--A INPUT -d {{ ansible_host | ipaddr('address') }}/{{ ansible_host | ipaddr('prefix') }} -p tcp -m tcp --dport 53 -j ACCEPT
--A INPUT -d {{ ansible_host | ipaddr('address') }}/{{ ansible_host | ipaddr('prefix') }} -p udp -m udp --dport 53 -j ACCEPT
+-A INPUT -d {{ ansible_host | ansible.utils.ipaddr('address') }}/{{ ansible_host | ansible.utils.ipaddr('prefix') }} -p tcp -m tcp --dport 53 -j ACCEPT
+-A INPUT -d {{ ansible_host | ansible.utils.ipaddr('address') }}/{{ ansible_host | ansible.utils.ipaddr('prefix') }} -p udp -m udp --dport 53 -j ACCEPT
 {% endif %}
 {% endif %}
 {% if 'samba' in group_names %}
--A INPUT -d {{ local_subnet | ipaddr('subnet') }} -p tcp -m tcp --dport 139 -j ACCEPT
--A INPUT -d {{ local_subnet | ipaddr('subnet') }} -p tcp -m tcp --dport 445 -j ACCEPT
-{% for client in samba_allow_list | ipv4 %}
--A INPUT -s {{ client | ipaddr('subnet') }} -p tcp -m tcp --dport 139 -j ACCEPT
--A INPUT -s {{ client | ipaddr('subnet') }} -p tcp -m tcp --dport 445 -j ACCEPT
+-A INPUT -d {{ local_subnet | ansible.utils.ipaddr('subnet') }} -p tcp -m tcp --dport 139 -j ACCEPT
+-A INPUT -d {{ local_subnet | ansible.utils.ipaddr('subnet') }} -p tcp -m tcp --dport 445 -j ACCEPT
+{% for client in samba_allow_list | ansible.utils.ipv4 %}
+-A INPUT -s {{ client | ansible.utils.ipaddr('subnet') }} -p tcp -m tcp --dport 139 -j ACCEPT
+-A INPUT -s {{ client | ansible.utils.ipaddr('subnet') }} -p tcp -m tcp --dport 445 -j ACCEPT
 {% endfor %}
 
 {% endif %}
 {% if firewall_open_ports %}
 {% for port in firewall_open_ports%}
 {% if firewall_open_ports[port]['tcp'] | default(false) %}
--A INPUT -d {{ ansible_host | ipaddr('address') }}/{{ ansible_host | ipaddr('prefix') }} -p tcp -m tcp --dport {{ port }} -j ACCEPT
+-A INPUT -d {{ ansible_host | ansible.utils.ipaddr('address') }}/{{ ansible_host | ansible.utils.ipaddr('prefix') }} -p tcp -m tcp --dport {{ port }} -j ACCEPT
 {% endif %}
 {% if firewall_open_ports[port]['udp'] | default(false) %}
--A INPUT -d {{ ansible_host | ipaddr('address') }}/{{ ansible_host | ipaddr('prefix') }} -p udp -m udp --dport {{ port }} -j ACCEPT
+-A INPUT -d {{ ansible_host | ansible.utils.ipaddr('address') }}/{{ ansible_host | ansible.utils.ipaddr('prefix') }} -p udp -m udp --dport {{ port }} -j ACCEPT
 {% endif %}
 {% endfor %}
 
 {% endif %}
 {% if 'dns' in group_names %}
 # DNS Queries
--A INPUT -d {{ ansible_host | ipaddr('address') }}/{{ ansible_host | ipaddr('prefix') }} -p tcp -m tcp --dport 53 -j ACCEPT
--A INPUT -d {{ ansible_host | ipaddr('address') }}/{{ ansible_host | ipaddr('prefix') }} -p udp -m udp --dport 53 -j ACCEPT
+-A INPUT -d {{ ansible_host | ansible.utils.ipaddr('address') }}/{{ ansible_host | ansible.utils.ipaddr('prefix') }} -p tcp -m tcp --dport 53 -j ACCEPT
+-A INPUT -d {{ ansible_host | ansible.utils.ipaddr('address') }}/{{ ansible_host | ansible.utils.ipaddr('prefix') }} -p udp -m udp --dport 53 -j ACCEPT
 
 {% endif %}
 {% if 'mail'  in group_names %}
 # Mail Outgoing
--A INPUT -d {{ ansible_host | ipaddr('address') }}/{{ ansible_host | ipaddr('prefix') }} -p tcp -m tcp --dport 25 -j ACCEPT
--A INPUT -d {{ ansible_host | ipaddr('address') }}/{{ ansible_host | ipaddr('prefix') }} -p tcp -m tcp --dport 465 -j ACCEPT
--A INPUT -d {{ ansible_host | ipaddr('address') }}/{{ ansible_host | ipaddr('prefix') }} -p tcp -m tcp --dport 587 -j ACCEPT
+-A INPUT -d {{ ansible_host | ansible.utils.ipaddr('address') }}/{{ ansible_host | ansible.utils.ipaddr('prefix') }} -p tcp -m tcp --dport 25 -j ACCEPT
+-A INPUT -d {{ ansible_host | ansible.utils.ipaddr('address') }}/{{ ansible_host | ansible.utils.ipaddr('prefix') }} -p tcp -m tcp --dport 465 -j ACCEPT
+-A INPUT -d {{ ansible_host | ansible.utils.ipaddr('address') }}/{{ ansible_host | ansible.utils.ipaddr('prefix') }} -p tcp -m tcp --dport 587 -j ACCEPT
 # Mail Incoming
--A INPUT -d {{ ansible_host | ipaddr('address') }}/{{ ansible_host | ipaddr('prefix') }} -p tcp -m tcp --dport 143 -j ACCEPT
--A INPUT -d {{ ansible_host | ipaddr('address') }}/{{ ansible_host | ipaddr('prefix') }} -p tcp -m tcp --dport 993 -j ACCEPT
+-A INPUT -d {{ ansible_host | ansible.utils.ipaddr('address') }}/{{ ansible_host | ansible.utils.ipaddr('prefix') }} -p tcp -m tcp --dport 143 -j ACCEPT
+-A INPUT -d {{ ansible_host | ansible.utils.ipaddr('address') }}/{{ ansible_host | ansible.utils.ipaddr('prefix') }} -p tcp -m tcp --dport 993 -j ACCEPT
 # Managesieve
--A INPUT -d {{ ansible_host | ipaddr('address') }}/{{ ansible_host | ipaddr('prefix') }} -p tcp -m tcp --dport {{ sieve_port }} -j ACCEPT
+-A INPUT -d {{ ansible_host | ansible.utils.ipaddr('address') }}/{{ ansible_host | ansible.utils.ipaddr('prefix') }} -p tcp -m tcp --dport {{ sieve_port }} -j ACCEPT
 #  Don't let anything connect to Amavisd
 -A INPUT -p tcp -m multiport --dports 10024,10025,10026 -j DROP
 {% if doveadm_password %}
@@ -90,10 +90,10 @@
 {% for host in doveadm_allow_list %}
 {% if host in hostvars %}
 {% if 'ipv4_address' in hostvars[host] %}
--A INPUT -s {{ hostvars[host]['ipv4_address'] | ipaddr('address') }}/{{ hostvars[host]['ipv4_address'] | ipaddr('prefix') }} -p tcp -m multiport --dport {{ doveadm_port }} -j ACCEPT
+-A INPUT -s {{ hostvars[host]['ipv4_address'] | ansible.utils.ipaddr('address') }}/{{ hostvars[host]['ipv4_address'] | ansible.utils.ipaddr('prefix') }} -p tcp -m multiport --dport {{ doveadm_port }} -j ACCEPT
 {% endif %}
-{% elif host | ipv4 %}
--A INPUT -s {{ host | ipaddr('address') }}/{{ host | ipaddr('prefix') }} -p tcp -m multiport --dport {{ doveadm_port }} -j ACCEPT
+{% elif host | ansible.utils.ipv4 %}
+-A INPUT -s {{ host | ansible.utils.ipaddr('address') }}/{{ host | ansible.utils.ipaddr('prefix') }} -p tcp -m multiport --dport {{ doveadm_port }} -j ACCEPT
 {% endif %}
 {% endfor %}
 # Drop everyone else
@@ -105,8 +105,8 @@
 # LDAP
 -A INPUT -s 127.0.0.1/32 -p tcp -m multiport --dport 389,636 -j ACCEPT
 {% for host in ldap_allow_list %}
-{% if host | ipv4 %}
--A INPUT -s {{ host | ipaddr('address') }}/{{ host | ipaddr('prefix') }} -p tcp -m multiport --dport 389,636 -j ACCEPT
+{% if host | ansible.utils.ipv4 %}
+-A INPUT -s {{ host | ansible.utils.ipaddr('address') }}/{{ host | ansible.utils.ipaddr('prefix') }} -p tcp -m multiport --dport 389,636 -j ACCEPT
 {% elif host in hostvars | default([]) %}
 -A INPUT -s {{ hostvars[host]['ansible_host'] }}/32 -p tcp -m multiport --dport 389,636 -j ACCEPT
 {% endif %}
@@ -117,11 +117,11 @@
 {% endif %}
 {% if 'emby_server' in group_names %}
 # Emby Server
-{% for host in emby_allow_list | ipv4 %}
-{% if host | ansible.netcommon.ipaddr('net') %}
--A INPUT -s {{ host | ipaddr('net') }} -p tcp -m tcp --dport 8920 -j ACCEPT
+{% for host in emby_allow_list | ansible.utils.ipv4 %}
+{% if host | ansible.utils.ipaddr('net') %}
+-A INPUT -s {{ host | ansible.utils.ipaddr('net') }} -p tcp -m tcp --dport 8920 -j ACCEPT
 {% else %}
--A INPUT -s {{ host | ipaddr('address') }}/{{ host | ipaddr('prefix') }} -p tcp -m tcp --dport 8920 -j ACCEPT
+-A INPUT -s {{ host | ansible.utils.ipaddr('address') }}/{{ host | ansible.utils.ipaddr('prefix') }} -p tcp -m tcp --dport 8920 -j ACCEPT
 {% endif %}
 {% endfor %}
 -A INPUT -p tcp -m tcp --dport 8920 -j DROP
@@ -130,9 +130,9 @@
 {% if 'transmission' in group_names %}
 {% if not transmission_https_only | default(false) %}
 {% for host in transmission_allow_list | default([]) %}
-{% if host | ipv4 and not host | ipaddr('127.0.0.1/8') %}
--A INPUT -s {{ host | ipaddr('address') }}/{{ host | ipaddr('prefix') }} -p udp -m udp --dport 9091 -j ACCEPT
--A INPUT -s {{ host | ipaddr('address') }}/{{ host | ipaddr('prefix') }} -p tcp -m tcp --dport 9091 -j ACCEPT
+{% if host | ansible.utils.ipv4 and not host | ansible.utils.ipaddr('127.0.0.1/8') %}
+-A INPUT -s {{ host | ansible.utils.ipaddr('address') }}/{{ host | ansible.utils.ipaddr('prefix') }} -p udp -m udp --dport 9091 -j ACCEPT
+-A INPUT -s {{ host | ansible.utils.ipaddr('address') }}/{{ host | ansible.utils.ipaddr('prefix') }} -p tcp -m tcp --dport 9091 -j ACCEPT
 {% endif %}
 {% endfor %}
 

@@ -2434,7 +2434,7 @@ Name of the php-fpm command used on the system.
 
 Example:
 ```
-php_fpm: 'php7.4-fpm'
+php_fpm: 'php8.2-fpm'
 ```
 
 Default:
@@ -2455,7 +2455,7 @@ php_version: php7.3
 
 Default:
 ```
-php_version: php7.4
+php_version: php8.2
 ```
 ---
 

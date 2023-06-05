@@ -3,7 +3,7 @@
 - name: Install prereqs
   apt:
     name: ['dbconfig-common', 'dictionaries-common', 'libmcrypt4', '{{ php_fpm }}', 'php-auth-sasl', 'php-pear',
-           'php-pgsql', 'php-pspell', '{{ php_version }}-cli', '{{ php_version }}-cgi', '{{ php_version }}-common', '{{ php_version }}-json', '{{ php_version }}-ldap',
+           'php-pgsql', 'php-pspell', '{{ php_version }}-cli', '{{ php_version }}-cgi', '{{ php_version }}-common', 'php-json', '{{ php_version }}-ldap',
            '{{ php_version }}-mbstring', '{{ php_version }}-pgsql', 'postgresql', '{{ php_version }}-xml', '{{ php_version }}-zip', 'libgd-tools',
            php-gd, php-intl]
     state: present

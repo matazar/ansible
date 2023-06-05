@@ -2,7 +2,7 @@
 server {
   listen {{ ansible_host }}:80;
 {% if cert_ipv6 %}
-  listen {{ cert_ipv6 | ipwrap }}:80;
+  listen {{ cert_ipv6 | ansible.utils.ipwrap }}:80;
 {% endif %}
   server_name {{ domain }};
 

@@ -13,7 +13,7 @@ roundcube_db_name: roundcube
 #postgresql_root_password: ''
 postgresql_version: 13
 
-php_version: php7.4
+php_version: php8.2
 php_fpm: '{{ php_version }}-fpm'
 
 composer_version: 2.5.1

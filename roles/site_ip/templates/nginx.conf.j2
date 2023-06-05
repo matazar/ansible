@@ -2,7 +2,7 @@ server {
     # HTTPS configuration
     listen {{ ansible_host }}:443 ssl http2;
 {% if ip_site_ipv6 %}
-    listen {{ ip_site_ipv6 | ipwrap }}:443  ssl http2;
+    listen {{ ip_site_ipv6 | ansible.utils.ipwrap }}:443  ssl http2;
 {% endif %}
     server_name{% for host in ip_site_hostnames %} {{ host }}{% endfor %};
     root    {{ ip_site_root }};

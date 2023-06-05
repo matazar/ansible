@@ -27,7 +27,7 @@ default_domain: example.local
 mail_hostname: "mail.{{ default_domain }}"
 webmail_hostname: "webmail.{{ default_domain }}"
 cert_email: certs@example.local
-php_fpm: php7.4-fpm
+php_fpm: php8.2-fpm
 doveadm_port: 12345
 
 # Network

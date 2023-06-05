@@ -65,33 +65,35 @@
         - /tmp/openldap
         - /tmp/policy-check-password
 
-- name: Check for ppolicy module
-  ldap_attrs:
-    dn: cn=module{0},cn=config
-    attributes:
-      olcModuleLoad: ppolicy.la
-    state: present
-  register: ldap_test
-  failed_when: false
+## ppolicy should be a apart of slapd now.
 
-- name: Add ppolicy schema
-  command: ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/ldap/schema/ppolicy.ldif
-  failed_when: false
-  changed_when: "not ppolicy_schema.stderr | regex_search('olcAttributeTypes: Duplicate attributeType:')"
-  register: ppolicy_schema
+# - name: Check for ppolicy module
+#   ldap_attrs:
+#     dn: cn=module{0},cn=config
+#     attributes:
+#       olcModuleLoad: ppolicy.la
+#     state: present
+#   register: ldap_test
+#   failed_when: false
 
-- name: Apply ppolicy overlay
-  ldap_entry:
-    dn: olcOverlay={0}ppolicy,olcDatabase={1}mdb,cn=config
-    objectClass:
-      - olcOverlayConfig
-      - olcPPolicyConfig
-    attributes:
-      olcOverlay: ppolicy
-      olcPPolicyDefault: 'cn=default,ou=policies,{{ ldap_suffix }}'
-      olcPPolicyUseLockout: '{{ ppolicy_use_lockout | upper }}'
-      olcPPolicyHashCleartext: '{{ ppolicy_hash_cleartext | upper }}'
-  register: ppolicy_overlay
+# - name: Add ppolicy schema
+#   command: ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/ldap/schema/ppolicy.ldif
+#   failed_when: false
+#   changed_when: "not ppolicy_schema.stderr | regex_search('olcAttributeTypes: Duplicate attributeType:')"
+#   register: ppolicy_schema
+
+# - name: Apply ppolicy overlay
+#   ldap_entry:
+#     dn: olcOverlay={0}ppolicy,olcDatabase={1}mdb,cn=config
+#     objectClass:
+#       - olcOverlayConfig
+#       - olcPPolicyConfig
+#     attributes:
+#       olcOverlay: ppolicy
+#       olcPPolicyDefault: 'cn=default,ou=policies,{{ ldap_suffix }}'
+#       olcPPolicyUseLockout: '{{ ppolicy_use_lockout | upper }}'
+#       olcPPolicyHashCleartext: '{{ ppolicy_hash_cleartext | upper }}'
+#   register: ppolicy_overlay
   
 - name: Update ACLs
   ldap_attrs:

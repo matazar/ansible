@@ -13,23 +13,6 @@
     update_cache: yes
     install_recommends: yes
 
-- name: Ensure iptables is running
-  service:
-    name: iptables
-    state: started
-  register: iptables_service
-
-- name: Ensure iptables is enabled
-  service:
-    name: iptables
-    enabled: yes
-
-- name: Ensure ip6tables is enabled
-  service:
-    name: ip6tables
-    enabled: yes
-  when: ipv6_address
-
 - name: Update our iptables rules
   template:
     src: "rules.{{ item }}.j2"

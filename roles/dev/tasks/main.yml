@@ -1,14 +1,13 @@
-- name: Import Visual Studio Code GPG key
-  apt_key:
-    url: 'https://packages.microsoft.com/keys/microsoft.asc'
-    key: EB3E94ADBE1229CF
-    state: present
-  when: "'code' in dev_pkgs"
+- block:
+  - name: Import Visual Studio Code GPG Key
+    get_url: 
+      url: 'https://packages.microsoft.com/keys/microsoft.asc'
+      dest: /etc/apt/trusted.gpg.d/microsoft.asc
 
-- name: Set up Visual Studio Code repo
-  template:
-    dest: /etc/apt/sources.list.d/vscode.list
-    src: vscode.list.j2
+  - name: Set up Visual Studio Code repo
+    template:
+      dest: /etc/apt/sources.list.d/vscode.list
+      src: vscode.list.j2
   when: "'code' in dev_pkgs"
 
 - name: "Install dev packages ({{ ',  '.join(dev_pkgs) }})"
@@ -20,7 +19,7 @@
 - name: Set up ansible config
   template:
     src: "ansible.cfg.j2"
-    dest: "/home/{{ primary_user}}/.ansible.cfg"
+    dest: "/home/{{ primary_user }}/.ansible.cfg"
 
 - name: Ensure ansible vault password file exists
   template:

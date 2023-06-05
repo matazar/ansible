@@ -4,15 +4,15 @@
 
 - set_fact:
     share_prefix: "{{ item.split('.')[0] }}"
-  when: not item | ipaddr 
+  when: not item | ansible.utils.ipaddr 
 
 - set_fact:
     share_prefix: "{{ item.split('.')[2] }}_{{ item.split('.')[3] }}"
-  when: item | ipv4
+  when: item | ansible.utils.ipv4
 
 - set_fact:
     share_prefix: "{{ item.split(':')[-1] }}"
-  when: item | ipv6
+  when: item | ansible.utils.ipv6
     
 - name: "Ensure network share folders exist for {{ item }}"
   file:

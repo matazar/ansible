@@ -29,7 +29,7 @@
     changed_when: pihole_webpwd.rc != 0
     failed_when: false
   - set_fact: 
-      pihole_pwdhash: "{{ pihole_webpwd.stdout.split('=')[1] }}"
+      pihole_pwdhash: "{{ pihole_webpwd.stdout.split('=')[1] | default('')}}"
     when: not pihole_webpwd.changed
 
 # Order in real file frequently changes the order, this step prevents it from changing each run.

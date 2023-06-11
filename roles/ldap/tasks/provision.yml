@@ -1,71 +1,15 @@
-# Reset LDAP data only if reset data is set to yes/true
-- block:
-  - name: Stop LDAP
-    service:
-      name: slapd
-      state: stopped
-  - name: Clear old data
-    file:
-      path: "{{ item }}"
-      state: absent
-    with_items:
-      - "/etc/ldap/slapd.d"
-      - "/var/lib/ldap"
-  - name: Recreate slapd.d folder
-    file:
-      path: "{{ item }}"
-      state: directory
-      owner:  openldap
-      group: openldap
-    with_items:
-      - "/etc/ldap/slapd.d"
-      - "/var/lib/ldap"
-  when: reset_data | default('no') | bool
-    
-- block:
-    # You may need to remove the first two entries from seed.ldif.
-    - name: Copy LDAP backup config/seed files to host
-      copy:
-        src: "{{ backup_dir }}/ldap/{{ ldap_hostname }}/{{ item }}"
-        dest: "/root/{{ item }}"
-      with_items:
-        - config.ldif
-        - seed.ldif
-  rescue:
-    - name: Copy new LDAP seed/config files to host
-      template:
-        src: "{{ item }}.j2"
-        dest: "/root/{{ item }}"
-      with_items:
-        - config.ldif
-        - seed.ldif
+# Do we have a backup?
+- name: Check for backup copy of database to restore.
+  stat: 
+    path: "{{ backup_dir }}/ldap/{{ ldap_hostname }}/seed.ldif"
+  register: ldap_backup
+  
+- debug:
+    var: ldap_backup.stat.exists
 
-- name: Import LDAP config data
-  command: "slapadd -n 0 -F /etc/ldap/slapd.d -l /root/config.ldif"
-  register: ldap_import
-  ignore_errors: yes
-
-- name: Import LDAP seed data 
-  command: "slapadd -n 1 -l  /root/seed.ldif"
-  ignore_errors: yes
-
-- name: Remove LDIF files
-  file:
-    path: "/root/{{ item }}"
-    state: absent
-  with_items:
-    - config.ldif
-    - seed.ldif
-
-- name: Set LDAP permissions
-  file:
-    recurse: yes
-    group: openldap
-    owner: openldap
-    path: "{{ item }}"
-  with_items:
-    - "/etc/ldap/slapd.d"
-    - "/var/lib/ldap"
+# Restore backups if they exist
+- include_tasks: restore.yml
+  when: ldap_backup.stat.exists
 
 # This is required during provisioning.
 - name: Ensure ldap hostname is in host file.

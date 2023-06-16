@@ -74,7 +74,6 @@ set alert {{ monit_email }}
 ## Do not alert when Monit starts, stops or performs a user initiated action.
 ## This filter is recommended to avoid getting alerts for trivial cases.
 #
-set alert {{ monit_email }} not on { instance, action }
 
 include /etc/monit/conf.d/*
 include /etc/monit/conf-enabled/*

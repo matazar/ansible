@@ -31,6 +31,8 @@
     command: yarn build
     args:
       chdir: /var/www/dashy
+    environment:
+      NODE_OPTIONS: --openssl-legacy-provider
   - name: Remove conf.yml file on new instance so backup or default is used in place.
     file:
       path: /var/www/dashy/public/conf.yml
@@ -86,7 +88,7 @@
     changed_when: pm2_list.rc != 0 
     failed_when: false
   - name: Enable dashy in PM2
-    command: pm2 start yarn --name dashy --watch /var/www/dashy/public --log /var/www/dashy/log.log -- start
+    command: pm2 start yarn --name dashy --watch /var/www/dashy/public --node-args "--openssl-legacy-provider" --log /var/www/dashy/log.log -- start 
     args:
       chdir: "/var/www/dashy"
     when: pm2_list.changed

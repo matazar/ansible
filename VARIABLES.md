@@ -2151,6 +2151,25 @@ mail_localip: 127.0.0.3
 ```
 ---
 
+## mail_mynetworks
+Roles: mail
+
+A list of networks to be added to the mynetworks list in postfix. This is used to allow relaying from these networks and exempts them from greylisting.
+
+Example:
+```
+mail_mynetworks: 
+  - 127.0.0.1
+  - 192.168.0.0/24
+  - 2001:db8:1234::/64
+```
+
+Default:
+```
+mail_mynetworks: []
+```
+---
+
 ## mail_server
 Roles: roundcube, sendmail, monit
 

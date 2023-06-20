@@ -58,6 +58,13 @@
   tags:
     - update_alias
 
+
+- name: Update network table
+  template:
+    src: postfix/network_table.j2
+    dest: /etc/postfix/network_table
+  notify: restart postfix
+
 - name: Hash /etc/aliases
   command: /usr/bin/newaliases
   when: newaliases.changed

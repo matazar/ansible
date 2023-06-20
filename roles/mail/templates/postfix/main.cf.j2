@@ -26,7 +26,6 @@ smtpd_tls_security_level = may
 smtpd_tls_auth_only = yes
 smtpd_tls_cert_file = /etc/letsencrypt/live/{{ mail_hostname }}/fullchain.pem
 smtpd_tls_key_file = /etc/letsencrypt/live/{{ mail_hostname }}/privkey.pem
-smtpd_relay_before_recipient_restrictions = yes
 smtpd_sender_restrictions =
 	permit_mynetworks
 	permit_sasl_authenticated
@@ -50,9 +49,6 @@ smtpd_recipient_restrictions =
     reject_rbl_client           {{ dqs_key }}.zen.dq.spamhaus.net=127.0.0.[2..255]
 {% endif %}
     check_recipient_access      hash:/etc/postfix/rejected_addresses
-smtpd_relay_restrictions =
-    permit_mynetworks
-    reject_unauth_destination
 virtual_uid_maps = static:1002
 virtual_gid_maps = static:1002
 virtual_alias_maps =
@@ -71,7 +67,7 @@ header_checks = pcre:/etc/postfix/header_checks
 smtpd_sasl_type = dovecot
 smtpd_sasl_path = private/auth
 smtpd_sasl_auth_enable = yes
-#smtpd_sasl_security_options = noanonymous
+smtpd_sasl_security_options = noanonymous
 smtpd_sasl_local_domain = $myhostname
 
 myhostname = {{ mail_hostname }}

@@ -108,13 +108,6 @@
       olcSecurity: ssf=128
       olcLocalSSF: '128'
 
-- name: Ensure root
-  ldap_attrs:
-    dn: olcDatabase={1}mdb,cn=config
-    state: exact
-    attributes:
-      olcRootPW: "{{ ldap_rootpw | password_hash('ldap_salted_sha1') }}"
-
 - name: Update access rules
   ldap_attrs:
     dn: olcDatabase={1}mdb,cn=config

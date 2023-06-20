@@ -3,31 +3,171 @@
   stat: 
     path: "{{ backup_dir }}/ldap/{{ ldap_hostname }}/seed.ldif"
   register: ldap_backup
-  
-- debug:
-    var: ldap_backup.stat.exists
 
 # Restore backups if they exist
 - include_tasks: restore.yml
   when: ldap_backup.stat.exists
 
-# This is required during provisioning.
-- name: Ensure ldap hostname is in host file.
-  lineinfile:
-    path: /etc/hosts
-    line: "{{ ldap_localip }} {{ ldap_hostname }} {{ ldap_hostname.split('.')[0] }}"
-
+# Otherwise update the default database
 - name: Ensure LDAP is started
   service:
     name: slapd
     state: started
 
-# Unable to properly encrypt during original import.
-- name: Set root password
+# Import iredmail schema
+- block:
+    - name: Download a copy of the iredmail schema
+      get_url:
+        url: https://github.com/DesMan/iredmail/raw/master/samples/iredmail.schema
+        dest: /etc/ldap/schema/iredmail.schema
+        mode: 0644
+    - name: Create conversion file
+      template:
+        src: iredmail_convert.conf.j2
+        dest: /tmp/iredmail_convert.conf
+        mode: 0644
+    - name: Create directory to hold LDIF files
+      file:
+        path: /tmp/ldif
+        state: directory
+        mode: 0755 
+    - name: Convert schemas to LDIFs
+      command: slaptest -f /tmp/iredmail_convert.conf -F /tmp/ldif/
+      register: schema_convert
+      changed_when: "schema_convert.stderr == 'config file testing succeeded'"
+      failed_when: false
+    - name: Copy ldif file to to schema folder
+      copy:
+        src: "/tmp/ldif/cn=config/cn=schema/cn={4}iredmail.ldif"
+        dest: "/etc/ldap/schema/iredmail.ldif"
+        remote_src: yes
+    - name: Modify dn line in schema file
+      ansible.builtin.lineinfile:
+        path: "/etc/ldap/schema/iredmail.ldif"
+        regexp: '^dn: .+'
+        line: 'dn: cn=iredmail,cn=schema,cn=config'
+    - name: Modify cn line in schema file
+      ansible.builtin.lineinfile:
+        path: "/etc/ldap/schema/iredmail.ldif"
+        regexp: '^cn: .+'
+        line: 'cn: iredmail'
+    - name: Import iredmail schema
+      command: slapadd -n 0 -F /etc/ldap/slapd.d -l /etc/ldap/schema/iredmail.ldif 
+      register: import_iredmail
+      failed_when: false
+      changed_when: import_iredmail.rc == 0
+    - name: Set permissions on new schema
+      file:
+        path: "/etc/ldap/slapd.d/cn=config/cn=schema/cn={4}iredmail.ldif"
+        owner: openldap
+        group: openldap
+    - name: Restart slapd
+      service:
+        name: slapd
+        state: restarted
+
+- block:
+    - name: Ensure LDAP suffix is set correctly.
+      ldap_attrs:
+        dn: olcDatabase={1}mdb,cn=config
+        state: exact
+        attributes:
+          olcSuffix: "{{ ldap_suffix }}"
+    - name: Set root DN and password
+      ldap_attrs:
+        dn: olcDatabase={1}mdb,cn=config
+        state: exact
+        attributes:
+          olcRootDN: "{{ ldap_rootdn }}"
+          olcRootPW: "{{ ldap_rootpw | password_hash('ldap_salted_sha1') }}"
+      register: root_dn
+      changed_when: root_dn.modlist | selectattr(1, 'equalto', 'olcRootDN') | list | length > 0
+    - debug:
+        var: root_dn.mod_list
+    - name: Ensure LDAP admin DN exists
+      ldap_entry:
+        dn: "{{ ldap_admin }}"
+        objectClass:
+          - organizationalRole
+          - simpleSecurityObject
+        attributes:
+          description: LDAP administrator
+          userPassword: "{{ ldap_pw | password_hash('ldap_salted_sha1') }}"
+        bind_dn: '{{ ldap_rootdn }}'
+        bind_pw: '{{ ldap_rootpw }}'
+  when: not ldap_backup.stat.exists
+
+- name: Ensure SSL certificate is configured
+  ldap_attrs:
+    dn: cn=config
+    state: exact
+    attributes:
+      olcTLSCertificateFile: /etc/letsencrypt/live/{{ ldap_hostname }}/cert.pem
+      olcTLSCertificateKeyFile: /etc/letsencrypt/live/{{ ldap_hostname }}/privkey.pem
+      olcTLSCACertificateFile: /etc/letsencrypt/live/{{ ldap_hostname }}/fullchain.pem
+      olcSecurity: ssf=128
+      olcLocalSSF: '128'
+
+- name: Ensure root
   ldap_attrs:
     dn: olcDatabase={1}mdb,cn=config
     state: exact
     attributes:
-      olcRootPW: "{{ ldap_pw | password_hash('ldap_salted_sha1') }}"
+      olcRootPW: "{{ ldap_rootpw | password_hash('ldap_salted_sha1') }}"
+
+- name: Update access rules
+  ldap_attrs:
+    dn: olcDatabase={1}mdb,cn=config
+    state: exact
+    attributes:
+      olcAccess:
+          - >-
+            {0}to * 
+            by dn.exact=gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth manage
+            by * break
+          - >-
+            {1}to attrs=userPassword
+            by self write
+            by dn={{ ldap_admin }} write
+            by anonymous auth
+            by * none
+          - >-
+            {2}to attrs=shadowLastChange
+            by self write
+            by * none
+          - >-
+            {3}to dn.subtree="o=domains,{{ ldap_suffix }}"
+            by dn="{{ ldap_admin }}" write
+          - >-
+            {4}to dn.subtree="o=domains,{{ ldap_suffix }}"
+            attrs=mail,uid,displayName,cn,sn,givenName
+            by users read
+            by * none
+          - >-
+            {5}to *
+            by dn="{{ ldap_admin }}" read
+    ordered: true
+
+- name: Ensure our indexes are setup.
+  ldap_attrs:
+    dn: olcDatabase={1}mdb,cn=config
+    state: exact
+    attributes:
+      olcDbIndex:
+        - >-
+          objectClass eq,pres
+        - >-
+          cn,uid,mail,ou,surname,givenname eq,pres,sub
+        - >-
+          uidNumber,gidNumber eq
+        - >-
+          member,memberUid eq
+        - >-
+          shadowAddress eq,pres,sub
+        - >-
+          entryCSN eq
+        - >-
+          entryUUID eq
+
 
   

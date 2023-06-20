@@ -51,7 +51,35 @@
         bind_dn: '{{ ldap_admin }}'
         bind_pw: '{{ ldap_pw }}'
   rescue:
-  - include_tasks: provision.yml
+    - include_tasks: provision.yml
+
+- name: Ensure we have our domain OU
+  ldap_entry:
+    dn: "o=domains,{{ ldap_suffix }}"
+    objectClass: organization
+    attributes:
+      o: domains
+
+- block: 
+  - name: "Ensure we have our {{ item }} container"
+    ldap_entry:
+      dn: "domainName={{ item }},o=domains,{{ ldap_suffix }}"
+      objectClass:
+        - mailDomain
+        - top
+      attributes:
+        domainName: "{{ item }}"
+        cn: "{{ item }}"
+    with_items: '{{ mail_domains }}'
+  - name: "Ensure we have our {{ item }} users container"
+    ldap_entry:
+      dn: "ou=users,domainName={{ item }},o=domains,{{ ldap_suffix }}"
+      objectClass: 
+        - top
+        - organizationalUnit
+      attributes:
+        ou: users
+    with_items: '{{ mail_domains }}'
 
 - name: Update ldap.conf file
   template:
@@ -66,7 +94,7 @@
       olcSecurity: ssf=128
       olcLocalSSF: 128
   
-# Ensure PPolicy is enabled/working
+# Ensure ppolicy is enabled/working
 - include_tasks: ppolicy.yml
   when: ldap_ppolicy_enable
 

@@ -1,2 +1,8 @@
 ---
 # This file exists to prevent errors when the main website playbook is called without extra vars for the env variable.
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Environment variable not set.
+      debug:
+        msg: 'Add --extra-vars \"env=production\" to command to include env_websites.yml in play.'

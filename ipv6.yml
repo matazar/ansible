@@ -1,0 +1,10 @@
+# Print out the DHCP IPv6 address of all hosts in the inventory
+- hosts: all
+  tasks:
+    - name: Run 'ip addr' and get output
+      shell: "ip addr | grep -P 'inet6.*scope global ((dynamic mngtmpaddr)|(mngtmpaddr dynamic)|dynamic noprefixroute)' | awk '{print $2}'"
+      register: ip_addr_output
+    - name: Show the IPv6 address
+      debug:
+        msg: '{{ inventory_hostname }}: {{ ip_addr_output.stdout }}'
+      when: 'ip_addr_output.stdout'

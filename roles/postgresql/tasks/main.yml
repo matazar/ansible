@@ -17,7 +17,7 @@
 
 - name: Update postgresql config
   template:
-    src: pg_hba.conf.j2
+    src: 'pg_hba.conf.{{ postgresql_version }}.j2'
     dest: "/etc/postgresql/{{ postgresql_version }}/main/pg_hba.conf"
   notify:
     - restart postgresql

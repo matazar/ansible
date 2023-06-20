@@ -1,5 +1,9 @@
+{% if transmission_vpn %}
 check host vpn_ip with address {{ ip_check_url}}
     start program = "/usr/bin/nordvpn c canada"
     stop program = "/usr/bin/nordvpn d"
     if failed port 443 protocol https
-    content != "{{ local_ip }}" then restart
+        content != "{{ local_ip }}" then restart
+    if failed port 443 protocol https
+        content != "{{ local_ip }}" for 3 cycles then exec "/sbin/reboot"
+{% endif %}

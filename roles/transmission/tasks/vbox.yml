@@ -16,3 +16,10 @@
     line: "ExecStartPre=/bin/sleep 30"
     regexp: "ExecStartPre=.+"
     insertafter: Type=notify
+
+- name: Add cron job to resume all transfers after reboot just to be safe
+  cron:
+    name: "transmission resume"
+    job: "sleep 120 && transmission-remote -t all -s > /dev/null 2>&1"
+    special_time: reboot
+    state: present

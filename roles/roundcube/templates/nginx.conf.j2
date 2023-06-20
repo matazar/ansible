@@ -2,7 +2,7 @@ server {
     # HTTPS configuration
     listen {{ ansible_host }}:443 ssl http2;
 {% if roundcube_ipv6 %}
-    listen {{ roundcube_ipv6 | ipwrap }}:443  ssl http2;
+    listen {{ roundcube_ipv6 | ansible.utils.ipwrap }}:443  ssl http2;
 {% endif %}
     server_name {{ roundcube_hostname }}{% if roundcube_extra_hostnames != [] %}{% for hostname in roundcube_hostnames %} {{ hostname }}{% endfor %}{% endif %};
     root    /var/www/roundcube;

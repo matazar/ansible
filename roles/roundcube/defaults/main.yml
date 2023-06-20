@@ -11,12 +11,12 @@ roundcube_db_username: roundcube
 #roundcube_db_password : ''
 roundcube_db_name: roundcube
 #postgresql_root_password: ''
-postgresql_version: 13
+postgresql_version: 15
 
 php_version: php8.2
 php_fpm: '{{ php_version }}-fpm'
 
-composer_version: 2.5.1
+composer_version: 2.5.8
 
 mail_server: 'mail.{{ default_domain }}'
 sieve_port: 4190

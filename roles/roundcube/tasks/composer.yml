@@ -14,6 +14,7 @@
     command: /usr/local/bin/composer --version
     register: composer_version_check
     failed_when: composer_version not in composer_version_check.stdout
+    become_user: www-data
     changed_when: false
   rescue:
     - name: Download composer

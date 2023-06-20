@@ -45,10 +45,17 @@
       register: new_cert
   when: cert_key.changed
 
+- set_fact:
+    deploy_hook_string: --deploy-hook "{{ deploy_hook }}"
+  when: deploy_hook != []
+- set_fact:
+    deploy_hook_string: ""
+  when: deploy_hook == []
+
 - name: Update cron job for certbot renewal
   cron:
     name: Certbot automatic renewal.
-    job: '{{ certbot_bin }} renew --quiet --deploy-hook "{{ deploy_hook }}"'
+    job: '{{ certbot_bin }} renew --quiet {{ deploy_hook_string }}'
     minute: "{{ (59 |random(seed=ansible_hostname)) }}"
     hour: "08"
 

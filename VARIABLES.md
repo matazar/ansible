@@ -318,7 +318,7 @@ cert_extra_domains: []
 ---
 
 ## cert_group
-Roles: certbot, certbot_dns
+Roles: certbot, certbot_dns, pbx
 
 Group used to provide other applications/users access to the certificates.  
 

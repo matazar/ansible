@@ -24,7 +24,7 @@
   - set_fact: 
       wg_ipv6_addresses: []
   - set_fact:
-      wg_ipv6_addresses: "{{ wg_ipv6_addresses + [wg_clients[item].ipv6|ipaddr('address')] }}"
+      wg_ipv6_addresses: "{{ wg_ipv6_addresses + [wg_clients[item].ipv6|ansible.utils.ipaddr('address')] }}"
     with_items: '{{ wg_clients }}'
   when: wg_ipv6_subnet
 

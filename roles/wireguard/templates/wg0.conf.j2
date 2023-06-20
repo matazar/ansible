@@ -14,7 +14,7 @@ PostDown = {% for ip in wg_ipv6_addresses %}ip -6 neigh del proxy {{ ip }} dev {
 {% for client in wg_clients %}
 [Peer]
 PublicKey = {{ wg_clients[client].public_key }}
-AllowedIPs = {{ wg_clients[client].ipv4 | ipaddr('host/prefix') }}{% if wg_ipv6_subnet and wg_clients[client].ipv6 | default(false) %}, {{ wg_clients[client].ipv6 | ipaddr('host/prefix') }}{% endif %}
+AllowedIPs = {{ wg_clients[client].ipv4 | ansible.utils.ipaddr('host/prefix') }}{% if wg_ipv6_subnet and wg_clients[client].ipv6 | default(false) %}, {{ wg_clients[client].ipv6 | ansible.utils.ipaddr('host/prefix') }}{% endif %}
 
 {% if wg_psk %}
 PresharedKey = {{ wg_pre_shared_key.stdout | default('') }}

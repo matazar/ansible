@@ -50,7 +50,7 @@
   when: deploy_hook != []
 - set_fact:
     deploy_hook_string: ""
-  when: deploy_hook == []
+  when: deploy_hook == ""
 
 - name: Update cron job for certbot renewal
   cron:

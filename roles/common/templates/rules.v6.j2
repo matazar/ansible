@@ -19,6 +19,7 @@
 {% endif %}
 -A INPUT -p tcp -m state --state NEW -m tcp --dport 22 -j DROP
 -A INPUT -p tcp -m state --state NEW -m tcp --dport 115 -j DROP
+
 {% if 'dns' in group_names %}
 {% if bind_ipv6 %}
 # DNS

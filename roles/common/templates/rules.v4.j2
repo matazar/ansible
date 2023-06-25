@@ -28,7 +28,8 @@
 -A INPUT -d {{ ansible_host | ansible.utils.ipaddr('address') }}/{{ ansible_host | ansible.utils.ipaddr('prefix') }} -p tcp -m tcp --dport {{ sshd_public_port }} -j ACCEPT
 {% endif %}
 -A INPUT -p tcp -m tcp --dport 22 -j DROP
--A INPUT -p tcp -m tcp --dport 115 -j DROP
+-A INPUT -p tcp -m tcp --dport 115 -j DROP 
+
 
 {% if 'local_dns' in group_names %}
 # DNS Queries

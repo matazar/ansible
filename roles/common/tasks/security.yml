@@ -19,6 +19,8 @@
     dest: "/etc/iptables/rules.{{ item }}"
   with_items: '{{ rules }}'
   register: new_rules
+  # Restart Fail2Ban so it adds the tables for banning.
+  notify: restart fail2ban  
 
 - name: Load new IPv4 rules
   command: "/sbin/iptables-restore /etc/iptables/rules.v4"
@@ -39,10 +41,9 @@
   template:
     src: jail.local.j2
     dest: /etc/fail2ban/jail.local
-  notify: reload fail2ban
+  notify: restart fail2ban
 
 - name: Ensure fail2ban is running
   service: 
     name: fail2ban
     state: started
-

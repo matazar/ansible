@@ -100,3 +100,12 @@
   service: 
     name: dovecot
     state: started
+
+- name: Add custom fail2ban filter for dovecot
+  lineinfile:
+    path: /etc/fail2ban/filter.d/dovecot.conf
+    insertbefore: '^            <mdre-<mode>>'
+    regexp: '^.*imap-login: Disconnected: .* \\(auth failed, \\d+ attempts in \\d+ secs\\): user=<.*>, method=.*, rip=<HOST>, lip=.*, TLS.*'
+    line: '            ^.*imap-login: Disconnected: .* \(auth failed, \d+ attempts in \d+ secs\): user=<.*>, method=.*, rip=<HOST>, lip=.*, TLS.*'
+    state: present
+  notify: restart fail2ban

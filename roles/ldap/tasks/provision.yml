@@ -1,7 +1,9 @@
 # Do we have a backup?
 - name: Check for backup copy of database to restore.
-  stat: 
+  local_action: 
+    module: stat
     path: "{{ backup_dir }}/ldap/{{ ldap_hostname }}/seed.ldif"
+  become: false
   register: ldap_backup
 
 # Restore backups if they exist

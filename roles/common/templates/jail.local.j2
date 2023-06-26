@@ -23,6 +23,6 @@ enabled = false
 [sshd]
 enabled = true
 filter  = sshd
-port    = ssh{% if sshd_public_port > 0 %},{{ sshd_public_port }}
-{% endif %}
+port    = ssh{% if sshd_public_port > 0 %},{{ sshd_public_port }}{% endif %}
+
 maxretry = 5

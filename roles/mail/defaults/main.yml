@@ -30,7 +30,7 @@ rspamd_list_dbs: [email_denylist.inc, domain_denylist.inc, regex_denylist.inc,
                   domain_allowlist.inc, email_allowlist.inc]
 
 trusted_hosts: []
-mail_mynetworks: []
+smtp_allow_list: []
 
 spammed_accounts: []
 rejected_addresses: {}

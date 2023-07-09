@@ -1,5 +1,5 @@
 # Target DNS server
-dns_rfc2136_server = "{{ cert_dns_server }}"
+dns_rfc2136_server = "{% if cert_dns_server == ansible_host %}127.0.0.1{% else %}{{ cert_dns_server }}{% endif %}"
 # Target DNS port
 dns_rfc2136_port = 53
 # TSIG key name

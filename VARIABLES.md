@@ -2845,7 +2845,7 @@ roundcube_version: 1.6.0
 
 Default:
 ```
-roundcube_version: 1.5.2
+roundcube_version: 1.6.2
 ```
 ---
 

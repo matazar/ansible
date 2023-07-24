@@ -61,12 +61,18 @@
     enabled: yes
     state: started
 
+- name: Update script for importing torrents from a directory.
+  template:
+    src: add_torrents.sh.j2
+    dest: /root/add_torrents.sh
+    mode: '0755'
+
 # Watch directory option doesn't appear to work
 - name: Set cronjob to import torrent
   cron:
     name: Auto import torrents to transmission
     minute: "*/10"
-    job: '/usr/bin/transmission-remote -a {{ transmission_torrent_dir }}/*.torrent > /dev/null 2>&1'
+    job: '/usr/bin/bash /root/add_torrents.sh > /dev/null 2>&1'
 
 - include_tasks: nginx.yml
   when: transmission_https

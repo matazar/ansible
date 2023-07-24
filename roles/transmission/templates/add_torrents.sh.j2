@@ -1,0 +1,17 @@
+#!/usr/bin/bash
+
+# Define the path to your torrent files
+TORRENT_DIR="{{ transmission_torrent_dir }}"
+
+# Loop over each torrent file in the directory
+for file in "$TORRENT_DIR"*.torrent
+do
+    # Add each torrent file to Transmission
+    output=$(/usr/bin/transmission-remote -a "$file")
+
+    # Check if the output contains "success"
+    if [[ $output == *"success"* ]]; then
+        # If the add was successful, delete the .torrent file
+        rm "$file"
+    fi
+done

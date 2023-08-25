@@ -64,11 +64,3 @@
       service:
         name: ssh
         enabled: yes
-    
-    - name: Set random password for Pi user on raspberry pi
-      user:
-        name: pi 
-        state: present
-        update_password: always
-        password: "{{ lookup('password', '/dev/null length=16 chars=ascii_letters') | password_hash('sha512') }}"
-      when: "'pi' in group_names"

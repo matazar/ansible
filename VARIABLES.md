@@ -1130,7 +1130,7 @@ emby_server_version: 4.7.10.0
 
 Default:
 ```
-emby_server_version: 4.7.11.0
+emby_server_version: 4.7.14.0
 ```
 
 ## files_admin_password

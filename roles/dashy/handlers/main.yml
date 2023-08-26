@@ -10,3 +10,5 @@
   command: yarn build
   args:
     chdir: /var/www/dashy
+  environment:
+    NODE_OPTIONS: --openssl-legacy-provider

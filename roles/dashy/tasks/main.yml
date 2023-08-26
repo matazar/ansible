@@ -23,11 +23,15 @@
 
 # Initial install steps
 - block:
+  - name: Run yarn for dashy
+    command: yarn
+    args:
+      chdir: /var/www/dashy
   - name: Run yarn install for dashy
     command: yarn install
     args:
       chdir: /var/www/dashy
-  - name: build dashy
+  - name: Build dashy
     command: yarn build
     args:
       chdir: /var/www/dashy

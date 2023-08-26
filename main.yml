@@ -30,12 +30,6 @@
   tags:
     - dns
 
-- hosts: kodi
-  roles:
-    - kodi
-  tags:
-    - kodi
-
 - hosts: emby_server
   roles:
     - emby_server

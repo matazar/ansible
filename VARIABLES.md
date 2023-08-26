@@ -185,7 +185,7 @@ backblaze_venv: /usr/backblaze
 ---
 
 ## backup_dir
-Roles: certbot_dns, common, dashy, dns, emby_server, kodi, ldap, mail, roundcube, wiki
+Roles: certbot_dns, common, dashy, dns, emby_server, ldap, mail, roundcube, wiki
 
 The path to the local directory used for backing up data through ansible.
 
@@ -1407,7 +1407,7 @@ fw_custom: false
 ---
 
 ## force_ipv4_mounts
-Roles: emby_server, kodi, transmission
+Roles: emby_server, transmission
 
 Force SMB mounts to use IPv4 instead of hostnames. Required local_dns_zones to be set.
 
@@ -1512,150 +1512,6 @@ ipv6_addresses:
 Default:
 ```
 ipv6_addresses: []
-```
----
-
-## kodi_audio_device
-Roles: kodi
-
-The audio device used for Kodi. This variable has to be set on the host using the GUI, then copied into the variable from the config file.
-
-Example:
-```
-kodi_audio_device: "ALSA:hdmi:CARD=vc4hdmi,DEV=0"
-```
-
-Default:
-```
-kodi_audio_device: ALSA:default
-```
----
-
-## kodi_audio_passthrough
-Roles: kodi
-
-When true, passthrough mode (raw audio stream) is enable for kodi audio. See the Kodi Wiki for more information: https://kodi.wiki/view/Settings/System/Audio.
-
-Example:
-```
-kodi_audio_passthrough: false
-```
-
-Example:
-```
-kodi_audio_passthrough: true
-```
----
-
-## kodi_hostname
-Roles: kodi
-
-The hostname used for accessing Kodi.
-
-Example:
-```
-kodi_hostname: kodi.example.local
-```
-
-Default:
-```
-kodi_hostname: '{{ inventory_hostname }}'
-```
----
-
-## kodi_resolution_id
-Roles: kodi
-
-Kodi resolution ID. Default is set for 1920x1080. Another value that must be set through the GUI and pulled from the config file into ansible.
-
-Example:
-```
-kodi_resolution_id: 20
-```
-
-Default:
-```
-kodi_resolution_id: 14
-```
----
-
-## kodi_screenmode
-Roles: kodi
-
-Kodi resolution/screen settings. Default is set for 1920x1080. Another value that must be set through the GUI and pulled from the config file into ansible.
-
-Example:
-```
-kodi_screenmode: 0128000720060.00000pstd
-```
-
-Default:
-```
-kodi_screenmode: 0192001080060.00000pstd
-```
----
-
-## kodi_user
-Roles: kodi
-
-Kodi will be launched automatically when this user logs in.
-
-Example:
-```
-kodi_user: media
-```
-
-Default:
-```
-kodi_user: pi
-```
----
-
-## kodi_web_port
-Roles: kodi
-
-The port used for the web remote for Kodi.
-
-Example:
-```
-kodi_web_port: 80
-```
-
-Default:
-```
-kodi_web_port: 8088
-```
----
-
-## kodi_web_password
-Roles: kodi
-
-The password used for accessing the web remote.
-
-Example:
-```
-kodi_web_password: kodi
-```
-
-Default:
-```
-kodi_web_password: '{{ inventory_hostname_short }}'
-```
----
-
-## kodi_web_user
-Roles: kodi
-
-The user used for accessing the web remote.
-
-Example:
-```
-kodi_web_user: kodi
-```
-
-Default:
-```
-kodi_web_user: admin
 ```
 ---
 
@@ -2020,7 +1876,7 @@ local_dns_clients: []
 ---
 
 ## local_dns_zones
-Roles: emby_server, kodi, pihole, transmission
+Roles: emby_server, pihole, transmission
 
 A dictionary defining the local DNS zone hosts and IPv4s.
 
@@ -2068,7 +1924,7 @@ local_subnet: '127.0.0.0/24'
 ---
 
 ## local_subnets
-Roles: emby_server, kodi
+Roles: emby_server
 
 A list of local subnets for the host.
 
@@ -2357,22 +2213,6 @@ ns_domain: example.local
 Default:
 ```
 ns_domain: '{{ default_domain }}' 
-```
----
-
-## os_gui
-Roles: kodi
-
-Used for restarting Kodi by restarting the active session.
-
-Example:
-```
-os_gui: gdm
-```
-
-Default:
-```
-os_gui: lightdm
 ```
 ---
 
@@ -3468,7 +3308,7 @@ site_title: "Under Construction"
 ---
 
 ## smb_password
-Roles: emby_server, kodi
+Roles: emby_server
 
 The password used for accessing the smb_shares. 
 
@@ -3484,7 +3324,7 @@ smb_password: ''
 ---
 
 ## smb_shares
-Roles: emby_server, kodi
+Roles: emby_server
 
 A dictionary containing the hostname/IP and share names for our media SMB folders.
 
@@ -3506,7 +3346,7 @@ smb_shares: {}
 ---
 
 ## smb_user
-Roles: emby_server, kodi
+Roles: emby_server
 
 The username used for accessing the smb_shares.
 
@@ -3518,22 +3358,6 @@ smb_user: media
 Default:
 ```
 smb_user: ''
-```
----
-
-## smb_workgroup
-Roles: kodi
-
-The workgroup name for the SMB shares. 
-
-Example:
-```
-smb_workgroup: OFFICE
-```
-
-Default:
-```
-smb_workgroup: WORKGROUP
 ```
 ---
 

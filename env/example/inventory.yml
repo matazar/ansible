@@ -58,10 +58,6 @@ vm1.example.local
 [files]
 cloud1.example.local
 
-[kodi]
-vm1.example.local
-rpi1.example.local
-
 [pbx]
 pbx.example.local
 

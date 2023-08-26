@@ -14,15 +14,6 @@ dashy_hostnames:
 dashy_name: 'EXAMPLE'
 dashy_ipv6: 2001:db8:6666::76
 
-kodi_hostname: '{{ inventory_hostname }}'
-kodi_web_port: 8088
-kodi_web_user: kodi
-kodi_web_password: '{{ inventory_hostname_short }}'
-
-kodi_user: pi
-
-smb_workgroup: EXAMPLE
-
 samba_hostnames: test4.example.local
 samba_extra_domains: 
   - example2.local

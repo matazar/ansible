@@ -61,12 +61,6 @@ The files role sets up an instance of [Jirafeau](https://gitlab.com/mojo42/Jiraf
 
 _Required variables_: **files_hostnames**, **files_admin_password**
 
-## kodi
-
-The kodi role installs and configures [kodi](https://kodi.tv/) instances, intended to be run off a Raspberry Pi. The role includes SMB mounts for accessing media on network shares. The role is set to automatically backup and restore the Kodi data.
-
-_Required variables_: **smb_shares**, **smb_user**, **smb_password**
-
 ## ldap
 
 The ldap role installs openldap/slapd and configures it to be used with the mail role. By default, the role generates certificates through certbot to enable TLS. It's possible to enable data replication between LDAP hosts. The role includes a basic script for creating/resetting accounts. The role can backup and restore the LDAP data.

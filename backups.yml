@@ -46,11 +46,11 @@
     - emby
     - emby_server
 
-- hosts: kodi
+- hosts: dashy
   tasks:
-  - name: Backup kodi
+  - name: Backup dashy
     include_role:
-      name: kodi
+      name: dashy
       tasks_from: backups
   tags:
-    - kodi
+    - dashy

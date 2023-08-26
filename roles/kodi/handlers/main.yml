@@ -1,3 +1,0 @@
-# Restarts Kodi by resetting the OS GUI.
-- name: restart kodi
-  command: 'killall -9 {{ os_gui }}'

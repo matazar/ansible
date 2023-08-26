@@ -15,18 +15,13 @@
     src: nodesource.list.j2
     dest: /etc/apt/sources.list.d/nodesource.list
 
-- name: 'Ensure nodejs is held at {{ node_hold_version }}'
+- name: Ensure nodejs is installed using NodeSource repository.
+  template:
+    src: nodesource.pref.j2
+    dest: /etc/apt/preferences.d/nodesource.pref
+
+- name: 'Ensure nodejs {{ node_version }} is installed'
   apt:
     state: present
     update_cache: yes
-    name: '{{ node_hold_version }}'
-    dpkg_options: 'hold'
-  when: node_hold_version
-
-- name: Ensure nodejs is installed
-  apt:
-    state: latest
-    update_cache: yes
-    name: 'nodejs'
-    dpkg_options: 'unhold'
-  when: not node_hold_version
+    name: nodejs

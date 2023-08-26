@@ -1,3 +1,5 @@
 unifi_cert_name: "unifi"
 unifi_cert_domains:
   - example.local
+
+cert_group: ssl-certs

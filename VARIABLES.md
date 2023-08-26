@@ -318,7 +318,7 @@ cert_extra_domains: []
 ---
 
 ## cert_group
-Roles: certbot, certbot_dns, pbx
+Roles: certbot, certbot_dns, pbx, unifi_os
 
 Group used to provide other applications/users access to the certificates.  
 
@@ -4153,6 +4153,41 @@ trusted_hosts:
 Default:
 ```
 trusted_hosts: []
+```
+---
+
+## unifi_cert_name
+Roles: unifi_os
+
+Folder name for the unifi_os certbot certificate.
+
+Example:
+```
+unifi_cert_name: "example.network"
+```
+
+Default:
+```
+unifi_cert_name: "unifi"
+```
+---
+
+## unifi_cert_domains
+Roles: unifi_os
+
+A list of domain names to include when generating the wildcard SSL certificates for Unifi OS through Let's Encrypt.
+
+Example:
+```
+unifi_cert_domains:
+  - example.network
+  - example.net
+```
+
+Default:
+```
+unifi_cert_domains:
+  - example.local
 ```
 ---
 

@@ -49,3 +49,25 @@
     when: not unifi_certificate_key.stat.islnk | default(True)
     notify: restart unifi-core
  
+- name: Update unifi certificate script.
+  copy:
+    src: unifi_cert.py
+    dest: /root/unifi_cert.py
+    mode: 0700
+
+- name: Add deploy hook to certbot
+  template:
+    src: unifi.sh.j2
+    dest: /etc/letsencrypt/renewal-hooks/deploy/01-unifi.sh
+    mode: 0770
+    owner: root
+    group: '{{ cert_group }}'
+
+- name: Check for existing p12 certificate file.
+  stat:
+    path: /etc/letsencrypt/live/aceserv.network/fullchain.p12
+  register: p12_cert_file
+
+- name: Convert/import certificate using script.
+  command: "python3 /root/unifi_cert.py {{ unifi_cert_name }}"
+  when: not p12_cert_file.stat.exists | default(False)

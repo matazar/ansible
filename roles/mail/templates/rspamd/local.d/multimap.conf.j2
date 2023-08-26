@@ -69,3 +69,9 @@ envfrom_spam {
   regexp = true;
   description = "Envelope-From regexp checks";
 } 
+ip_allowlist {
+  type = "ip";
+  prefilter = true;
+  map = "$DBDIR/ip_allowlist.inc";
+  action = "accept";
+}

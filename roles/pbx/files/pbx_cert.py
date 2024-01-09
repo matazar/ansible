@@ -57,10 +57,10 @@ class pbx(object):
         self.cmds.extend(['chmod -R 0700 /etc/asterisk/keys/',
                           'chown -R asterisk:asterisk /etc/asterisk/keys/'])
         # Handle Asterisk commands
-        self.cmds.extend(['fwconsole certificate --import',
-                          'fwconsole certificate --default=0',
-                          'fwconsole sysadmin installHttpsCert default',
-                          'fwconsole sysadmin updatecert'])
+        self.cmds.extend(['/usr/sbin/fwconsole certificate --import',
+                          '/usr/sbin/fwconsole certificate --default=0',
+                          '/usr/sbin/fwconsole sysadmin installHttpsCert default',
+                          '/usr/sbin/fwconsole sysadmin updatecert'])
 
 
 def main():

@@ -4,6 +4,7 @@
       reboot:
   tags:
     - reboot
+    - restart
 
 - hosts: all
   tasks:

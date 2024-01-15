@@ -37,7 +37,7 @@
   changed_when: cert_key.rc == 1
 
 - set_fact:
-    deploy_hook: "{{ cert_services | join(';') }}"
+    deploy_hook: "{% for service in cert_services %}service {{ service }} restart; {% endfor %}"
 
 - block:
     - name: "Run certbot for {{ cert_name }}"

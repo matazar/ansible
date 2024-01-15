@@ -829,9 +829,13 @@ ns_zones:
       cloud2:
         ipv4: 192.168.0.3
         ipv6: 2001:db8:4321::1
-     cnames:
+    cnames:
       autoconfig: 'mail.example.local'
       autodiscover: 'mail.example.local'
+    custom_txt:
+      example:
+        key: '_example'
+        value: 'Example TXT'  
   example2.local:
     mail: mail.example.local
     backup_mail:

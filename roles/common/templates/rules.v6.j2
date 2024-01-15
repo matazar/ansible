@@ -29,6 +29,11 @@
 {% else %}
 -A INPUT -d {{ bind_ipv6 | ansible.utils.ipaddr('address') }}/{{ bind_ipv6 | ansible.utils.ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 53 -j ACCEPT
 -A INPUT -d {{ bind_ipv6 | ansible.utils.ipaddr('address') }}/{{ bind_ipv6 | ansible.utils.ipaddr('prefix') }} -p udp -m state --state NEW -m udp --dport 53 -j ACCEPT
+{% if bind_ipv6 != ipv6_address %}
+-A INPUT -d {{ ipv6_address | ansible.utils.ipaddr('address') }}/{{ ipv6_address | ansible.utils.ipaddr('prefix') }} -p tcp -m state --state NEW -m tcp --dport 53 -j ACCEPT
+-A INPUT -d {{ ipv6_address | ansible.utils.ipaddr('address') }}/{{ ipv6_address | ansible.utils.ipaddr('prefix') }} -p udp -m state --state NEW -m udp --dport 53 -j ACCEPT
+{% endif %}
+
 {% endif %}
 {% endif %}
 {% endif %}

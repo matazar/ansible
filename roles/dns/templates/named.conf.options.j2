@@ -31,7 +31,7 @@ options {
 	notify-source-v6 *;
 {% elif bind_ipv6 %}
 
-	listen-on-v6 { {{ bind_ipv6 }}; };
+	listen-on-v6 { {{ bind_ipv6 }}; {{ ipv6_address}}; };
 	notify-source-v6 {{ bind_ipv6 }};
 {% endif %}
 

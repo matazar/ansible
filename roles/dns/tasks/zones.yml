@@ -53,7 +53,9 @@
       src: '/home/{{ ansible_ssh_user }}/dsset-{{ domain }}.'
       dest: '{{ backup_dir }}/dns/dsset-{{ domain }}.'
       flat: yes
+      validate_checksum: false
     register: dsst
+    when: signed_zone.changed
   when: 
     - dns_zones[domain].dnssec
 

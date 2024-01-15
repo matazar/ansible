@@ -56,6 +56,12 @@ _dmarc	IN	TXT		"{{ dns_zones[domain].dmarc_txt }}"
 _dmarc	IN	TXT		"{{ dmarc_default_txt }}"
 {% endif %}
 
+{% if dns_zones[domain].custom_txt | default(false) %}
+{% for txt in dns_zones[domain].custom_txt %}
+{{ dns_zones[domain].custom_txt[txt].key }}	IN	TXT		"{{ dns_zones[domain].custom_txt[txt].value }}"
+{% endfor %}
+
+{% endif %}
 {% if dkim_exists.rc == 0 %}
 {% for key in dkim_keys %}
 $INCLUDE "{{ dkim_txt_dir }}/{{ domain }}_{{ key }}.txt"

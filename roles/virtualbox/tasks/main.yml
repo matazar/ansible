@@ -29,7 +29,7 @@
   cron:
     special_time: reboot
     name: "Start {{ item }}"
-    job: "sleep {{ count*30 }} && VBoxManage startvm '{{ item }}' --type headless"
+    job: "sleep {{ 60 + (count*30) }} && VBoxManage startvm '{{ item }}' --type headless"
     user: "{{ vm_user }}"
   with_items: '{{ vm_list }}'
   loop_control:

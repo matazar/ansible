@@ -4,6 +4,7 @@ backup_dir: "{{ playbook_dir }}/env/{{ env }}/backups"
 timezone: America/Toronto
 default_editor: nano
 bash_colour: 36
+bash_custom_aliases: []
 core_apps: [sudo, p7zip, unzip, nano, rsync, tmux, wget, curl, dnsutils, ntp]
 cron_email: false
 

@@ -200,7 +200,25 @@ backup_dir: "{{ playbook_dir }}/env/{{ env }}/backups"
 ```
 ---
 
-## bash_colour:
+## bash_custom_aliases
+Roles: common
+
+Allows you to define custom bash aliases for the primary user.
+
+Example:
+```
+bash_custom_aliases:
+  up: "cd .."
+  ll: "ls -la"
+  psg: "ps aux | grep"
+```
+
+Default:
+```
+bash_custom_aliases: []
+```
+
+## bash_colour
 Roles: common
 
 Sets the bash prompt colour for the primary user.
@@ -216,7 +234,7 @@ bash_colour: 36
 ```
 ---
 
-## bind_ipv6: 
+## bind_ipv6
 Roles: common, dns
 
 IPv6 address used for Bind9. Use "false" to disabled IPv6.

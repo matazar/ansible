@@ -7,6 +7,11 @@ before = paths-debian.conf
 ignoreip = 127.0.0.1/8 {{ ' '.join(trusted_hosts) }}
 ignorecommand =
 bantime  = 2592000
+{% if ipv6_address %}
+allowipv6 = true
+{% else %}
+allowipv6 = false
+{% endif %}
 
 # A host is banned if it has generated "maxretry" during the last "findtime"
 # seconds.

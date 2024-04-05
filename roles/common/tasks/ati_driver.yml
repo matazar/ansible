@@ -1,13 +1,13 @@
 - name: Enable contrib/non-free deb in repo
   lineinfile:
     regex: '(deb http://deb\.debian\.org/debian/ bookworm main([\w\s-]*))'
-    line: deb http://deb.debian.org/debian/ bookworm main contrib non-free-firmware
+    line: deb http://deb.debian.org/debian/ bookworm main non-free contrib non-free-firmware
     path: /etc/apt/sources.list
 
 - name: Enable contrib/non-free deb-src in repo
   lineinfile:
     regex: '(deb-src http://deb\.debian\.org/debian/ bookworm main([\w\s-]*))'
-    line: deb-src http://deb.debian.org/debian/ bookworm main contrib non-free-firmware
+    line: deb-src http://deb.debian.org/debian/ bookworm main non-free contrib non-free-firmware
     path: /etc/apt/sources.list
 
 - name: Install AMD drivers

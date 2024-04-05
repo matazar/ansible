@@ -1,10 +1,17 @@
-# Print out the DHCP IPv6 address of all hosts in the inventory
+# Outut the IPv6 address for the default interface on a host, as my ISP likes to change it.
 - hosts: all
+  gather_facts: no
   tasks:
-    - name: Run 'ip addr' and get output
-      shell: "ip addr | grep -P 'inet6.*scope global ((dynamic mngtmpaddr)|(mngtmpaddr dynamic)|dynamic noprefixroute)' | awk '{print $2}'"
+    - name: Determine the default IPv6 interface
+      shell: ip -6 route show default | grep -oP 'dev \K\S+'
+      register: default_ipv6_interface
+
+    - name: Run 'ip addr' and get output for the default interface
+      shell: ip -6 addr show "{{ default_ipv6_interface.stdout }}" scope global | grep "inet6" | grep -v "temporary" | awk '{print $2}' | cut -d'/' -f1
       register: ip_addr_output
+      when: default_ipv6_interface.stdout != ""
+
     - name: Show the IPv6 address
       debug:
         msg: '{{ inventory_hostname }}: {{ ip_addr_output.stdout }}'
-      when: 'ip_addr_output.stdout'
+      when: ip_addr_output.stdout != ""

@@ -18,6 +18,22 @@ allow_reboot: false
 ```
 ---
 
+## ansible_inventory_path
+Roles: dev
+
+The path to the ansible inventory file used by default.
+
+Example:
+```
+ansible_inventory_path: '/etc/ansible/inventory.yml'
+```
+
+Default:
+```
+ansible_inventory_path: '/home/{{ primary_user }}/ansible/env/production/inventory.yml'
+```
+---
+
 ## ansible_vault_password_file
 Roles: dev
 
@@ -217,6 +233,7 @@ Default:
 ```
 bash_custom_aliases: []
 ```
+---
 
 ## bash_colour
 Roles: common

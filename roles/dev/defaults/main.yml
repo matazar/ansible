@@ -1,5 +1,6 @@
 primary_user: admin
 ansible_vault_password_file: '/home/{{ primary_user }}/.ssh/ansible'
+ansible_inventory_path: '/home/{{ primary_user }}/ansible/env/production/inventory.yml'
 
 dev_pkgs: [chromium, thunderbird, jxplorer, code, ansible,
            git, whois, python3-passlib, python3-venv, cifs-utils,

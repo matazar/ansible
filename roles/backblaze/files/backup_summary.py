@@ -27,7 +27,14 @@ class b2_summary(object):
         cmd_list = self.build_cmd()
         os_env = self.build_env()
         start = datetime.datetime.now()
-        c = subprocess.run(cmd_list, env=os_env, capture_output=True)
+        try:
+            c = subprocess.run(cmd_list, env=os_env, capture_output=True, check=True)
+        except subprocess.CalledProcessError as e:
+            print(f"\nError running command.")
+            print(f"Command: {' '.join(cmd_list)}")
+            print(f"Return code: {e.returncode}")
+            print(f"\nError output: {e.stderr.decode('utf-8')}")
+            return
         end = datetime.datetime.now()
         self.filter_results(c.stdout.decode("utf-8"), c.stderr.decode("utf-8"),
                             end - start)
@@ -48,14 +55,14 @@ class b2_summary(object):
         """
         cmd = ['/usr/backblaze/bin/b2', "sync"]
         if self.dry_run:
-            cmd.append('--dryRun')
-        cmd.extend(['--destinationServerSideEncryption=SSE-C',
-                    '--replaceNewer',
+            cmd.append('--dry-run')
+        cmd.extend(['--destination-server-side-encryption=SSE-C',
+                    '--replace-newer',
                     '--threads', self.config['threads'],
-                    '--keepDays', self.config['keep_days']])
+                    '--keep-days', self.config['keep_days']])
         if self.config['ignore_dirs']:
             for dir in json.loads(self.config['ignore_dirs']):
-                cmd.extend(['--excludeDirRegex', dir])
+                cmd.extend(['--exclude-dir-regex', dir])
         cmd.extend([self.config['src'], self.config['dest']])
         if self.verbose:
             print(' '.join(cmd))

@@ -10,14 +10,15 @@
 {% if firewall_enable %}
 {% for host in trusted_hosts %}
 {% if host | ansible.utils.ipv4 %}
+{% if '/' in host %}
+sshd : {{ host }} : allow
+{% else %}
 sshd : {{ host | ansible.utils.ipaddr('address') }}/{{ host | ansible.utils.ipaddr('prefix') }} : allow
+{% endif %}
 {% elif host | ansible.utils.ipv6 %}
 sshd : {{ host | ansible.utils.ipwrap }} : allow
 {% endif %}
 {% endfor %}
-{% if local_subnet | ansible.utils.network_in_usable(ansible_host) or 'local' in group_names %}
-sshd : {{ local_subnet | ansible.utils.ipaddr('subnet') }} : allow
-{% endif %}
 {% if sshd_public_port %}
 # Allow SSH on non-standard port for all
 {{ sshd_public_port }} : ALL : allow

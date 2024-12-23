@@ -43,6 +43,24 @@
     dest: /etc/fail2ban/jail.local
   notify: restart fail2ban
 
+- name: Ensure rsyslog is installed
+  apt: 
+    name: rsyslog
+    state: latest
+    update_cache: yes
+    install_recommends: yes
+
+- name: Update rsyslog config file
+  template:
+    src: rsyslog.conf.j2
+    dest: /etc/rsyslog.conf
+  notify: restart rsyslog
+
+- name: Ensure rsyslog is running
+  service: 
+    name: rsyslog
+    state: started
+
 - name: Ensure fail2ban is running
   service: 
     name: fail2ban

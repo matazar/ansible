@@ -69,3 +69,7 @@ wg_nat: false
 
 # Monitoring
 monit_enabled: true
+
+# OS
+debian_version: bookworm
+amd_driver: false 

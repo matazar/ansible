@@ -18,6 +18,23 @@ allow_reboot: false
 ```
 ---
 
+## amd_driver
+Roles: common
+
+Whether to install an AMD graphics driver on the host.
+
+Example:
+```
+amd_driver: true
+```
+
+Default:
+```
+amd_driver: false
+```
+
+---
+
 ## ansible_inventory_path
 Roles: dev
 
@@ -590,6 +607,23 @@ Defaut:
 ```
 dashy_users: {}
 ```
+---
+
+## debian_version
+Roles: common, mail, nodejs, virtualbox
+
+The codename version of the Debian system. Used for the repository sources.
+
+Example:
+```
+debian_version: bullseye
+```
+
+Default:
+``` 
+debian_version: bookworm
+```
+
 ---
 
 ## default_editor

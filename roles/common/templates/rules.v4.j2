@@ -11,14 +11,9 @@
 # Ping
 -A INPUT -p icmp -m icmp --icmp-type 8 -j ACCEPT
 # SSH
-{% if 'local' in group_names %}
--A INPUT -s {{ local_subnet | ansible.utils.ipaddr('subnet') }} -p tcp -m tcp --dport 22 -j ACCEPT
-{% endif %}
 {% for host in trusted_hosts | ansible.utils.ipv4 %}
 {% if host | ansible.utils.ipaddr('subnet') %}
-{% if host != local_subnet %}
 -A INPUT -s {{ host | ansible.utils.ipaddr('subnet') }} -p tcp -m tcp --dport 22 -j ACCEPT
-{% endif %}
 {% else %}
 -A INPUT -s {{ host | ansible.utils.ipaddr('address') }}/{{ host | ansible.utils.ipaddr('prefix') }} -p tcp -m tcp --dport 22 -j ACCEPT
 {% endif %}
@@ -131,7 +126,10 @@
 {% if 'transmission' in group_names %}
 {% if not transmission_https_only | default(false) %}
 {% for host in transmission_allow_list | default([]) %}
-{% if host | ansible.utils.ipv4 and not host | ansible.utils.ipaddr('127.0.0.1/8') %}
+{% if host | ansible.utils.ipaddr('subnet') %}
+-A INPUT -s {{ host | ansible.utils.ipaddr('subnet') }} -p udp -m udp --dport 9091 -j ACCEPT
+-A INPUT -s {{ host | ansible.utils.ipaddr('subnet') }} -p tcp -m tcp --dport 9091 -j ACCEPT
+{% elif host | ansible.utils.ipv4 and not host | ansible.utils.ipaddr('127.0.0.1/8') %}
 -A INPUT -s {{ host | ansible.utils.ipaddr('address') }}/{{ host | ansible.utils.ipaddr('prefix') }} -p udp -m udp --dport 9091 -j ACCEPT
 -A INPUT -s {{ host | ansible.utils.ipaddr('address') }}/{{ host | ansible.utils.ipaddr('prefix') }} -p tcp -m tcp --dport 9091 -j ACCEPT
 {% endif %}

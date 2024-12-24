@@ -1,7 +1,8 @@
 backup_dir: "{{ playbook_dir }}/env/{{ env }}/backups"
 
 # cert_name: example.com
-cert_domains: '[{{ cert_name }}]'
+cert_domains:  
+  - "{{ cert_name }}"
 cert_services: []
 cert_email: 'certs@{{ cert_domains | first }}'
 cert_dns_server: '{{ nameservers[nameservers | first].ipv4 }}'

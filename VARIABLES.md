@@ -307,7 +307,8 @@ Primary hostname/domain used for a certbot certificate.
 
 Example:  
 ```
-cert_domain: example.local 
+cert_domain: 
+  - example.local 
 ```
 
 Default:   

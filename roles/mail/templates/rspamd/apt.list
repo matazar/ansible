@@ -1,2 +1,2 @@
-deb [arch=amd64] http://rspamd.com/apt-stable/ bookworm main
-deb-src [arch=amd64] http://rspamd.com/apt-stable/ bookworm main
+deb [arch=amd64] http://rspamd.com/apt-stable/ {{ debian_version }} main
+deb-src [arch=amd64] http://rspamd.com/apt-stable/ {{ debian_version }} main

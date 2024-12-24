@@ -3,13 +3,21 @@
     dest: /etc/apt/sources.list.d/virtualbox.list
     src: virtualbox.list.j2
 
-- name: Import Visual Studio Code GPG Key
-  get_url: 
-    url: 'https://www.virtualbox.org/download/{{ item }}'
-    dest: '/etc/apt/trusted.gpg.d/{{ item }}'
-  with_items:
-    - 'oracle_vbox_2016.asc'
-    - 'oracle_vbox.asc'
+- block:
+  - name: Check if Visual Studio Code GPG Key exists
+    stat:
+      path: '/etc/apt/trusted.gpg.d/{{ item }}'
+    register: gpg_key_files
+    with_items:
+      - 'oracle_vbox_2016.asc'
+      - 'oracle_vbox.asc'
+
+  - name: Import Visual Studio Code GPG Key
+    get_url: 
+      url: 'https://www.virtualbox.org/download/{{ item.item }}'
+      dest: '/etc/apt/trusted.gpg.d/{{ item.item }}'
+    with_items: '{{ gpg_key_files.results }}'
+    when: not item.stat.exists
 
 - name: Install VirtualBox
   apt:

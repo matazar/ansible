@@ -1,3 +1,4 @@
 vm_list: []
 vm_user: '{{ primary_user }}'
-vbox_version: 7.0
+vbox_version: 7.1
+debian_version: bookworm

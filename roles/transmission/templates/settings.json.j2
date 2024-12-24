@@ -48,12 +48,8 @@
     "ratio-limit": 2,
     "ratio-limit-enabled": true,
     "rename-partial-files": true,
-    "rpc-authentication-required": false,
-{% if transmission_https %}
-    "rpc-bind-address": "127.0.0.1",
-{% else %}
-    "rpc-bind-address": "127.0.0.1,{{ ansible_host }}",
-{% endif %}
+    "rpc-authentication-required": {{ transmission_authentication | lower }},
+    "rpc-bind-address": "{{ transmission_bind_address }}",
     "rpc-enabled": true,
     "rpc-host-whitelist": "{{ transmission_hostnames | join(',') }}",
 {% if transmission_strict_hostnames | default(false) %}
@@ -61,14 +57,14 @@
 {% else %}
     "rpc-host-whitelist-enabled": false,
 {% endif %}
-    "rpc-password": "",
+    "rpc-password": "{{ transmission_password }}",
     "rpc-port": 9091,
     "rpc-url": "/transmission/",
-    "rpc-username": "",
+    "rpc-username": "{{ transmission_username }}",
 {% if transmission_allow_list == [] %}
     "rpc-whitelist": "127.0.0.1,{{ local_subnet | ansible.utils.ipaddr('network') | regex_replace('(\d{1,3}\.\d{1,3}\.\d{1,3}\.)\d{1,3}', '\\1*') }}",
 {% else %}
-    "rpc-whitelist": "127.0.0.1,{{ transmission_allow_list | join(',')}}",
+    "rpc-whitelist": "127.0.0.1,{{ transmission_allow_list | join(',') }}",
 {% endif %}
     "rpc-whitelist-enabled": true,
     "scrape-paused-torrents-enabled": true,

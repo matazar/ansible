@@ -26,6 +26,11 @@ transmission_alt_upload: 10000
 transmission_alt_start: 120
 transmission_alt_end: 480
 transmission_alt_day: 127
+transmission_bind_address: '0.0.0.0'
+transmission_authentication: false
+transmission_username: ''
+transmission_password: ''
+
 
 transmission_high_port: 65535
 transmission_low_port: 49152

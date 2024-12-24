@@ -3822,6 +3822,38 @@ transmission_alt_upload: 10000
 ```
 ---
 
+## transmission_authentication
+Roles: transmission
+
+When true, the transmission web dashboard will require a username and password to access. The username and password are set with the **transmission_username** and **transmission_password** variables
+
+Example:
+```
+transmission_authentication: true
+```
+
+Default:
+```
+transmission_authentication: false
+``` 
+---
+
+## transmission_bind_address
+Roles: transmission
+
+The IP address to bind the transmission service to.
+
+Example:
+```
+transmission_bind_address: 127.0.0.1
+```
+
+Default:
+```
+transmission_bind_address: 0.0.0.0
+```
+---
+
 ## transmission_cert_name
 Roles: transmission
 
@@ -4003,6 +4035,22 @@ transmission_mounts: []
 ```
 ---
 
+## transmission_password
+Roles: transmission
+
+The password used to access the transmission web dashboard/interface.
+
+Example:
+```
+transmission_password: '$ecretPasswd.'
+``` 
+
+Default:
+```
+transmission_password: ''
+```
+---
+
 ## transmission_queue_size
 Roles: transmission
 
@@ -4050,6 +4098,23 @@ Default:
 transmission_torrent_dir: '{{ transmission_download_dir }}'
 ```
 ---
+
+## transmission_username
+Roles: transmission
+
+The username used to access the transmission web dashboard/interface.
+
+Example:
+```
+transmission_username: 'admin'
+```
+
+Default:
+``` 
+transmission_username: ''
+```
+---
+
 
 ## transmission_vboxguest
 Roles: transmission

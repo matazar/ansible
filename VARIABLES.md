@@ -2258,6 +2258,44 @@ nameservers: {}
 ```
 ---
 
+## nfs_path
+Roles: emby_server
+
+The mount root for the NFS shares.
+
+Example:
+```
+nfs_path: /media
+```
+
+Default:
+```
+nfs_path: /mnt/media
+```
+---
+
+## nfs_shares
+Roles: emby_server
+
+A dictionary used for both configuring samba shares on a samba server and mounting samba shares on a client.
+
+Example:
+```
+nfs_shares:
+  '192.168.0.15':
+    - music
+  'nas.example.local':
+    - tv 
+    - movies
+    - downloads
+```
+Default:
+```
+nfs_shares: {}
+```
+
+---
+
 ## node_version
 Roles: nodejs
 
@@ -2994,12 +3032,13 @@ samba_ipv6: false
 ---
 
 ## samba_shares
-Roles: samba
+Roles: samba, emby_server
 
-A dictionary containing the shares to set up under the samba server.
+A dictionary used for both configuring samba shares on a samba server and mounting samba shares on a client.
 
 Example:
 ```
+# Samba Server
 samba_shares:
   downloads: 
     description: Downloads
@@ -3012,6 +3051,15 @@ samba_shares:
     guest: no
     path: /home/admin/secrets
     writeable: 'no'
+
+# Samba Client
+smb_shares:
+  '192.168.0.15':
+    - music
+  'nas.example.local':
+    - tv 
+    - movies
+    - downloads
 ```
 
 Default:

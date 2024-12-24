@@ -1,4 +1,4 @@
-{% for host in smb_shares  %}
+{% for host in smb_shares %}
 {% for share in smb_shares[host] %}
 {% if host | ansible.utils.ipv4 %}
 //{{ host }}/{{ share }} 		/media/{{ host.split('.')[2] }}_{{ host.split('.')[3] }}_{{ share }} 	cifs 	x-systemd.automount,credentials=/root/media.conf 	0 	0
@@ -9,6 +9,21 @@
 //{{ local_dns_zones[host.split('.', 1)[1]][host.split('.', 1)[0]] }}/{{ share }}		/media/{{ host.split('.')[0] }}_{{ share }} 		cifs 	x-systemd.automount,credentials=/root/media.conf 	0 	0
 {% else %}
 //{{ host }}/{{ share }} 		/media/{{ host.split('.')[0] }}_{{ share }} 		cifs 	x-systemd.automount,credentials=/root/media.conf 	0 	0
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endfor %}
+{% for host in nfs_shares %}
+{% for share in nfs_shares[host] %}
+{% if host | ansible.utils.ipv4 %}
+{{ host }}:{{ nfs_path }}/{{ share }} 		/media/{{ host.split('.')[2] }}_{{ host.split('.')[3] }}_{{ share }} 	nfs 	defaults 	0 	0
+{% elif host | ansible.utils.ipv6 %}
+{{ host }}:{{ nfs_path }}/{{ share }} 		/media/{{ host.split(':')[-1] }}_{{ share }} 	nfs 	defaults 	0 	0
+{% else %}
+{% if force_ipv4_mounts %}
+{{ local_dns_zones[host.split('.', 1)[1]][host.split('.', 1)[0]] }}:{{ nfs_path }}/{{ share }}		/media/{{ host.split('.')[0] }}_{{ share }} 		nfs 	defaults 	0 	0
+{% else %}
+{{ host }}:{{ nfs_path }}/{{ share }}		/media/{{ host.split('.')[0] }}_{{ share }} 		nfs 	defaults 	0 	0
 {% endif %}
 {% endif %}
 {% endfor %}

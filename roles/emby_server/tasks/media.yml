@@ -15,15 +15,23 @@
     src: media.conf.j2
     dest: "/root/media.conf"
   register: media_cred
+  when: smb_shares != {}
 
 - name: Ensure cifs-utils is installed
   apt:
     name: cifs-utils
     state: present
+  when: smb_shares != {}
+
+- name: Ensure nfs-common is installed
+  apt:
+    name: nfs-common
+    state: present
+  when: nfs_shares != {}    
 
 # Config share mount folders
 - include_tasks: mounts.yml
-  with_items: '{{ smb_shares }}'
+  with_items: '{{ smb_shares | combine(nfs_shares) }}'
 
 - name: Add mount script
   template:

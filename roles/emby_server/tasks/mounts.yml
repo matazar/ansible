@@ -1,6 +1,16 @@
-- name: "Create a list of shares for {{ item }}"
+- name: Initialize shares list
   set_fact:
-    shares: "{{ smb_shares[item] | list }}"
+    shares: []
+
+- name: "Create a list of shares for {{ item }} (SMB)"
+  set_fact:
+    shares: "{{ shares + smb_shares[item] | list }}"
+  when: "item in smb_shares"
+
+- name: "Create a list of shares for {{ item }} (NFS)"
+  set_fact:
+    shares: "{{ shares + nfs_shares[item] | list }}"
+  when: "item in nfs_shares"
 
 - set_fact:
     share_prefix: "{{ item.split('.')[0] }}"

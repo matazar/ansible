@@ -1,6 +1,7 @@
 # Ensure smb mounts are connected. Stop emby-server if unable to connect to avoid clearing library.
-{% for host in smb_shares  %}
-{% for share in smb_shares[host] %}
+{% set all_shares = smb_shares | combine(nfs_shares) %}
+{% for host, shares in all_shares.items() %}
+{% for share in shares %}
 check file {{ host.split('.')[0] }}_{{ share }} with path /media/{{ host.split('.')[0] }}_{{ share }}/disconnected.txt
   start = "/usr/bin/mount -T /etc/fstab.media.backup /media/{{ host.split('.')[0] }}_{{ share }}"
   if exists then start

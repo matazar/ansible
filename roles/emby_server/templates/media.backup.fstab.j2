@@ -10,3 +10,14 @@
 {% endif %}
 {% endfor %}
 {% endfor %}
+{% for host in nfs_shares  %}
+{% for share in nfs_shares[host] %}
+{% if host | ansible.utils.ipv4 %}
+{{ host }}:{{ nfs_path }}/{{ share }}  		/media/{{ host.split('.')[2] }}_{{ host.split('.')[3] }}_{{ share }} 	nfs 	defaults 	0 	0
+{% elif host | ansible.utils.ipv6 %}
+{{ host }}:{{ nfs_path }}/{{ share }}  		/media/{{ host.split(':')[-1] }}_{{ share }} 	nfs 	defaults 	0 	0
+{% else %}
+{{ local_dns_zones[host.split('.', 1)[1]][host.split('.', 1)[0]] }}:{{ nfs_path }}/{{ share }} 		/media/{{ host.split('.')[0] }}_{{ share }} 		nfs 	defaults 	0 	0
+{% endif %}
+{% endfor %}
+{% endfor %}

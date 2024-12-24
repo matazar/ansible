@@ -6,7 +6,7 @@ emby_server_cert_name: '{{ emby_server_hostnames | first }}'
 emby_server_hostnames: 
     - 'emby.{{ default_domain }}'
 
-emby_server_version: 4.8.3.0
+emby_server_version: 4.8.10.0
 emby_server_deb_url: 'https://github.com/MediaBrowser/Emby.Releases/releases/download/{{ emby_server_version }}/emby-server-deb_{{ emby_server_version }}_amd64.deb'
 
 # Mounts
@@ -14,6 +14,8 @@ smb_shares: {}
 smb_user: 'media'
 #smb_password: ''
 force_ipv4_mounts: false
+nfs_shares: {}
+nfs_path: /mnt/media
 
 local_dns_zones: {}   # Used for force_ipv4_mounts
 local_subnets: ['{{ local_subnet }}']

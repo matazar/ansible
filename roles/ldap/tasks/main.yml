@@ -61,7 +61,7 @@
       o: domains
 
 - block: 
-  - name: "Ensure we have our {{ item }} container"
+  - name: "Ensure we have our domain containers"
     ldap_entry:
       dn: "domainName={{ item }},o=domains,{{ ldap_suffix }}"
       objectClass:
@@ -71,7 +71,7 @@
         domainName: "{{ item }}"
         cn: "{{ item }}"
     with_items: '{{ mail_domains }}'
-  - name: "Ensure we have our {{ item }} users container"
+  - name: "Ensure we have our domain users container"
     ldap_entry:
       dn: "ou=users,domainName={{ item }},o=domains,{{ ldap_suffix }}"
       objectClass: 

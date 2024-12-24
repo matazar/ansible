@@ -123,9 +123,20 @@
     - name: Update lighttpd configurations
       template:
         src: '{{ item }}.j2'
-        dest: '/etc/lighttpd/{{ item }}'
+        dest: '/etc/lighttpd/conf-available/{{ item }}'
       notify: restart lighttpd
       with_items:
-        - external.conf
-        # - lighttpd.conf
+        - 10-ssl.conf
+    - name: Enable lighttpd configuration
+      file:
+        src: '/etc/lighttpd/conf-available/{{ item }}'
+        dest: '/etc/lighttpd/conf-enabled/{{ item }}'
+        state: link
+      notify: restart lighttpd
+      with_items:
+        - 10-ssl.conf
+    - name: Remove old configuration file
+      file:
+        path: /etc/lighttpd/external.conf
+        state: absent
   when: pihole_https_enable

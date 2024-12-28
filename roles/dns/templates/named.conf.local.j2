@@ -13,6 +13,9 @@ zone "{{ domain }}" {{ '{' }}
     allow-transfer {{ '{' }} {{  '; '.join(ns_ipv4) }};{% if ipv6_address | default(false) and ns_ipv6 | length > 0 %} {{ '; '.join(ns_ipv6) }};{% endif %} {{ '}' }};
     update-policy {
         grant certbot. name _acme-challenge.{{ domain }}. txt;
+        {% for acme in dns_zones[domain]['acme_challenge'] | default ([]) %}
+        grant certbot. name _acme-challenge.{{ acme }}.{{ domain }}. txt;
+        {% endfor %}
   };
 {% else %}
     type slave;

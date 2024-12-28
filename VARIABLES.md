@@ -906,6 +906,8 @@ ns_zones:
       example:
         key: '_example'
         value: 'Example TXT'  
+    acme_challenge:
+      - nas
   example2.local:
     mail: mail.example.local
     backup_mail:

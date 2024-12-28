@@ -59,7 +59,9 @@ dns_zones:
     custom_txt:
       example:
         key: '_example'
-        value: 'Example TXT'     
+        value: 'Example TXT'    
+    acme_challenge:
+      - nas 
   # example2.local
   example2.local:
     mail: mail.example.local

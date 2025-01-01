@@ -21,17 +21,17 @@
 
 - name: Clone Git Repo
   git:
-    repo: 'https://gitlab.com/mojo42/Jirafeau/'
+    repo: 'https://gitlab.com/jirafeau/Jirafeau.git'
     dest: '{{ files_root }}'
     clone: yes
-    update: no
+    update: yes
 
 # Generate files_var string if one isn't set.
 - block:
-  - name: Generate var string for file storage. 
+  - name: Generate var string for file storage 
     set_fact:
       new_files_var: "var-{{ lookup('password', '/dev/null length=16 chars=ascii_uppercase,ascii_lowercase,digits') }}"
-  - name: Add variable to host file.
+  - name: Add variable to host file
     local_action:
       module: lineinfile
       path: '{{ playbook_dir }}/env/{{ env }}/host_vars/{{ inventory_hostname }}.yml'
@@ -43,7 +43,7 @@
       files_var: '{{ new_files_var }}'
   when: files_var == ''
 
-- name: Ensure var folders exists.
+- name: Ensure var folders exists
   file:
     state: directory
     path: '{{ files_root }}/{{ files_var }}/{{ item }}'

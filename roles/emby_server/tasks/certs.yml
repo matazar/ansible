@@ -40,10 +40,10 @@
   when: new_cert.changed | default(false) or emby_p12.changed
   notify: restart emby
 
-- name: Ensure script for installing emby certs is updated.
-  copy:
-    src: emby_cert.py
-    dest: /root/emby_cert.py
+- include_role:
+    name: certhook
+  tags:
+    - certhook
 
 - name: Ensure renewal hook script is up to date.
   template:

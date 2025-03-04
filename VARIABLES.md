@@ -454,6 +454,54 @@ certbot_dns_enable: true
 ```
 ---
 
+## certhook_root
+Roles: certhook, emby_server, pbx, pihole, unifi_os
+
+Directory to store the python virtual environment used for the certhook package.
+
+Example:
+```
+certhook_root: /usr/local/apps/certhook
+```
+
+Default:
+```
+certhook_root: /opt/certhook
+```
+---
+
+## certhook_version
+Roles: certhook
+
+Version of certhook to install.
+
+Example:
+```
+certhook_version: 0.0.5
+```
+
+Default:
+```
+certhook_version: 0.1.0
+```
+---
+
+## certhook_wheel_url
+Roles: certhook
+
+The download URL for the certhook package.
+
+Example:
+```
+certhook_wheel_url: "https://github.com/example/certhook_fork/releases/download/0.2.0/certhook-0.2.0-py3-none-any.whl"
+```
+
+Default:
+```
+certhook_wheel_url: "https://github.com/matazar/certhook/releases/download/{{ certhook_version }}/certhook-{{ certhook_version }}-py3-none-any.whl"
+```
+---
+
 ## composer_version
 Roles: roundcube
 

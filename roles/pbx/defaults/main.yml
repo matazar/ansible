@@ -4,3 +4,4 @@ pbx_hostnames:
 pbx_cert_name: ['{{ pbx_cert_name | first }}']
 
 cert_group: ssl-certs
+certhook_root: /opt/certhook

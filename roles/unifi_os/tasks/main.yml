@@ -49,11 +49,10 @@
     when: not unifi_certificate_key.stat.islnk | default(True)
     notify: restart unifi-core
  
-- name: Update unifi certificate script.
-  copy:
-    src: unifi_cert.py
-    dest: /root/unifi_cert.py
-    mode: 0700
+- include_role:
+    name: certhook
+  tags:
+    - certhook
 
 - name: Add deploy hook to certbot
   template:

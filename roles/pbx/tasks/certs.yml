@@ -67,10 +67,10 @@
     command: fwconsole sysadmin updatecert
   when: asterisk_cert.changed
 
-- name: Ensure script for installing emby certs is updated.
-  copy:
-    src: pbx_cert.py
-    dest: /root/pbx_cert.py
+- include_role:
+    name: certhook
+  tags:
+    - certhook
 
 - name: Ensure renewal hook script is up to date.
   template:

@@ -3,3 +3,4 @@ unifi_cert_domains:
   - example.local
 
 cert_group: ssl-certs
+certhook_root: /opt/certhook

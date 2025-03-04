@@ -19,3 +19,5 @@ nfs_path: /mnt/media
 
 local_dns_zones: {}   # Used for force_ipv4_mounts
 local_subnets: ['{{ local_subnet }}']
+
+certhook_root: /opt/certhook

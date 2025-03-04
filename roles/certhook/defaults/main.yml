@@ -1,0 +1,3 @@
+certhook_root: /opt/certhook
+certhook_version: "0.1.0"
+certhook_wheel_url: "https://github.com/matazar/certhook/releases/download/{{ certhook_version }}/certhook-{{ certhook_version }}-py3-none-any.whl"

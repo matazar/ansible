@@ -1,0 +1,42 @@
+- name: Ensure required packages are installed
+  apt:
+    name:
+      - python3-venv
+      - python3-pip
+    state: present
+
+- name: "Check if virtual env {{ certhook_root }} exists"
+  stat:
+    path: "{{ certhook_root }}"
+  register: venv_check
+  changed_when: not venv_check.stat.exists
+
+- block:
+  - name: Create directory for certhook
+    file:
+      path: "{{ certhook_root }}"
+      state: directory
+      mode: '0755'
+
+  - name: Create Python virtual environment
+    command: python3 -m venv "{{ certhook_root}}"
+  when: venv_check.changed
+
+- name: Check if certhook is installed with the correct version.
+  command: "{{ certhook_root }}/bin/pip list"
+  register: certhook_check
+  changed_when: >
+    not certhook_check.stdout_lines | select('search', '^certhook\s+' ~ certhook_version) | list
+
+- block:
+  - name: Download certhook wheel
+    get_url:
+      url: "{{ certhook_wheel_url }}"
+      dest: "/tmp/certhook-{{ certhook_version }}-py3-none-any.whl"
+      mode: 0770
+  - name: Install certhook
+    pip:
+      virtualenv: "{{ certhook_root }}"
+      name: "file:///tmp/certhook-{{ certhook_version }}-py3-none-any.whl"
+      state: present
+  when: certhook_check.changed

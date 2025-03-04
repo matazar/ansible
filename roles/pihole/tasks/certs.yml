@@ -34,3 +34,16 @@
     owner: 'pihole'
     group: '{{ cert_group }}'
   when: pihole_pem.changed
+
+- include_role:
+    name: certhook
+  tags:
+    - certhook
+
+- name: Ensure renewal hook script is up to date.
+  template:
+    src: certbot.sh.j2
+    dest: /etc/letsencrypt/renewal-hooks/post/pihole.sh
+    mode: 0770
+    owner: root
+    group: '{{ cert_group }}'

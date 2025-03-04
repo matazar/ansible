@@ -26,18 +26,20 @@
     src: lightdm.conf.j2
     dest: /etc/lightdm/lightdm.conf
 
-# Auto launch Emby Theater
-- name: Ensure autostart directory exists
-  file:
-    path: '/home/{{ emby_theater_user }}/.config/autostart'
-    state: directory
-    owner: '{{ emby_theater_user }}'
-    group: '{{ emby_theater_user }}'
+# Auto launch Emby Theater/Web
+- block:
+  - name: Ensure autostart directory exists
+    file:
+      path: '/home/{{ emby_theater_user }}/.config/autostart'
+      state: directory
+      owner: '{{ emby_theater_user }}'
+      group: '{{ emby_theater_user }}'
 
-- name: Ensure Emby-Theater is set to auto start
-  template:
-    src: emby-theater.desktop.j2
-    dest: '/home/{{ emby_theater_user }}/.config/autostart/emby-theater.desktop'
-    owner: '{{ emby_theater_user }}'
-    group: '{{ emby_theater_user }}'
-    mode: '0700'
+  - name: Ensure Emby-Theater is set to auto start
+    template:
+      src: emby-theater.desktop.j2
+      dest: '/home/{{ emby_theater_user }}/.config/autostart/emby-theater.desktop'
+      owner: '{{ emby_theater_user }}'
+      group: '{{ emby_theater_user }}'
+      mode: '0700'
+  when: emby_theater_autostart

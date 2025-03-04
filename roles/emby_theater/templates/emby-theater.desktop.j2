@@ -1,5 +1,16 @@
+{% if emby_theater_autostart == 'web' %}
+[Desktop Entry]
+Name=Emby Web
+Type=Application
+Exec=chromium-browser --start-fullscreen --disable-session-crashed-bubble {{ emby_server_url }}
+Terminal=false
+Icon=chromium-browser
+Categories=Network;WebBrowser;
+StartupNotify=false
+{% elif emby_theater_autostart == 'theater' %}
 [Desktop Entry]
 Name=Emby-Theater
-Type=Application
 Exec=/usr/bin/emby-theater
 Terminal=false
+Categories=Network;WebBrowser;
+{% endif %}

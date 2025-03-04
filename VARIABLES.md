@@ -1146,6 +1146,54 @@ emby_server_plugin_backups: false
 ```
 ---
 
+## emby_server_url
+Roles: emby_theater
+
+URL used to access Emby web when emby_theater_autostart is set to web.
+
+Example:
+```
+emby_server_url: http://192.168.0.10:8096
+```
+
+Default:
+```
+emby_server_url: "https://emby.example.local:8920"
+```
+---
+
+## emby_server_version
+Roles: emby_server
+
+Sets the version of the emby server you wish installed on the system. 
+
+Example:
+```
+emby_server_version: 4.7.10.0
+```
+
+Default:
+```
+emby_server_version: 4.7.14.0
+```
+---
+
+## emby_theater_autostart
+Roles: emby_theater
+
+Controls whether Emby Theater, Emby web or neither is launched on emby_theater_user login. Options are `theater`, `web` or `false`.
+
+Example:
+```
+emby_theater_autostart: web
+```
+
+Default:
+```
+emby_theater_autostart: theater
+```
+---
+
 ## emby_theater_deb_url
 Roles: emby_theater
 
@@ -1165,7 +1213,7 @@ emby_theater_deb_url: 'https://github.com/MediaBrowser/emby-theater-electron/rel
 ## emby_theater_user
 Roles: emby_theater
 
-The user running emby theater. Used to set Mate auto login user and emby theater launch on login.
+The user running emby theater. Used to set Mate auto login user and emby theater/web launch on login.
 
 Example:
 ```
@@ -1185,29 +1233,14 @@ Sets the version of emby theater to install on the host.
 
 Example:
 ```
-emby_theater_version: 3.0.18
-```
-
-Default:
-```
 emby_theater_version: 3.0.19
 ```
----
-
-## emby_server_version
-Roles: emby_server
-
-Sets the version of the emby server you wish installed on the system. 
-
-Example:
-```
-emby_server_version: 4.7.10.0
-```
 
 Default:
 ```
-emby_server_version: 4.7.14.0
+emby_theater_version: 3.0.21
 ```
+---
 
 ## files_admin_password
 Roles: files

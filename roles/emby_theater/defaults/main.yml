@@ -1,3 +1,5 @@
 emby_theater_version: 3.0.21
 emby_theater_deb_url: 'https://github.com/MediaBrowser/emby-theater-electron/releases/download/{{ emby_theater_version }}/emby-theater-deb_{{ emby_theater_version }}_amd64.deb'
 emby_theater_user: media
+emby_theater_autostart: theater
+emby_server_url: "https://emby.example.local:8920"

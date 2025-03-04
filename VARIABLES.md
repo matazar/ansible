@@ -371,7 +371,7 @@ cert_extra_domains: []
 ---
 
 ## cert_group
-Roles: certbot, certbot_dns, pbx, unifi_os
+Roles: certbot, certbot_dns, pbx, pihole, unifi_os
 
 Group used to provide other applications/users access to the certificates.  
 

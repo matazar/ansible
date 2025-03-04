@@ -23,11 +23,13 @@
       src: webpassword.j2
       dest: /etc/pihole/webpassword.txt
     register: pihole_pwd
+    failed_when: false
   - name: Check current pihole web panel password hash
-    command: grep 'WEBPASSWORD=' /etc/pihole/setupVars.conf
+    command: grep 'pwhash = ' /etc/pihole/pihole.toml
     register: pihole_webpwd
     changed_when: pihole_webpwd.rc != 0
     failed_when: false
+
   - set_fact: 
       pihole_pwdhash: "{{ pihole_webpwd.stdout.split('=')[1] | default('')}}"
     when: not pihole_webpwd.changed
@@ -35,14 +37,14 @@
 # Order in real file frequently changes the order, this step prevents it from changing each run.
 - name: Test pihole configuration.
   template:
-    src: setupVars.conf.j2
-    dest: /etc/pihole/setupVars.test
+    src: pihole.toml.j2
+    dest: /etc/pihole/pihole.test.toml
   register: pihole_config
 
 - name: Update pihole configuration.
   template: 
-    src: setupVars.conf.j2
-    dest: /etc/pihole/setupVars.conf
+    src: pihole.toml.j2
+    dest: /etc/pihole/pihole.toml
   when: pihole_config.changed
   notify: restart pihole
 
@@ -55,21 +57,6 @@
   when: pihole_pwd.changed or pihole_webpwd.changed
   no_log: true
   notify: restart pihole
-
-- name: Add option for local dns records
-  template:
-    dest: /etc/dnsmasq.d/02-lan.conf
-    src: 02-lan.conf.j2
-  when: local_dns_zones
-
-- name: Update local dns records
-  template:
-    dest: /etc/pihole/{{ item }}.list
-    src: local_dns.list.j2
-  with_items: '{{ local_dns_zones | list }}'
-  when: local_dns_zones
-  notify:
-    - restart pihole
 
 - block:
   - name: Ensure sqlite3 is installed.
@@ -112,31 +99,5 @@
     name: update gravity
     job: /usr/local/bin/pihole -g
 
-# Enable SSL
-- block:
-    - include_tasks: certs.yml
-    - name: Ensure mod_openssl is installed.
-      apt:
-        name: lighttpd-mod-openssl
-        state: present
-      notify: restart lighttpd
-    - name: Update lighttpd configurations
-      template:
-        src: '{{ item }}.j2'
-        dest: '/etc/lighttpd/conf-available/{{ item }}'
-      notify: restart lighttpd
-      with_items:
-        - 10-ssl.conf
-    - name: Enable lighttpd configuration
-      file:
-        src: '/etc/lighttpd/conf-available/{{ item }}'
-        dest: '/etc/lighttpd/conf-enabled/{{ item }}'
-        state: link
-      notify: restart lighttpd
-      with_items:
-        - 10-ssl.conf
-    - name: Remove old configuration file
-      file:
-        path: /etc/lighttpd/external.conf
-        state: absent
+- include_tasks: certs.yml
   when: pihole_https_enable

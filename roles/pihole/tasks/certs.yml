@@ -10,3 +10,27 @@
     cert_ipv6: '{{ pihole_ipv6 }}'
   tags:
     - certbot
+
+- name: 'Ensure pihole user is in {{ cert_group }} groups'
+  user:
+    append: yes
+    create_home: no
+    groups: 
+      - '{{ cert_group }}'
+    name: pihole
+
+- name: Check if pihole certificate file exists.
+  command: '/usr/bin/test -f /etc/letsencrypt/live/{{ pihole_cert_name }}/pihole.pem'
+  register: pihole_pem
+  failed_when: false
+  changed_when: pihole_pem.rc == 1
+
+- name: Concat fullchain.pem and privkey.pem into pihole.pem
+  assemble:
+    src: "/etc/letsencrypt/live/{{ pihole_cert_name }}"
+    dest: "/etc/letsencrypt/live/{{ pihole_cert_name }}/pihole.pem"
+    regexp: "^(fullchain|privkey)\\.pem$"
+    mode: '0660'
+    owner: 'pihole'
+    group: '{{ cert_group }}'
+  when: pihole_pem.changed

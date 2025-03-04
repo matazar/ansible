@@ -22,7 +22,7 @@
 - name: Install VirtualBox
   apt:
     name: 'virtualbox-{{ vbox_version }}'
-    state: latest
+    state: present
     update_cache: yes
 
 - name: 'Ensure {{ vm_user }} is in the correct groups'

@@ -670,7 +670,7 @@ debian_version: bullseye
 
 Default:
 ``` 
-debian_version: bookworm
+debian_version: trixie
 ```
 
 ---

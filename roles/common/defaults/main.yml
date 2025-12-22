@@ -5,7 +5,7 @@ timezone: America/Toronto
 default_editor: nano
 bash_colour: 36
 bash_custom_aliases: []
-core_apps: [sudo, p7zip, unzip, nano, rsync, tmux, wget, curl, dnsutils, ntp]
+core_apps: [sudo, p7zip, unzip, nano, rsync, tmux, wget, curl, dnsutils, chrony]
 cron_email: false
 
 # User Info
@@ -71,5 +71,5 @@ wg_nat: false
 monit_enabled: true
 
 # OS
-debian_version: bookworm
+debian_version: trixie
 amd_driver: false 

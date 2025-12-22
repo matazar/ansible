@@ -22,3 +22,8 @@
   service:
     name: rsyslog
     state: restarted
+
+- name: restart chrony
+  service:
+    name: chrony
+    state: restarted

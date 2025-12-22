@@ -79,4 +79,21 @@
     env: yes
     job: '{{ cron_email }}'
     name: MAILTO
-  when: cron_email
+  when: cron_email != ""
+
+- name: Ensure chrony is installed
+  apt:
+    name: chrony
+    state: present
+
+- name: Configure chrony
+  template:
+    src: chrony.conf.j2
+    dest: /etc/chrony/chrony.conf
+  notify: restart chrony
+
+- name: Ensure chrony service is started and enabled
+  service:
+    name: chrony
+    state: started
+    enabled: true

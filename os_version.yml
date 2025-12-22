@@ -1,6 +1,0 @@
-- hosts: all
-  gather_facts: yes
-  tasks:
-    - name: Print OS and version
-      debug:
-        msg: '{{ ansible_distribution }} {{ ansible_distribution_version }}'

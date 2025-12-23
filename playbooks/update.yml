@@ -19,7 +19,7 @@
           register: reboot_required_file
           stat:
             path: /var/run/reboot-required
-            get_md5: no
+            get_checksum: no
           changed_when: reboot_required_file.stat.exists
         - name: Reboot the server if kernel updated
           reboot:

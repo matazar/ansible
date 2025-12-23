@@ -1,19 +1,47 @@
-- block:
-  - name: Ensure IPv6 addresses are configured for boot
+- name: Ensure IPv6 addresses are configure on the host
+  block:
+  - name: Build normalized IPv6 address list from vars
+    set_fact:
+      ipv6_addresses_normalized: >-
+        {{ ipv6_addresses
+         | select()
+         | map('ansible.utils.ipaddr', 'host/prefix')
+         | list
+         | sort }}
+
+  - name: Ensure IPv6 addresses are configured on startup
     blockinfile:
       path: /etc/network/interfaces
-      block: "{% for ip in ipv6_addresses %}{% if ip %}iface {{ ansible_default_ipv6['interface'] }} inet6 static\n{{ '\t' }}address {{ ip | ansible.utils.ipaddr('host/prefix') }}\n\n{% endif %}{% endfor %}"
-      insertafter: "EOF"
-  # Find out what IPv6 addresses are missing from the host
-  - set_fact:
-      missing_ipv6: "{% if item not in ansible_all_ipv6_addresses and item != false %}{{ missing_ipv6 | default([]) + [item] }}{% else %}{{ missing_ipv6 | default([]) }}{% endif %}"
-    with_items: "{{ ipv6_addresses | default([]) }}"
-  - name: "Ensure IPv6 is configured on the host"
-    command: "ip -6 addr add {{ item | ansible.utils.ipaddr('host/prefix') }} dev {{ ansible_default_ipv6['interface'] | default(False) }}"
+      block: |
+        {% for ip in ipv6_addresses_normalized %}
+        iface {{ ansible_default_ipv6.interface }} inet6 static
+            address {{ ip }}
+
+        {% endfor %}
+      insertafter: EOF
+
+  - name: Normalize existing IPv6 addresses list from host
+    set_fact:
+      host_ipv6_normalized: >-
+        {{ ansible_all_ipv6_addresses | map('ansible.utils.ipaddr', 'address/prefix') | list }}
+
+  - name: Compute missing IPv6 addresses
+    set_fact:
+      missing_ipv6: >-
+        {{ ipv6_addresses_normalized | difference(host_ipv6_normalized) }}
+
+  - name: Ensure missing IPv6 addresses are configured on the host
+    command: >
+      ip -6 addr add {{ item }} dev {{ ansible_default_ipv6.interface }}
     loop: "{{ missing_ipv6 }}"
-    when: 
-      - 'missing_ipv6 | length > 0'
-  when: ipv6_addresses
+    when:
+      - missing_ipv6 | length > 0
+    register: add_ipv6
+    failed_when: >
+      add_ipv6.rc != 0 and
+      ('address already assigned' not in (add_ipv6.stderr | default('')))
+    changed_when: add_ipv6.rc == 0
+  when: ipv6_addresses | length > 0
 
 - name: Update DNS resolvers when defined
   template:

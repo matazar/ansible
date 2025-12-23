@@ -3,8 +3,9 @@
   authorized_key: 
     user: "{{ item.key }}"
     state: absent
-    key: "{{ lookup('file', key_item) }}"
-  with_fileglob:
-      - '{{ backup_dir }}/ssh_keys/archived/*.pub'
+    key: "{{ key_item }}"
+  with_items:
+      - stale_ssh_keys
   loop_control:
     loop_var: key_item
+  when: stale_ssh_keys | length > 0

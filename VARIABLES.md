@@ -3749,6 +3749,23 @@ sshd_strict_ipv6: true
 ```
 ---
 
+## stale_ssh_keys
+Roles: common
+
+List of old SSH public keys to be removed from the authorized_keys file for ansible managed users.
+
+Example:
+```
+stale_ssh_keys:
+  - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIByXtIj3G67j5n5n5n5n5n5n5n5n5n5n5n5n5n5n5n5n5n5n5n5n5 user@example.com
+```
+
+Default:
+```
+stale_ssh_keys: []
+```
+---
+
 ## sudo_nopasswd
 Roles: common
 

@@ -3652,6 +3652,23 @@ spf_default_txt: 'v=spf1 a mx -all'
 ```
 ---
 
+## ssh_keys
+Roles: common
+
+List of SSH public keys to be added to the authorized_keys file for the users created by ansible.
+
+Example:
+```
+ssh_keys:
+  - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIByXtIj3G67j5n5n5n5n5n5n5n5n5n5n5n5n5n5n5n5n5n5n5n5n5 user@example.com
+```
+
+Default:
+```
+ssh_keys: []
+```
+---
+
 ## sshd_keytype
 Roles: common
 

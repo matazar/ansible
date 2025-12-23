@@ -21,6 +21,7 @@ sshd_strict_ipv4: false
 sshd_public_port: 0
 sshd_strict_ipv6: true
 sshd_lowdelay: false
+ssh_keys: []
 
 # IPv6
 ipv6_address: false

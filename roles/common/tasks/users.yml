@@ -30,9 +30,9 @@
   authorized_key: 
     user: "{{ item.key }}"
     state: present 
-    key: "{{ lookup('file', key_item) }}"
-  with_fileglob:
-      - '{{ backup_dir }}/ssh_keys/*.pub'
+    key: "{{ key_item }}"
+  with_items:
+      - '{{ ssh_keys }}'
   loop_control:
     loop_var: key_item
 

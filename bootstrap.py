@@ -33,7 +33,7 @@ class bootstrap(object):
             password = getpass.getpass('Password for %s@%s: ' % (user, host))
             if user == 'root':
                 c = Connection(self.hosts[host],
-                               user=user,
+                               user=user, 
                                connect_kwargs={"password": password})
                 try:
                     c.run('apt install -y python3 python3-apt')
@@ -59,7 +59,7 @@ class bootstrap(object):
             c.close()
             # Provide copy/paste command to run bootstrap play.
             print(f'\n\nNow run:\nansible-playbook -i {self.inv_file} ' +
-                  f'bootstrap.yml -e "ansible_ssh_user={user}" -D -l {host}')
+                  f'playbooks/bootstrap.yml -e "ansible_ssh_user={user}" -D -l {host}')
 
     def parse_hosts(self, hosts):
         """

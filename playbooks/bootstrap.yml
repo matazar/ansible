@@ -43,7 +43,7 @@
         - ansible_distribution == 'Ubuntu'
 
     # Add the default users through the common role.
-    - include_tasks: roles/common/tasks/users.yml
+    - include_tasks: ../roles/common/tasks/users.yml
       with_dict: "{{ users }}"
       no_log: true
     

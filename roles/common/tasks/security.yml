@@ -4,7 +4,7 @@
 
 - set_fact:
     rules: [v4, v6] 
-  when: ipv6_address
+  when: ipv6_address | length > 0
 
 - name: Ensure iptables is installed
   apt: 
@@ -28,7 +28,7 @@
 
 - name: Load new IPv6 rules
   command: "/sbin/ip6tables-restore /etc/iptables/rules.v6"
-  when: new_rules.changed and ipv6_address
+  when: new_rules.changed and ipv6_address | length > 0
 
 - name: Ensure fail2ban is installed
   apt: 

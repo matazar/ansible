@@ -14,7 +14,7 @@
 
 - name: Add roundcube des key to host var
   blockinfile:
-    path: "{{ playbook_dir }}/env/{{ env }}/host_vars/{{ inventory_hostname }}.yml"
+    path: "{{ playbook_dir }}/../env/{{ env }}/host_vars/{{ inventory_hostname }}.yml"
     marker_begin: roundcube des key start
     marker_end: roundcube des key end
     block: "roundcube_des_key: {{ roundcube_des_key }}"

@@ -2474,7 +2474,7 @@ php_version: php7.3
 
 Default:
 ```
-php_version: php8.2
+php_version: php8.4
 ```
 ---
 
@@ -2630,12 +2630,12 @@ The version of postgresql to install.
 
 Example:
 ```
-postgresql_version: 12
+postgresql_version: 15
 ```
 
 Default:
 ```
-postgresql_version: 15
+postgresql_version: 17
 ```
 ---
 

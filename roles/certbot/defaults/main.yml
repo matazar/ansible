@@ -4,4 +4,4 @@ cert_services: [nginx]
 cert_scripts: []
 cert_email: 'certs@{{ cert_domain }}'
 cert_group: ssl-certs
-cert_ipv6: '[::]'
+cert_ipv6: ''

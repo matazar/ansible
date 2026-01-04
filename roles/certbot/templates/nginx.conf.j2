@@ -1,8 +1,10 @@
 {% for domain in cert_domains %}
 server {
   listen {{ ansible_host }}:80;
-{% if cert_ipv6 %}
+{% if (cert_ipv6 is defined) and not (cert_ipv6 | string | trim == '') %}
+{% if (cert_ipv6 | ansible.utils.ipv6) %}
   listen {{ cert_ipv6 | ansible.utils.ipwrap }}:80;
+{% endif %}
 {% endif %}
   server_name {{ domain }};
 

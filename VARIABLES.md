@@ -398,7 +398,7 @@ cert_ipv6: '2001:db8:c2ee::1'
 
 Default:
 ```
-cert_ipv6: '[::]'   
+cert_ipv6: ''   
 ```
 ---
 

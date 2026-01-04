@@ -389,7 +389,7 @@ cert_group: ssl-certs
 ## cert_ipv6
 Roles: certbot
 
-IPv6 address to use for the certificate generation with certbot/Let's Encrypt. Default is all IPv6.
+IPv6 address to use for the certificate generation with certbot/Let's Encrypt. Default is disabled.
 
 Example:
 ```  
@@ -514,7 +514,7 @@ composer_version: 2.4.0
 
 Default:
 ```
-composer_version: 2.5.1
+composer_version: 2.9.3
 ```
 ---
 
@@ -1392,7 +1392,7 @@ files_hostnames:
 ## files_ipv6
 Roles: files
 
-The IPv6 address used for the files/Jirafeau site. Disabled when set to false.
+The IPv6 address used for the files/Jirafeau site. Disabled when set to ''.
 
 Example:
 ```
@@ -1401,7 +1401,7 @@ files_ipv6: 2001:db8:4321::6
 
 Default:
 ```
-files_ipv6: false
+files_ipv6: ''
 ```
 ---
 
@@ -2447,7 +2447,7 @@ pbx_hostnames:
 ---
 
 ## php_fpm
-Roles: roundcube
+Roles: files, roundcube
 
 Name of the php-fpm command used on the system.
 
@@ -2463,7 +2463,7 @@ php_fpm: '{{ php_version }}-fpm'
 ---
 
 ## php_version
-Roles: roundcube
+Roles: files, roundcube
 
 Version of PHP used on the system. Used for the default php_fpm variable and for installing php modules.
 

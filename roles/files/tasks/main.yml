@@ -11,13 +11,33 @@
 # start and enable php-fpm
 - name: Ensure php-fpm is running
   service: 
-    name: php8.2-fpm
+    name: '{{ php_fpm }}'
     state: started
 
 - name: Ensure php-fpm is enabled
   service: 
-    name: php8.2-fpm
+    name: '{{ php_fpm }}'
     enabled: yes
+
+
+- name: Ensure ansible temp folder exists for www-data
+  file:
+    path: '{{ item }}'
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: "0755"
+  with_items:
+    - /var/www/.ansible
+    - /var/www/.ansible/tmp
+
+- name: Ensure site folder exists
+  file:
+    path: "{{ files_root }}"
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: "0755"
 
 - name: Clone Git Repo
   git:
@@ -25,6 +45,7 @@
     dest: '{{ files_root }}'
     clone: yes
     update: yes
+  become_user: www-data
 
 # Generate files_var string if one isn't set.
 - block:
@@ -32,11 +53,11 @@
     set_fact:
       new_files_var: "var-{{ lookup('password', '/dev/null length=16 chars=ascii_uppercase,ascii_lowercase,digits') }}"
   - name: Add variable to host file
-    local_action:
-      module: lineinfile
-      path: '{{ playbook_dir }}/env/{{ env }}/host_vars/{{ inventory_hostname }}.yml'
+    lineinfile:
+      path: '{{ playbook_dir }}/../env/{{ env }}/host_vars/{{ inventory_hostname }}.yml'
       line: "files_var: '{{ new_files_var }}'"
       regexp: "files_var: '.?'"
+    delegate_to: localhost
     become: false
   - name: Set fact for current play
     set_fact:
@@ -85,18 +106,19 @@
   
 - name: Ensure php-fpm is running
   service:
-    name: php8.2-fpm
+    name: '{{ php_fpm }}'
     state: started
 
 - name: Ensure php-fpm is running
   service:
-    name: php8.2-fpm
+    name: '{{ php_fpm }}'
     enabled: yes
 
 - name: Update files nginx file
   template:
     src: nginx.conf.j2
     dest: '/etc/nginx/sites-available/{{ files_cert_name }}.conf'
+  notify: restart nginx
 
 - name: Ensure the site is enabled
   file: 

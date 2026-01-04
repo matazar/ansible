@@ -1,7 +1,7 @@
 files_cert_name: '{{ files_hostnames | first }}'
 files_hostnames:
     - 'files.{{ default_domain}}'
-files_ipv6: false
+files_ipv6: ''
 
 # Jirafeau settings
 files_style: 'dark-courgette'
@@ -15,3 +15,6 @@ files_upload_passwords: []
 files_upload_allow_ips: []
 files_upload_passwordless_ips: []
 #files_admin_password: 
+
+php_version: php8.4
+php_fpm: '{{ php_version }}-fpm'

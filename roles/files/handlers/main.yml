@@ -5,5 +5,5 @@
 
 - name: restart php-fpm
   service:
-    name: php8.2-fpm
+    name: "{{ php_fpm }}"
     state: restarted

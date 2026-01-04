@@ -7,7 +7,7 @@
         attributes:
           cn: Replicator
           description: Replication user
-          userPassword: "{{ ldap_replication_pw | password_hash('ldap_salted_sha1') }}"
+          userPassword: "{{ '{CRYPT}' ~ ( ldap_replication_pw | password_hash('blowfish', rounds=12)) }}"
         bind_dn: "{{ ldap_rootdn }}"
         bind_pw: "{{ ldap_rootpw }}"
   
@@ -51,10 +51,12 @@
 - name: Set server IDs
   ldap_attrs:
     dn: cn=config
+    state: present  
     attributes:
-      olcServerID: '{{ ldap_replication_hosts[item]["id"] }} {{ ldap_replication_scheme }}://{{ item }}'
-  with_items: '{{ ldap_replication_hosts }}'
-  when: ldap_hostname in ldap_replication_hosts
+        olcServerID: "{{ item.value.id }} {{ ldap_replication_scheme }}://{{ item.key }}"
+  loop: "{{ ldap_replication_hosts | dict2items }}"
+  when: ldap_replication_enable | bool
+
 
 # Wasn't able to import this with ldap_attrs
 - block:

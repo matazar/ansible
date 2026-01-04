@@ -69,7 +69,7 @@
   ldap_attrs:
     dn: cn=module{0},cn=config
     attributes:
-      olcModuleLoad: ppolicy
+      olcModuleLoad: ppolicy.la
     state: present
 
 - name: Apply ppolicy overlay
@@ -107,27 +107,31 @@
     dn: 'cn=default,ou=policies,{{ ldap_suffix }}'
     state: present
     objectClass:
+      - device
       - pwdPolicy
-      - pwdPolicyChecker
-      - inetOrgPerson
       - top
     attributes:
       pwdExpireWarning: '{{ pwdExpireWarning }}'
       pwdMaxFailure: '{{ pwdMaxFailure }}'
-      cn: Default
+      cn: default
       pwdSafeModify: '{{ pwdSafeModify }}'
       pwdMinLength: '{{ pwdMinLength }}'
       pwdCheckQuality: '{{ pwdCheckQuality }}'
       pwdMaxAge: '{{ pwdMaxAge }}'
       pwdMinAge: '{{ pwdMinAge }}'
-      pwdCheckModule: check_password.so
       pwdLockoutDuration: '{{ pwdLockoutDuration }}'
       pwdAllowUserChange: '{{ pwdAllowUserChange }}'
       pwdGraceAuthNLimit: '{{ pwdGraceAuthNLimit }}'
-      sn: Policy
       pwdMustChange: 'TRUE'
       pwdInHistory: '{{ pwdInHistory }}'
       pwdLockout: '{{ pwdLockout }}'
       pwdAttribute: 2.5.4.35
       pwdFailureCountInterval: '{{ pwdFailureCountInterval }}'
- 
+
+- name: Ensure default policy uses check module
+  ldap_attrs:
+    dn: 'cn=default,ou=policies,{{ ldap_suffix }}'
+    state: present
+    attributes:
+      objectClass: pwdPolicyChecker
+      pwdUseCheckModule: 'TRUE'

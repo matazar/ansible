@@ -1,10 +1,11 @@
 # Do we have a backup?
 - name: Check for backup copy of database to restore.
-  local_action: 
-    module: stat
+  stat:
     path: "{{ backup_dir }}/ldap/{{ ldap_hostname }}/seed.ldif"
+  delegate_to: localhost
   become: false
   register: ldap_backup
+
 
 # Restore backups if they exist
 - include_tasks: restore.yml
@@ -75,17 +76,26 @@
         state: exact
         attributes:
           olcSuffix: "{{ ldap_suffix }}"
+
+    - name: Allow CRYPT (bcrypt) hashing in OpenLDAP
+      community.general.ldap_attrs:
+        dn: olcDatabase={-1}frontend,cn=config
+        state: exact
+        attributes:
+          # You can list multiple schemes. Keep SSHA for compatibility if needed.
+          olcPasswordHash: "{CRYPT}"
+
     - name: Set root DN and password
       ldap_attrs:
         dn: olcDatabase={1}mdb,cn=config
         state: exact
         attributes:
           olcRootDN: "{{ ldap_rootdn }}"
-          olcRootPW: "{{ ldap_rootpw | password_hash('ldap_salted_sha1') }}"
+          olcRootPW: "{{ '{CRYPT}' ~ (ldap_rootpw | password_hash('blowfish', rounds=12)) }}"
       register: root_dn
       changed_when: root_dn.modlist | selectattr(1, 'equalto', 'olcRootDN') | list | length > 0
     - debug:
-        var: root_dn.mod_list
+        var: root_dn.modlist
     - name: Ensure LDAP admin DN exists
       ldap_entry:
         dn: "{{ ldap_admin }}"
@@ -94,7 +104,7 @@
           - simpleSecurityObject
         attributes:
           description: LDAP administrator
-          userPassword: "{{ ldap_pw | password_hash('ldap_salted_sha1') }}"
+          userPassword: "{{ '{CRYPT}' ~ (ldap_pw | password_hash('blowfish', rounds=12)) }}"
         bind_dn: '{{ ldap_rootdn }}'
         bind_pw: '{{ ldap_rootpw }}'
   when: not ldap_backup.stat.exists

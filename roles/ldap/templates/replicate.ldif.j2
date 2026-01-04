@@ -1,9 +1,9 @@
 dn: olcDatabase={1}mdb,cn=config
 changetype: modify
-add: olcSyncRepl
+add: olcSyncrepl
 {% for host in ldap_replication_hosts %}
 {% if host != ldap_hostname %}
-olcSyncRepl:
+olcSyncrepl:
     rid={{ "%03d" | format(ldap_replication_hosts[host]['id']) }}
     provider={{ ldap_replication_scheme }}://{{ host }}
     bindmethod=simple
@@ -11,7 +11,7 @@ olcSyncRepl:
     credentials={{ ldap_replication_pw }}
     searchbase="{{ ldap_suffix }}"
     type=refreshAndPersist
-    retry="5 5 300 5"
+    retry="5 5 300 +"
     timeout=1
     interval=00:00:15:00
 {% endif %}

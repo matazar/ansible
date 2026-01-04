@@ -152,8 +152,11 @@
     owner: _rspamd
     group: _rspamd
 
-- include_tasks: rspamd_dkim.yml
-  with_items: '{{ mail_domains }}'
+- include_tasks: rspamd_dkim.yml 
+  loop: "{{ mail_domains }}"
+  loop_control:
+    loop_var: domain
+
 
 - name: Ensure rspamd services are enabled
   service:

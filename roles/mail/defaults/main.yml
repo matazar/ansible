@@ -39,4 +39,4 @@ tld_spam_score: {'cam': 4.0, 'us': 1.0, 'club': 4.0}
 dkim_key: dkim
 dkim_keys: ['{{ dkim_key }}']
 
-debian_version: bookworm
+debian_version: trixie

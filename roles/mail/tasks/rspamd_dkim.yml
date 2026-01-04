@@ -1,7 +1,7 @@
 # Check for DKIM keys, restore if missing or generate a new set if none exist locally.
 - name: Output DKIM domain for debugging
   debug:
-    var: '{{ item }}'
+    var: domain
 
 # Set the host to use for DKIM generation.
 - set_fact:
@@ -11,8 +11,8 @@
 - block: 
   - name: Restore DKIM key/txt to host
     copy:
-      dest: "/var/lib/rspamd/dkim/{{ item }}_{{ dkim_key }}.{{ type }}"
-      src: '{{ backup_dir }}/dkim/{{ item }}_{{ dkim_key }}.{{ type }}'
+      dest: "/var/lib/rspamd/dkim/{{ domain }}_{{ dkim_key }}.{{ type }}"
+      src: '{{ backup_dir }}/dkim/{{ domain }}_{{ dkim_key }}.{{ type }}'
       owner: _rspamd
       group: _rspamd
     with_items:
@@ -23,16 +23,16 @@
     notify: restart rspamd
   rescue:
   - name: Create DKIM keys if they do not already exist
-    shell: "rspamadm dkim_keygen -b 2048 -s {{ dkim_key }} -d {{ item }} -k /var/lib/rspamd/dkim/{{ item }}_{{ dkim_key }}.private > /var/lib/rspamd/dkim/{{ item }}_{{ dkim_key }}.txt"
+    shell: "rspamadm dkim_keygen -b 2048 -s {{ dkim_key }} -d {{ domain }} -k /var/lib/rspamd/dkim/{{ domain }}_{{ dkim_key }}.private > /var/lib/rspamd/dkim/{{ domain }}_{{ dkim_key }}.txt"
     notify: restart rspamd
     when: inventory_hostname == dkim_gen_host[0]
 
 # Store a copy locally.
 - name: Store a copy of the DKIM key/txt file.
   fetch:
-    src: '/var/lib/rspamd/dkim/{{ item }}_{{ dkim_key }}.{{ type }}'
+    src: '/var/lib/rspamd/dkim/{{ domain }}_{{ dkim_key }}.{{ type }}'
     # Playbooks dir.
-    dest: '{{ backup_dir }}/dkim/{{ item }}_{{ dkim_key }}.{{ type }}'
+    dest: '{{ backup_dir }}/dkim/{{ domain }}_{{ dkim_key }}.{{ type }}'
     flat: yes
   with_items:
     - txt

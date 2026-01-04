@@ -1,2 +1,2 @@
 #postgresql_root_password: ''
-postgresql_version: 15
+postgresql_version: 17

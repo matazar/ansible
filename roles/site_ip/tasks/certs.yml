@@ -1,4 +1,7 @@
 # IPv4/IPv6
+- set_fact:
+    ip_site_has_ipv6: "{{ (ip_site_ipv6 | default('') | string | trim) != '' }}"
+
 - block:
   - set_fact:
       ip_site_hostnames: '{{  [ip_site_hostname, ip_site_v4_hostname, ip_site_v6_hostname] }}'
@@ -10,7 +13,7 @@
       cert_domain: "{{ ip_site_hostname }}"
       cert_extra_domains: '{{ ip_site_hostnames }}'
       cert_ipv6: "{{ ip_site_ipv6 }}"
-  when: ip_site_ipv6
+  when: ip_site_has_ipv6
 
 # IPv4 Only
 - block:
@@ -23,5 +26,4 @@
     vars:
       cert_domain: "{{ ip_site_hostname }}"
       cert_extra_domains: '{{ ip_site_hostnames }}'
-      cert_ipv6: "{{ ip_site_ipv6 }}"
-  when: not ip_site_ipv6
+  when: not ip_site_has_ipv6

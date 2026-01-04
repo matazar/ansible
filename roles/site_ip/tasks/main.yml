@@ -5,9 +5,9 @@
     name: [python3-venv, python3-pip, python3-setuptools]
     state: present
 
-- name: Ensure libpcre3 is installed
+- name: Ensure libpcre2 is installed
   apt:
-    name: [libpcre3, libpcre3-dev]
+    name: [libpcre2-8-0, libpcre2-dev]
     state: present
 
 - name: Check to see if the site folder exists
@@ -75,13 +75,13 @@
   when:  ip_site_key == ''  
 
 - name: Add ip site flask key to host var
-  local_action:
-    module:  blockinfile
+  blockinfile:
     marker_begin: flask key start
     marker_end: flask key end
-    path: "{{ playbook_dir }}/env/{{ env }}/host_vars/{{ inventory_hostname }}.yml"
+    path: "{{ playbook_dir }}/../env/{{ env }}/host_vars/{{ inventory_hostname }}.yml"
     block: "ip_site_key: {{ ip_site_key }}"
     state: present
+  delegate_to: localhost
   become: false
 
 - name: Update site API.

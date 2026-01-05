@@ -23,7 +23,8 @@
 
 - name: Check for Self Signed Certificate in Asterisk
   command: fwconsole certificate --list
-  changed_when: cert_list.stdout | regex_search('(Default Self-Signed)')
+  changed_when: cert_list.stdout | regex_search('(Default Self-Signed)') | bool
+  failed_when: false
   register: cert_list
 
 - name: Delete self signed certificate from Asterisk

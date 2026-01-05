@@ -45,5 +45,7 @@
    directory mask = {{ samba_shares[share].directory_mask | default('0770') }}
 {% if samba_shares[share].force_user | default(false) %}   force user = {{ samba_shares[share].force_user }}
 {% endif %}
+{% if samba_shares[sahre].valid users | default(false) %}  valid users = {{ samba_shares[share].valid_users }}
+{% endif %}
 
 {% endfor %}   

@@ -42,4 +42,4 @@
       owner: '{{ emby_theater_user }}'
       group: '{{ emby_theater_user }}'
       mode: '0700'
-  when: emby_theater_autostart
+  when: emby_theater_autostart | bool

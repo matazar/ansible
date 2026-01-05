@@ -4,12 +4,12 @@
 
 - name: "Create a list of shares for {{ item }} (SMB)"
   set_fact:
-    shares: "{{ shares + smb_shares[item] | list }}"
+    shares: "{{ shares | list + smb_shares[item] | list }}"
   when: "item in smb_shares"
 
 - name: "Create a list of shares for {{ item }} (NFS)"
   set_fact:
-    shares: "{{ shares + nfs_shares[item] | list }}"
+    shares: "{{ shares | list + nfs_shares[item] | list }}"
   when: "item in nfs_shares"
 
 - set_fact:
@@ -35,14 +35,19 @@
 
 - name: List newly created folders 
   set_fact:
-    new_folders: '{% for path in new_network_shares.results if path.changed %}{{ path.path }} {% endfor %}'
+    new_folders: >-
+      {% set paths = [] %}
+      {% for path in new_network_shares.results if path.changed %}
+        {% set _ = paths.append(path.path) %}
+      {% endfor %}
+      {{ paths | join(' ') }}
 
 # Used by Monit to detect when the mounts are disconnected.
 - name: Ensure new folders have disconnected.txt file
   file:
     state: touch
     path: '{{ share_path }}/disconnected.txt'
-  loop: "{{ new_folders.split(' ') }}"
+  loop: "{{ (new_folders | default('') | trim) | split(' ') }}"
   loop_control:
     loop_var: share_path
-  when: new_folders != ''
+  when: new_folders is defined and new_folders | trim != ''

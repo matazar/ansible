@@ -31,7 +31,7 @@
 
 # Config share mount folders
 - include_tasks: mounts.yml
-  with_items: '{{ smb_shares | combine(nfs_shares) }}'
+  loop: "{{ smb_shares | combine(nfs_shares) | dict2items | map(attribute='key') | list }}"
 
 - name: Add mount script
   template:

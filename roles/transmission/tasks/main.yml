@@ -36,7 +36,7 @@
     systemd:
       name: transmission-daemon
       state: stopped
-  - name: Check transmission config
+  - name: Update transmission config
     template:
       src: settings.json.j2
       dest: /var/lib/transmission-daemon/.config/transmission-daemon/settings.json
@@ -61,18 +61,19 @@
     enabled: yes
     state: started
 
-- name: Update script for importing torrents from a directory.
-  template:
-    src: add_torrents.sh.j2
-    dest: /root/add_torrents.sh
-    mode: '0755'
+- block:
+  - name: Update script for importing torrents from a directory.
+    template:
+      src: add_torrents.sh.j2
+      dest: /root/add_torrents.sh
+      mode: '0755'
 
-# Watch directory option doesn't appear to work
-- name: Set cronjob to import torrent
-  cron:
-    name: Auto import torrents to transmission
-    minute: "*/10"
-    job: '/usr/bin/bash /root/add_torrents.sh > /dev/null 2>&1'
+  - name: Set cronjob to import torrent
+    cron:
+      name: Auto import torrents to transmission
+      minute: "*/10"
+      job: '/usr/bin/bash /root/add_torrents.sh > /dev/null 2>&1'
+  when: transmission_watch_dir_enabled
 
 - include_tasks: nginx.yml
   when: transmission_https

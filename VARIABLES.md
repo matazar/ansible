@@ -3857,6 +3857,22 @@ transmission_alt_download: 200000
 ```
 ---
 
+## transmission_alt_enabled
+Roles: transmission
+
+Enable or disable the alternate speed limits.
+
+Example:
+```
+transmission_alt_enabled: true
+```
+
+Default:
+```
+transmission_alt_enabled: false
+```
+---
+
 ## transmission_alt_end
 Roles: transmission
 
@@ -3950,6 +3966,25 @@ transmission_cert_name: example.local
 Default:
 ```
 transmission_cert_name: '{{ transmission_hostnames | first }}'
+```
+---
+
+## transmission_encryption
+Roles: transmission
+
+Controls encryption settings for transmission. Values:
+- 0: Allow unencrypted (faster, less secure)
+- 1: Prefer encrypted (balance)
+- 2: Require encrypted (force encryption for all connections)
+
+Example:
+```
+transmission_encryption: 0
+```
+
+Default:
+```
+transmission_encryption: 2
 ```
 ---
 
@@ -4051,6 +4086,22 @@ transmission_incomplete_dir: '{{ transmission_download_dir }}/.incomplete'
 ```
 ---
 
+## transmission_ipv6_address
+Roles: common, transmission
+
+The IPv6 address that transmission will bind to.
+
+Example:
+```
+transmission_ipv6_address: "::"
+```
+
+Default:
+```
+transmission_ipv6_address: false
+```
+---
+
 ## transmission_low_port
 Roles: common, transmission
 
@@ -4118,6 +4169,22 @@ transmission_mounts: []
 ```
 ---
 
+## transmission_port
+Roles: common, transmission
+
+The port that transmission will listen on when not using random ports.
+
+Example:
+```
+transmission_port: 9091
+```
+
+Default:
+```
+transmission_port: 55555
+```
+---
+
 ## transmission_password
 Roles: transmission
 
@@ -4147,6 +4214,54 @@ transmission_queue_size: 4
 Default:
 ```
 transmission_queue_size: 8
+```
+---
+
+## transmission_random_port
+Roles: transmission
+
+Controls whether transmission should use a random port for each session.
+
+Example:
+```
+transmission_random_port: false
+```
+
+Default:
+```
+transmission_random_port: true
+```
+---
+
+## transmission_ratio_limit
+Roles: transmission
+
+The upload ratio limit for torrents. When a torrent reaches this ratio, it will be stopped.
+
+Example:
+```
+transmission_ratio_limit: 10
+```
+
+Default:
+```
+transmission_ratio_limit: 2
+```
+---
+
+## transmission_ratio_limit_enabled
+Roles: transmission
+
+Whether to enforce the upload ratio limit.
+
+Example:
+```
+transmission_ratio_limit_enabled: true
+```
+
+Default:
+```
+transmission_ratio_limit_enabled: false
 ```
 ---
 
@@ -4228,6 +4343,22 @@ transmission_vpn: true
 Default:
 ```
 transmission_vpn: false
+```
+---
+
+## transmission_watch_dir_enabled
+Roles: transmission
+
+When true, a script will monitor the watch directory (transmission_torrent_dir) for new torrent files and import them into transmission.
+
+Example:
+```
+transmission_watch_dir_enabled: false
+```
+
+Default:
+```
+transmission_watch_dir_enabled: true
 ```
 ---
 

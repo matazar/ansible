@@ -5,7 +5,6 @@
   user:
     append: yes
     create_home: no
-    home: /var/lib/transmission-daemon/
     groups:
       - vboxsf
     name: debian-transmission 

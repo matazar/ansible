@@ -1,12 +1,17 @@
 {
     "alt-speed-down": {{ transmission_alt_download }},
-    "alt-speed-enabled": false,
+    "alt-speed-enabled": {{ transmission_alt_enabled | default(false) | lower }},
     "alt-speed-time-begin": {{ transmission_alt_start }},
     "alt-speed-time-day": {{ transmission_alt_day }},
     "alt-speed-time-enabled": true,
     "alt-speed-time-end": {{ transmission_alt_end }},
     "alt-speed-up": {{ transmission_alt_upload }},
     "bind-address-ipv4": "0.0.0.0",
+{% if transmission_ipv6_address | default(false) | bool %}
+    "bind-address-ipv6": "::",
+{% else %}
+    "bind-address-ipv6": "",
+{% endif %}
     "blocklist-enabled": false,
     "blocklist-updates-enabled": true,
     "blocklist-url": "http://www.example.com/blocklist",
@@ -16,7 +21,7 @@
     "download-dir": "{{ transmission_download_dir }}",
     "download-queue-enabled": true,
     "download-queue-size": {{ transmission_queue_size }},
-    "encryption": 2,
+    "encryption": {{ transmission_encryption }},
     "idle-seeding-limit": 30,
     "idle-seeding-limit-enabled": false,
     "incomplete-dir": "{{ transmission_incomplete_dir }}",
@@ -34,10 +39,12 @@
     "peer-id-ttl-hours": 6,
     "peer-limit-global": 200,
     "peer-limit-per-torrent": 50,
-    "peer-port": 50988,
+{% if not transmission_random_port | default(false) %}
+    "peer-port": {{ transmission_port }},
+{% endif %}
     "peer-port-random-high": {{ transmission_high_port }},
     "peer-port-random-low": {{ transmission_low_port }},
-    "peer-port-random-on-start": true,
+    "peer-port-random-on-start": {{ transmission_random_port | lower }},
     "peer-socket-tos": "default",
     "pex-enabled": true,
     "port-forwarding-enabled": true,
@@ -45,8 +52,8 @@
     "prefetch-enabled": true,
     "queue-stalled-enabled": true,
     "queue-stalled-minutes": 60,
-    "ratio-limit": 2,
-    "ratio-limit-enabled": true,
+    "ratio-limit": {{ transmission_ratio_limit }},
+    "ratio-limit-enabled": {{ transmission_ratio_limit_enabled | lower }},
     "rename-partial-files": true,
     "rpc-authentication-required": {{ transmission_authentication | lower }},
     "rpc-bind-address": "{{ transmission_bind_address }}",
@@ -99,5 +106,5 @@
     "user-has-given-informed-consent": true,
     "utp-enabled": true,
     "watch-dir": "{{ transmission_torrent_dir }}",
-    "watch-dir-enabled": true
+    "watch-dir-enabled": {{ transmission_watch_dir_enabled | default(true) | lower }}
 }

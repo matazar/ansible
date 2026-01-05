@@ -21,6 +21,7 @@ transmission_strict_hostnames: false
 transmission_max_download: 10000
 transmission_max_upload: 5000
 transmission_queue_size: 8
+transmission_alt_enabled: false
 transmission_alt_download: 200000
 transmission_alt_upload: 10000
 transmission_alt_start: 120
@@ -30,13 +31,18 @@ transmission_bind_address: '0.0.0.0'
 transmission_authentication: false
 transmission_username: ''
 transmission_password: ''
-
-
+transmission_encryption: 2
+transmission_ratio_limit: 2
+transmission_ratio_limit_enabled: false
+transmission_random_port: true
 transmission_high_port: 65535
 transmission_low_port: 49152
+transmission_port: 55555
+transmission_ipv6_address: false
 transmission_download_dir: /usr/downloads
 transmission_torrent_dir: '{{ transmission_download_dir }}'
 transmission_incomplete_dir: '{{ transmission_download_dir }}/.incomplete'
+transmission_watch_dir_enabled: true
 
 transmission_allow_list: []
 

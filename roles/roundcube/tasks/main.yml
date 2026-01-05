@@ -13,13 +13,14 @@
   when: roundcube_des_key | default('') == ''
 
 - name: Add roundcube des key to host var
-  local_action:
-    module:  blockinfile
+  blockinfile:
+    path: "{{ playbook_dir }}/env/{{ env }}/host_vars/{{ inventory_hostname }}.yml"
     marker_begin: roundcube des key start
     marker_end: roundcube des key end
-    path: "{{ playbook_dir }}/env/{{ env }}/host_vars/{{ inventory_hostname }}.yml"
     block: "roundcube_des_key: {{ roundcube_des_key }}"
     state: present
+  delegate_to: localhost
+  run_once: true
   become: false
 
 # Install/upgrade
